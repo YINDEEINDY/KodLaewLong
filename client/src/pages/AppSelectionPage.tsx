@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import type { AppType, CategoryWithApps, LicenseType, App } from '../types';
 import { getApps } from '../api/appsApi';
 import { AppGrid } from '../components/AppGrid';
@@ -8,46 +9,47 @@ import { useSelection } from '../context/SelectionContext';
 import { useFavorites } from '../context/FavoritesContext';
 import { useRecentlyViewed } from '../context/RecentlyViewedContext';
 
-const LICENSE_OPTIONS: { value: LicenseType | 'ALL'; label: string; color: string }[] = [
-  { value: 'ALL', label: 'ทั้งหมด', color: 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300' },
-  { value: 'FREE', label: 'ฟรี', color: 'bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-400' },
-  { value: 'FREEMIUM', label: 'ฟรีเมียม', color: 'bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-400' },
-  { value: 'TRIAL', label: 'ทดลองใช้', color: 'bg-yellow-100 dark:bg-yellow-900/50 text-yellow-700 dark:text-yellow-400' },
-  { value: 'PAID', label: 'เสียเงิน', color: 'bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-400' },
+const LICENSE_OPTIONS: { value: LicenseType | 'ALL'; labelKey: string; color: string }[] = [
+  { value: 'ALL', labelKey: 'appSelection.license.all', color: 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300' },
+  { value: 'FREE', labelKey: 'appSelection.license.free', color: 'bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-400' },
+  { value: 'FREEMIUM', labelKey: 'appSelection.license.freemium', color: 'bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-400' },
+  { value: 'TRIAL', labelKey: 'appSelection.license.trial', color: 'bg-yellow-100 dark:bg-yellow-900/50 text-yellow-700 dark:text-yellow-400' },
+  { value: 'PAID', labelKey: 'appSelection.license.paid', color: 'bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-400' },
 ];
 
 const TYPE_CONFIG: Record<AppType, {
-  title: string;
-  subtitle: string;
+  titleKey: string;
+  subtitleKey: string;
   icon: string;
   gradient: string;
 }> = {
   GENERAL: {
-    title: 'ซอฟต์แวร์ยอดนิยม',
-    subtitle: 'เลือกโปรแกรมที่ต้องการติดตั้ง แล้วกดดำเนินการต่อ',
+    titleKey: 'appSelection.title.general',
+    subtitleKey: 'appSelection.subtitle.general',
     icon: '🚀',
     gradient: 'from-indigo-500 to-purple-600',
   },
   ENTERPRISE: {
-    title: 'ซอฟต์แวร์องค์กร',
-    subtitle: 'โปรแกรมสำหรับใช้งานภายในองค์กร',
+    titleKey: 'appSelection.title.enterprise',
+    subtitleKey: 'appSelection.subtitle.enterprise',
     icon: '🏢',
     gradient: 'from-blue-500 to-cyan-600',
   },
   MANUAL: {
-    title: 'ติดตั้งพิเศษ',
-    subtitle: 'โปรแกรมที่ต้องดาวน์โหลดและติดตั้งด้วยตนเอง',
+    titleKey: 'appSelection.title.manual',
+    subtitleKey: 'appSelection.subtitle.manual',
     icon: '🔧',
     gradient: 'from-orange-500 to-red-500',
   },
 };
 
 export function AppSelectionPage() {
+  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const appType = (searchParams.get('type') as AppType) || 'GENERAL';
-  const { selectedCount } = useSelection();
+  const { selectionCount } = useSelection();
   const { favoriteIds, favoritesCount } = useFavorites();
-  const { recentlyViewedIds, recentlyViewedCount, clearRecentlyViewed } = useRecentlyViewed();
+  const { recentlyViewedIds, clearRecentlyViewed } = useRecentlyViewed();
 
   const [categories, setCategories] = useState<CategoryWithApps[]>([]);
   const [loading, setLoading] = useState(true);
@@ -65,7 +67,7 @@ export function AppSelectionPage() {
       const response = await getApps(type);
       setCategories(response.categories);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'เกิดข้อผิดพลาดในการโหลดข้อมูล');
+      setError(err instanceof Error ? err.message : t('common.error'));
     } finally {
       setLoading(false);
     }
@@ -77,8 +79,8 @@ export function AppSelectionPage() {
 
   // Get unique category names for filter
   const categoryOptions = useMemo(() => {
-    return [{ value: 'ALL', label: 'ทุกหมวดหมู่' }, ...categories.map(cat => ({ value: cat.slug, label: cat.name }))];
-  }, [categories]);
+    return [{ value: 'ALL', label: t('appSelection.filter.allCategories') }, ...categories.map(cat => ({ value: cat.slug, label: cat.name }))];
+  }, [categories, t]);
 
   // Filter categories and apps based on search, license, category, and favorites
   const filteredCategories = useMemo(() => {
@@ -175,10 +177,10 @@ export function AppSelectionPage() {
       <div className="min-h-screen flex items-center justify-center dark:bg-gray-900">
         <div className="card text-center py-12 max-w-md mx-4">
           <div className="text-6xl mb-4">😵</div>
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">เกิดข้อผิดพลาด</h2>
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">{t('common.error')}</h2>
           <p className="text-gray-600 dark:text-gray-400 mb-6">{error}</p>
           <button onClick={() => fetchApps(appType)} className="btn-primary">
-            ลองใหม่อีกครั้ง
+            {t('common.retry')}
           </button>
         </div>
       </div>
@@ -200,9 +202,9 @@ export function AppSelectionPage() {
             <div>
               <div className="flex items-center gap-3 mb-3">
                 <span className="text-4xl">{config.icon}</span>
-                <h1 className="text-3xl md:text-4xl font-bold">{config.title}</h1>
+                <h1 className="text-3xl md:text-4xl font-bold">{t(config.titleKey)}</h1>
               </div>
-              <p className="text-white/80 text-lg max-w-xl">{config.subtitle}</p>
+              <p className="text-white/80 text-lg max-w-xl">{t(config.subtitleKey)}</p>
 
               {/* Stats */}
               <div className="flex items-center gap-6 mt-6">
@@ -214,7 +216,7 @@ export function AppSelectionPage() {
                   </div>
                   <div>
                     <p className="text-2xl font-bold">{totalApps}</p>
-                    <p className="text-xs text-white/70">โปรแกรมทั้งหมด</p>
+                    <p className="text-xs text-white/70">{t('appSelection.stats.totalApps')}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -224,8 +226,8 @@ export function AppSelectionPage() {
                     </svg>
                   </div>
                   <div>
-                    <p className="text-2xl font-bold">{selectedCount}</p>
-                    <p className="text-xs text-white/70">เลือกแล้ว</p>
+                    <p className="text-2xl font-bold">{selectionCount}</p>
+                    <p className="text-xs text-white/70">{t('appSelection.stats.selected')}</p>
                   </div>
                 </div>
               </div>
@@ -244,7 +246,7 @@ export function AppSelectionPage() {
                 </svg>
                 <input
                   type="text"
-                  placeholder="ค้นหาโปรแกรม..."
+                  placeholder={t('appSelection.search.placeholder')}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="input-search shadow-lg text-gray-900"
@@ -280,7 +282,7 @@ export function AppSelectionPage() {
                     ? 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-rose-50 dark:hover:bg-rose-900/30 hover:text-rose-600 dark:hover:text-rose-400'
                     : 'bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed'
               }`}
-              title={favoritesCount === 0 ? 'ยังไม่มีรายการโปรด' : 'แสดงเฉพาะรายการโปรด'}
+              title={favoritesCount === 0 ? t('appSelection.filter.noFavorites') : t('appSelection.filter.favorites')}
             >
               <svg
                 className="w-4 h-4"
@@ -295,7 +297,7 @@ export function AppSelectionPage() {
                   d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
                 />
               </svg>
-              รายการโปรด
+              {t('appSelection.filter.favorites')}
               {favoritesCount > 0 && (
                 <span className={`px-1.5 py-0.5 text-xs rounded-full ${
                   showFavoritesOnly
@@ -311,7 +313,7 @@ export function AppSelectionPage() {
 
             {/* License Filter */}
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-gray-600 dark:text-gray-400 whitespace-nowrap">ประเภท:</span>
+              <span className="text-sm font-medium text-gray-600 dark:text-gray-400 whitespace-nowrap">{t('appSelection.filter.type')}:</span>
               <div className="flex flex-wrap gap-2">
                 {LICENSE_OPTIONS.map((option) => (
                   <button
@@ -323,7 +325,7 @@ export function AppSelectionPage() {
                         : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'
                     }`}
                   >
-                    {option.label}
+                    {t(option.labelKey)}
                   </button>
                 ))}
               </div>
@@ -331,7 +333,7 @@ export function AppSelectionPage() {
 
             {/* Category Filter */}
             <div className="flex items-center gap-2 sm:ml-auto">
-              <span className="text-sm font-medium text-gray-600 dark:text-gray-400 whitespace-nowrap">หมวดหมู่:</span>
+              <span className="text-sm font-medium text-gray-600 dark:text-gray-400 whitespace-nowrap">{t('appSelection.filter.category')}:</span>
               <select
                 value={categoryFilter}
                 onChange={(e) => setCategoryFilter(e.target.value)}
@@ -354,7 +356,7 @@ export function AppSelectionPage() {
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
-                ล้างตัวกรอง
+                {t('appSelection.filter.clearFilters')}
               </button>
             )}
           </div>
@@ -371,19 +373,18 @@ export function AppSelectionPage() {
                 <svg className="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                ดูล่าสุด
+                {t('appSelection.recentlyViewed.title')}
               </h2>
               <div className="flex items-center gap-2">
                 <button
                   onClick={clearRecentlyViewed}
                   className="text-sm text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400"
                 >
-                  ล้างประวัติ
+                  {t('appSelection.recentlyViewed.clearHistory')}
                 </button>
                 <button
                   onClick={() => setShowRecentlyViewed(false)}
                   className="p-1 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300"
-                  title="ซ่อน"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -428,10 +429,10 @@ export function AppSelectionPage() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
             </svg>
             <span>
-              พบ <strong className="text-gray-900 dark:text-gray-100">{filteredCategories.reduce((sum, cat) => sum + cat.apps.length, 0)}</strong> โปรแกรม
-              {searchQuery && <> ที่ค้นหา "<strong className="text-gray-900 dark:text-gray-100">{searchQuery}</strong>"</>}
-              {licenseFilter !== 'ALL' && <> ประเภท <strong className="text-gray-900 dark:text-gray-100">{LICENSE_OPTIONS.find(o => o.value === licenseFilter)?.label}</strong></>}
-              {categoryFilter !== 'ALL' && <> ในหมวด <strong className="text-gray-900 dark:text-gray-100">{categoryOptions.find(o => o.value === categoryFilter)?.label}</strong></>}
+              {t('appSelection.results.found')} <strong className="text-gray-900 dark:text-gray-100">{filteredCategories.reduce((sum, cat) => sum + cat.apps.length, 0)}</strong> {t('appSelection.results.apps')}
+              {searchQuery && <> {t('appSelection.results.searching')} "<strong className="text-gray-900 dark:text-gray-100">{searchQuery}</strong>"</>}
+              {licenseFilter !== 'ALL' && <> {t('appSelection.results.inType')} <strong className="text-gray-900 dark:text-gray-100">{t(LICENSE_OPTIONS.find(o => o.value === licenseFilter)?.labelKey || '')}</strong></>}
+              {categoryFilter !== 'ALL' && <> {t('appSelection.results.inCategory')} <strong className="text-gray-900 dark:text-gray-100">{categoryOptions.find(o => o.value === categoryFilter)?.label}</strong></>}
             </span>
           </div>
         )}
@@ -440,16 +441,16 @@ export function AppSelectionPage() {
         {filteredCategories.length === 0 && (
           <div className="card text-center py-16">
             <div className="text-6xl mb-4">🔍</div>
-            <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">ไม่พบโปรแกรม</h3>
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">{t('appSelection.empty.title')}</h3>
             <p className="text-gray-600 dark:text-gray-400 mb-6">
               {hasActiveFilters
-                ? 'ไม่พบโปรแกรมที่ตรงกับตัวกรองที่เลือก'
-                : 'ยังไม่มีโปรแกรมในหมวดหมู่นี้'
+                ? t('appSelection.empty.filterMessage')
+                : t('appSelection.empty.noApps')
               }
             </p>
             {hasActiveFilters && (
               <button onClick={clearAllFilters} className="btn-secondary">
-                ล้างตัวกรองทั้งหมด
+                {t('common.clearAll')}
               </button>
             )}
           </div>

@@ -1,0 +1,187 @@
+{
+  "common": {
+    "appName": "KodLaewLong",
+    "loading": "Loading...",
+    "error": "Error occurred",
+    "retry": "Try again",
+    "back": "Back",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "search": "Search",
+    "filter": "Filter",
+    "clearAll": "Clear all",
+    "noResults": "No results",
+    "selected": "Selected",
+    "all": "All"
+  },
+  "nav": {
+    "home": "Home",
+    "general": "General Software",
+    "enterprise": "Enterprise",
+    "manual": "Manual Install",
+    "admin": "Admin",
+    "login": "Login",
+    "logout": "Logout",
+    "register": "Register"
+  },
+  "appSelection": {
+    "title": {
+      "general": "Popular Software",
+      "enterprise": "Enterprise Software",
+      "manual": "Manual Installation"
+    },
+    "subtitle": {
+      "general": "Select the programs you want to install, then proceed",
+      "enterprise": "Software for enterprise use",
+      "manual": "Programs that require manual download and installation"
+    },
+    "stats": {
+      "totalApps": "Total Apps",
+      "selected": "Selected"
+    },
+    "search": {
+      "placeholder": "Search programs..."
+    },
+    "filter": {
+      "type": "Type",
+      "category": "Category",
+      "allCategories": "All Categories",
+      "clearFilters": "Clear Filters",
+      "favorites": "Favorites",
+      "noFavorites": "No favorites yet"
+    },
+    "license": {
+      "all": "All",
+      "free": "Free",
+      "freemium": "Freemium",
+      "trial": "Trial",
+      "paid": "Paid"
+    },
+    "recentlyViewed": {
+      "title": "Recently Viewed",
+      "clearHistory": "Clear History"
+    },
+    "results": {
+      "found": "Found",
+      "apps": "apps",
+      "searching": "searching for",
+      "inType": "type",
+      "inCategory": "in category"
+    },
+    "empty": {
+      "title": "No apps found",
+      "filterMessage": "No apps match the selected filters",
+      "noApps": "No apps in this category yet"
+    }
+  },
+  "appRow": {
+    "addToFavorites": "Add to favorites",
+    "removeFromFavorites": "Remove from favorites",
+    "hasGuide": "Guide",
+    "download": "Download"
+  },
+  "appDetail": {
+    "backToSelection": "Back to app selection",
+    "by": "by",
+    "version": "Version",
+    "hasInstallGuide": "Has install guide",
+    "addToList": "Add to install list",
+    "inList": "Already in list - click to remove",
+    "isFavorite": "In favorites",
+    "addFavorite": "Add to favorites",
+    "downloads": {
+      "title": "Download Links",
+      "website": "Official Website",
+      "direct": "Direct Download",
+      "directDesc": "Click to download installer",
+      "manual": "Download file",
+      "manualDesc": "Manual installation required"
+    },
+    "installGuide": {
+      "title": "Installation Guide",
+      "notes": "Notes"
+    },
+    "noGuide": {
+      "title": "Easy installation, no special steps",
+      "subtitle": "Just download and run the installer"
+    },
+    "notFound": "Software not found"
+  },
+  "summary": {
+    "title": "Summary",
+    "appsSelected": "apps selected",
+    "backToEdit": "Back to edit",
+    "export": "Export",
+    "import": "Import",
+    "importSuccess": "Imported {{count}} items successfully",
+    "importError": "Invalid file",
+    "warnings": {
+      "paidTitle": "Some software requires a license",
+      "paidDesc": "Cannot be installed for free. Please purchase a license before use",
+      "manualTitle": "Special installation required",
+      "manualDesc": "Requires special file download and manual steps"
+    },
+    "appTypes": {
+      "general": "General Software",
+      "enterprise": "Enterprise Software",
+      "manual": "Manual Install"
+    },
+    "items": "items",
+    "generate": "Generate Installer",
+    "generating": "Generating...",
+    "empty": {
+      "title": "No software selected",
+      "subtitle": "Go back to select software to install",
+      "backButton": "Back to selection"
+    }
+  },
+  "bottomBar": {
+    "selectedCount": "{{count}} items selected",
+    "proceed": "Proceed",
+    "viewSummary": "View Summary"
+  },
+  "download": {
+    "creating": "Creating installer",
+    "pleaseWait": "Please wait...",
+    "ready": "Ready to download!",
+    "readyDesc": "Your installer is ready. Click the button below to download",
+    "success": "Installer created successfully!",
+    "installerReady": "Installer is ready",
+    "button": "Download Installer",
+    "error": "Error occurred",
+    "retry": "Try again",
+    "mockNote": "Note: This file is a mock for MVP only"
+  },
+  "auth": {
+    "login": "Login",
+    "register": "Register",
+    "logout": "Logout",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "forgotPassword": "Forgot password?",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "loginButton": "Login",
+    "registerButton": "Register"
+  },
+  "admin": {
+    "dashboard": "Dashboard",
+    "apps": "Manage Apps",
+    "categories": "Categories",
+    "users": "Users",
+    "backToSite": "Back to site"
+  },
+  "theme": {
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
+  },
+  "language": {
+    "th": "Thai",
+    "en": "English"
+  }
+}

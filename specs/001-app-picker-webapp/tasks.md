@@ -576,6 +576,40 @@ Task: "Create AppCategorySection component" (T028)
 
 ---
 
+## Phase 22: Internationalization (i18n)
+
+**Purpose**: Add multi-language support (Thai/English) using react-i18next
+
+### Setup
+
+- [x] T179 Install i18next, react-i18next, i18next-browser-languagedetector dependencies in `client/package.json`
+- [x] T180 Create i18n configuration in `client/src/i18n/index.ts`
+- [x] T181 Create Thai translation file in `client/src/i18n/locales/th.json`
+- [x] T182 Create English translation file in `client/src/i18n/locales/en.json`
+- [x] T183 Initialize i18n in `client/src/main.tsx`
+
+### Language Switcher
+
+- [x] T184 Add language switcher dropdown to Navbar in `client/src/components/Navbar.tsx`
+- [x] T185 Persist language preference in localStorage
+
+### Page Translations
+
+- [x] T186 [P] Translate AppSelectionPage in `client/src/pages/AppSelectionPage.tsx`
+- [x] T187 [P] Translate SummaryPage in `client/src/pages/SummaryPage.tsx`
+- [x] T188 [P] Translate AppDetailPage in `client/src/pages/AppDetailPage.tsx`
+
+### Component Translations
+
+- [x] T189 [P] Translate Navbar component in `client/src/components/Navbar.tsx`
+- [x] T190 [P] Translate BottomBar component in `client/src/components/BottomBar.tsx`
+- [x] T191 [P] Translate AppRow component (LicenseBadge, AppTypeBadge) in `client/src/components/AppRow.tsx`
+- [x] T192 [P] Translate DownloadPanel component in `client/src/components/DownloadPanel.tsx`
+
+**Checkpoint**: i18n complete - application supports Thai and English with language switcher in navbar, user preference persisted in localStorage
+
+---
+
 ## Task Summary
 
 | Phase | Story | Task Count | Parallel Tasks |
@@ -596,7 +630,8 @@ Task: "Create AppCategorySection component" (T028)
 | Phase 14 | Install Guide & Dark Mode | 9 | 4 |
 | Phase 15 | Search & Filter | 10 | 0 |
 | Phase 16 | User Experience | 13 | 0 |
-| **Total** | | **178** | **36** |
+| Phase 22 | i18n | 14 | 7 |
+| **Total** | | **192** | **43** |
 
 ---
 
@@ -620,3 +655,4 @@ Task: "Create AppCategorySection component" (T028)
 - Docker: Multi-stage builds for client (nginx) and server (node:20-alpine)
 - CI/CD: GitHub Actions with lint, build, Docker, and security scan jobs
 - Environment variables passed via build args (VITE_*) or runtime (.env)
+- i18n: react-i18next with Thai/English support, language preference persisted in localStorage (key: kodlaewlong_language)

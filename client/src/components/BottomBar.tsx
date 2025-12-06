@@ -1,7 +1,9 @@
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useSelection } from '../context/SelectionContext';
 
 export function BottomBar() {
+  const { t } = useTranslation();
   const { selectionCount, clearSelection } = useSelection();
 
   if (selectionCount === 0) {
@@ -26,9 +28,9 @@ export function BottomBar() {
               </div>
               <div>
                 <p className="font-semibold text-gray-900 dark:text-gray-100">
-                  เลือกแล้ว {selectionCount} รายการ
+                  {t('bottomBar.selectedCount', { count: selectionCount })}
                 </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">พร้อมดำเนินการติดตั้ง</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">{t('bottomBar.viewSummary')}</p>
               </div>
             </div>
           </div>
@@ -43,7 +45,7 @@ export function BottomBar() {
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
-              <span className="text-sm font-medium hidden sm:inline">ล้างทั้งหมด</span>
+              <span className="text-sm font-medium hidden sm:inline">{t('common.clearAll')}</span>
             </button>
 
             {/* Continue Button */}
@@ -51,7 +53,7 @@ export function BottomBar() {
               to="/summary"
               className="group flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-3 rounded-xl font-semibold shadow-lg shadow-indigo-200 dark:shadow-indigo-900/30 hover:shadow-xl hover:shadow-indigo-300 dark:hover:shadow-indigo-800/40 hover:-translate-y-0.5 transition-all duration-200"
             >
-              <span>ดำเนินการต่อ</span>
+              <span>{t('bottomBar.proceed')}</span>
               <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
               </svg>

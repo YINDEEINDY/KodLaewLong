@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import type { App, AppType } from '../types';
 import { useSelection } from '../context/SelectionContext';
 import { useFavorites } from '../context/FavoritesContext';
@@ -8,39 +9,42 @@ interface AppRowProps {
 }
 
 function LicenseBadge({ type }: { type: App['licenseType'] }) {
-  const config: Record<App['licenseType'], { label: string; className: string; icon: string }> = {
-    FREE: { label: 'ฟรี', className: 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800', icon: '✓' },
-    PAID: { label: 'เสียเงิน', className: 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-900/30 dark:text-rose-400 dark:border-rose-800', icon: '$' },
-    FREEMIUM: { label: 'ฟรีเมียม', className: 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800', icon: '★' },
-    TRIAL: { label: 'ทดลอง', className: 'bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-800', icon: '◷' },
+  const { t } = useTranslation();
+  const config: Record<App['licenseType'], { labelKey: string; className: string; icon: string }> = {
+    FREE: { labelKey: 'appSelection.license.free', className: 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800', icon: '✓' },
+    PAID: { labelKey: 'appSelection.license.paid', className: 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-900/30 dark:text-rose-400 dark:border-rose-800', icon: '$' },
+    FREEMIUM: { labelKey: 'appSelection.license.freemium', className: 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800', icon: '★' },
+    TRIAL: { labelKey: 'appSelection.license.trial', className: 'bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-800', icon: '◷' },
   };
 
-  const { label, className, icon } = config[type];
+  const { labelKey, className, icon } = config[type];
   return (
     <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border ${className}`}>
       <span className="text-[10px]">{icon}</span>
-      {label}
+      {t(labelKey)}
     </span>
   );
 }
 
 function AppTypeBadge({ type }: { type: AppType }) {
+  const { t } = useTranslation();
   if (type === 'GENERAL') return null;
 
-  const config: Record<Exclude<AppType, 'GENERAL'>, { label: string; className: string }> = {
-    ENTERPRISE: { label: 'องค์กร', className: 'bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-900/30 dark:text-purple-400 dark:border-purple-800' },
-    MANUAL: { label: 'ติดตั้งพิเศษ', className: 'bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-800' },
+  const config: Record<Exclude<AppType, 'GENERAL'>, { labelKey: string; className: string }> = {
+    ENTERPRISE: { labelKey: 'nav.enterprise', className: 'bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-900/30 dark:text-purple-400 dark:border-purple-800' },
+    MANUAL: { labelKey: 'nav.manual', className: 'bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-800' },
   };
 
-  const { label, className } = config[type];
+  const { labelKey, className } = config[type];
   return (
     <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${className}`}>
-      {label}
+      {t(labelKey)}
     </span>
   );
 }
 
 export function AppRow({ app }: AppRowProps) {
+  const { t } = useTranslation();
   const { isSelected, toggleSelection } = useSelection();
   const { isFavorite, toggleFavorite } = useFavorites();
   const selected = isSelected(app.id);
@@ -125,7 +129,7 @@ export function AppRow({ app }: AppRowProps) {
               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
               </svg>
-              คู่มือ
+              {t('appRow.hasGuide')}
             </span>
           )}
         </div>
@@ -143,7 +147,7 @@ export function AppRow({ app }: AppRowProps) {
             <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
             </svg>
-            <span className="group-hover/link:underline">{app.manualDownloadFileName || 'ดาวน์โหลด'}</span>
+            <span className="group-hover/link:underline">{app.manualDownloadFileName || t('appRow.download')}</span>
           </a>
         )}
       </div>
@@ -156,7 +160,7 @@ export function AppRow({ app }: AppRowProps) {
             ? 'text-rose-500 dark:text-rose-400'
             : 'text-gray-300 dark:text-gray-600 opacity-0 group-hover:opacity-100 hover:text-rose-400 dark:hover:text-rose-500'
         }`}
-        title={favorited ? 'ลบออกจากรายการโปรด' : 'เพิ่มในรายการโปรด'}
+        title={favorited ? t('appRow.removeFromFavorites') : t('appRow.addToFavorites')}
       >
         <svg
           className="w-5 h-5"

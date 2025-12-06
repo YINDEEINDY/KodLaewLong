@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useSelection } from '../context/SelectionContext';
 import { generateInstaller } from '../api/appsApi';
 import { SummaryList } from '../components/SummaryList';
@@ -12,10 +13,10 @@ interface ExportData {
   apps: App[];
 }
 
-const TYPE_CONFIG: Record<AppType, { label: string; icon: string; gradient: string }> = {
-  GENERAL: { label: 'ซอฟต์แวร์ทั่วไป', icon: '🚀', gradient: 'from-indigo-500 to-purple-500' },
-  ENTERPRISE: { label: 'ซอฟต์แวร์องค์กร', icon: '🏢', gradient: 'from-blue-500 to-cyan-500' },
-  MANUAL: { label: 'ติดตั้งพิเศษ', icon: '🔧', gradient: 'from-orange-500 to-red-500' },
+const TYPE_CONFIG: Record<AppType, { labelKey: string; icon: string; gradient: string }> = {
+  GENERAL: { labelKey: 'summary.appTypes.general', icon: '🚀', gradient: 'from-indigo-500 to-purple-500' },
+  ENTERPRISE: { labelKey: 'summary.appTypes.enterprise', icon: '🏢', gradient: 'from-blue-500 to-cyan-500' },
+  MANUAL: { labelKey: 'summary.appTypes.manual', icon: '🔧', gradient: 'from-orange-500 to-red-500' },
 };
 
 function groupAppsByType(apps: App[]): Record<AppType, App[]> {
@@ -28,6 +29,7 @@ function groupAppsByType(apps: App[]): Record<AppType, App[]> {
 }
 
 export function SummaryPage() {
+  const { t } = useTranslation();
   const { selectedApps, selectionCount, importApps } = useSelection();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -66,13 +68,13 @@ export function SummaryPage() {
         const data = JSON.parse(e.target?.result as string) as ExportData;
         if (data.version && Array.isArray(data.apps)) {
           importApps(data.apps);
-          setImportMessage({ type: 'success', text: `นำเข้า ${data.apps.length} รายการสำเร็จ` });
+          setImportMessage({ type: 'success', text: t('summary.importSuccess', { count: data.apps.length }) });
           setTimeout(() => setImportMessage(null), 3000);
         } else {
           throw new Error('Invalid format');
         }
       } catch {
-        setImportMessage({ type: 'error', text: 'ไฟล์ไม่ถูกต้อง' });
+        setImportMessage({ type: 'error', text: t('summary.importError') });
         setTimeout(() => setImportMessage(null), 3000);
       }
     };
@@ -99,7 +101,7 @@ export function SummaryPage() {
       setResult(response);
     } catch (err) {
       console.error('Generate error:', err);
-      setError(err instanceof Error ? err.message : 'เกิดข้อผิดพลาดในการสร้างตัวติดตั้ง');
+      setError(err instanceof Error ? err.message : t('common.error'));
     } finally {
       setLoading(false);
     }
@@ -116,8 +118,8 @@ export function SummaryPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
               </svg>
             </div>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">ยังไม่ได้เลือกซอฟต์แวร์</h2>
-            <p className="text-gray-500 dark:text-gray-400 mb-8">กลับไปเลือกซอฟต์แวร์ที่ต้องการติดตั้ง</p>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">{t('summary.empty.title')}</h2>
+            <p className="text-gray-500 dark:text-gray-400 mb-8">{t('summary.empty.subtitle')}</p>
             <Link
               to="/"
               className="inline-flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-3 rounded-xl font-semibold shadow-lg shadow-indigo-200 dark:shadow-indigo-900/30 hover:shadow-xl hover:-translate-y-0.5 transition-all"
@@ -125,7 +127,7 @@ export function SummaryPage() {
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
               </svg>
-              กลับไปเลือกซอฟต์แวร์
+              {t('summary.empty.backButton')}
             </Link>
           </div>
         </div>
@@ -145,7 +147,7 @@ export function SummaryPage() {
             <svg className="w-4 h-4 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
-            กลับไปแก้ไข
+            {t('summary.backToEdit')}
           </Link>
 
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -156,8 +158,8 @@ export function SummaryPage() {
                 </svg>
               </div>
               <div>
-                <h1 className="text-2xl font-bold">สรุปรายการ</h1>
-                <p className="text-white/80">{selectionCount} ซอฟต์แวร์ที่เลือก</p>
+                <h1 className="text-2xl font-bold">{t('summary.title')}</h1>
+                <p className="text-white/80">{selectionCount} {t('summary.appsSelected')}</p>
               </div>
             </div>
 
@@ -166,18 +168,18 @@ export function SummaryPage() {
               <button
                 onClick={handleExport}
                 className="flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg text-sm font-medium transition-colors"
-                title="ส่งออกรายการ"
+                title={t('summary.export')}
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
                 </svg>
-                ส่งออก
+                {t('summary.export')}
               </button>
               <label className="flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg text-sm font-medium transition-colors cursor-pointer">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                 </svg>
-                นำเข้า
+                {t('summary.import')}
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -213,9 +215,9 @@ export function SummaryPage() {
                 </svg>
               </div>
               <div>
-                <h3 className="font-semibold text-amber-800 dark:text-amber-300">ซอฟต์แวร์บางรายการต้องซื้อ License</h3>
+                <h3 className="font-semibold text-amber-800 dark:text-amber-300">{t('summary.warnings.paidTitle')}</h3>
                 <p className="text-sm text-amber-700 dark:text-amber-400 mt-1">
-                  {paidApps.map((app) => app.name).join(', ')} ไม่สามารถติดตั้งฟรีได้ กรุณาซื้อ License ก่อนใช้งาน
+                  {paidApps.map((app) => app.name).join(', ')} {t('summary.warnings.paidDesc')}
                 </p>
               </div>
             </div>
@@ -231,9 +233,9 @@ export function SummaryPage() {
                 </svg>
               </div>
               <div>
-                <h3 className="font-semibold text-orange-800 dark:text-orange-300">โปรแกรมที่ต้องติดตั้งพิเศษ</h3>
+                <h3 className="font-semibold text-orange-800 dark:text-orange-300">{t('summary.warnings.manualTitle')}</h3>
                 <p className="text-sm text-orange-700 dark:text-orange-400 mt-1">
-                  {manualApps.map((app) => app.name).join(', ')} ต้องดาวน์โหลดไฟล์พิเศษและทำตามขั้นตอน
+                  {manualApps.map((app) => app.name).join(', ')} {t('summary.warnings.manualDesc')}
                 </p>
               </div>
             </div>
@@ -253,8 +255,8 @@ export function SummaryPage() {
                   {config.icon}
                 </div>
                 <div>
-                  <h2 className="font-bold text-gray-900 dark:text-gray-100">{config.label}</h2>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">{apps.length} รายการ</p>
+                  <h2 className="font-bold text-gray-900 dark:text-gray-100">{t(config.labelKey)}</h2>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{apps.length} {t('summary.items')}</p>
                 </div>
               </div>
               <SummaryList apps={apps} />
@@ -275,14 +277,14 @@ export function SummaryPage() {
                   <svg className="w-6 h-6 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                   </svg>
-                  กำลังสร้าง...
+                  {t('summary.generating')}
                 </>
               ) : (
                 <>
                   <svg className="w-6 h-6 group-hover:rotate-12 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                   </svg>
-                  สร้างตัวติดตั้ง
+                  {t('summary.generate')}
                 </>
               )}
             </button>

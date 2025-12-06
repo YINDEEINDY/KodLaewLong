@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { getAppById } from '../api/appsApi';
 import { useSelection } from '../context/SelectionContext';
 import { useFavorites } from '../context/FavoritesContext';
@@ -7,6 +8,7 @@ import { useRecentlyViewed } from '../context/RecentlyViewedContext';
 import type { App } from '../types';
 
 function LicenseBadge({ type }: { type: App['licenseType'] }) {
+  const { t } = useTranslation();
   const badgeClasses: Record<App['licenseType'], string> = {
     FREE: 'badge-free',
     PAID: 'badge-paid',
@@ -14,17 +16,18 @@ function LicenseBadge({ type }: { type: App['licenseType'] }) {
     TRIAL: 'badge-trial',
   };
 
-  const labels: Record<App['licenseType'], string> = {
-    FREE: 'ฟรี',
-    PAID: 'เสียเงิน',
-    FREEMIUM: 'ฟรีเมียม',
-    TRIAL: 'ทดลองใช้',
+  const labelKeys: Record<App['licenseType'], string> = {
+    FREE: 'appSelection.license.free',
+    PAID: 'appSelection.license.paid',
+    FREEMIUM: 'appSelection.license.freemium',
+    TRIAL: 'appSelection.license.trial',
   };
 
-  return <span className={`badge ${badgeClasses[type]} text-sm`}>{labels[type]}</span>;
+  return <span className={`badge ${badgeClasses[type]} text-sm`}>{t(labelKeys[type])}</span>;
 }
 
 export function AppDetailPage() {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const [app, setApp] = useState<App | null>(null);
   const [loading, setLoading] = useState(true);
@@ -45,7 +48,7 @@ export function AppDetailPage() {
         // Add to recently viewed
         addToRecentlyViewed(id);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'ไม่พบซอฟต์แวร์');
+        setError(err instanceof Error ? err.message : t('appDetail.notFound'));
       } finally {
         setLoading(false);
       }
@@ -77,9 +80,9 @@ export function AppDetailPage() {
       <div className="max-w-4xl mx-auto px-4 py-8">
         <div className="card text-center py-12">
           <div className="text-6xl mb-4">😕</div>
-          <p className="text-red-600 text-lg mb-4">{error || 'ไม่พบซอฟต์แวร์'}</p>
+          <p className="text-red-600 text-lg mb-4">{error || t('appDetail.notFound')}</p>
           <Link to="/" className="btn-primary">
-            กลับไปหน้าหลัก
+            {t('nav.home')}
           </Link>
         </div>
       </div>
@@ -106,7 +109,7 @@ export function AppDetailPage() {
         <svg className="w-4 h-4 mr-1 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
         </svg>
-        กลับไปเลือกซอฟต์แวร์
+        {t('appDetail.backToSelection')}
       </Link>
 
       {/* App Header Card */}
@@ -132,17 +135,17 @@ export function AppDetailPage() {
               <LicenseBadge type={app.licenseType} />
               {app.hasInstallGuide && (
                 <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-400">
-                  มีคู่มือติดตั้ง
+                  {t('appDetail.hasInstallGuide')}
                 </span>
               )}
             </div>
 
             {app.vendor && (
-              <p className="text-gray-500 dark:text-gray-400 mb-2">โดย {app.vendor}</p>
+              <p className="text-gray-500 dark:text-gray-400 mb-2">{t('appDetail.by')} {app.vendor}</p>
             )}
 
             {app.version && (
-              <p className="text-sm text-gray-400 dark:text-gray-500">เวอร์ชัน {app.version}</p>
+              <p className="text-sm text-gray-400 dark:text-gray-500">{t('appDetail.version')} {app.version}</p>
             )}
 
             <p className="text-gray-700 dark:text-gray-300 mt-4">{app.description}</p>
@@ -159,7 +162,7 @@ export function AppDetailPage() {
                 : 'bg-blue-600 text-white hover:bg-blue-700'
             }`}
           >
-            {selected ? '✓ อยู่ในรายการแล้ว - คลิกเพื่อลบ' : '+ เพิ่มในรายการติดตั้ง'}
+            {selected ? t('appDetail.inList') : t('appDetail.addToList')}
           </button>
 
           <button
@@ -183,7 +186,7 @@ export function AppDetailPage() {
                 d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
               />
             </svg>
-            {isFavorite(app.id) ? 'เป็นรายการโปรด' : 'เพิ่มในรายการโปรด'}
+            {isFavorite(app.id) ? t('appDetail.isFavorite') : t('appDetail.addFavorite')}
           </button>
         </div>
       </div>
@@ -195,7 +198,7 @@ export function AppDetailPage() {
             <svg className="w-5 h-5 text-green-600 dark:text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
             </svg>
-            ลิงก์ดาวน์โหลด
+            {t('appDetail.downloads.title')}
           </h2>
 
           <div className="grid gap-3">
@@ -213,7 +216,7 @@ export function AppDetailPage() {
                     </svg>
                   </div>
                   <div>
-                    <p className="font-medium text-gray-900 dark:text-gray-100">เว็บไซต์ทางการ</p>
+                    <p className="font-medium text-gray-900 dark:text-gray-100">{t('appDetail.downloads.website')}</p>
                     <p className="text-sm text-gray-500 dark:text-gray-400 truncate max-w-xs">{app.officialWebsiteUrl}</p>
                   </div>
                 </div>
@@ -237,8 +240,8 @@ export function AppDetailPage() {
                     </svg>
                   </div>
                   <div>
-                    <p className="font-medium text-gray-900 dark:text-gray-100">ดาวน์โหลดโดยตรง</p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">คลิกเพื่อดาวน์โหลดไฟล์ติดตั้ง</p>
+                    <p className="font-medium text-gray-900 dark:text-gray-100">{t('appDetail.downloads.direct')}</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">{t('appDetail.downloads.directDesc')}</p>
                   </div>
                 </div>
                 <svg className="w-5 h-5 text-green-600 dark:text-green-400 group-hover:translate-x-1 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -261,8 +264,8 @@ export function AppDetailPage() {
                     </svg>
                   </div>
                   <div>
-                    <p className="font-medium text-gray-900 dark:text-gray-100">ดาวน์โหลดไฟล์ {app.manualDownloadFileName || 'ติดตั้ง'}</p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">ต้องติดตั้งด้วยตัวเอง</p>
+                    <p className="font-medium text-gray-900 dark:text-gray-100">{t('appDetail.downloads.manual')} {app.manualDownloadFileName || ''}</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">{t('appDetail.downloads.manualDesc')}</p>
                   </div>
                 </div>
                 <svg className="w-5 h-5 text-orange-600 dark:text-orange-400 group-hover:translate-x-1 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -281,7 +284,7 @@ export function AppDetailPage() {
             <svg className="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
             </svg>
-            {app.installGuideTitle || 'วิธีการติดตั้ง'}
+            {app.installGuideTitle || t('appDetail.installGuide.title')}
           </h2>
 
           <div className="space-y-4">
@@ -304,7 +307,7 @@ export function AppDetailPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                 </svg>
                 <div>
-                  <p className="font-medium text-yellow-800 dark:text-yellow-400 mb-1">หมายเหตุ</p>
+                  <p className="font-medium text-yellow-800 dark:text-yellow-400 mb-1">{t('appDetail.installGuide.notes')}</p>
                   <p className="text-sm text-yellow-700 dark:text-yellow-300">{app.installNotes}</p>
                 </div>
               </div>
@@ -317,8 +320,8 @@ export function AppDetailPage() {
       {!app.hasInstallGuide && (
         <div className="card text-center py-8 bg-gray-50 dark:bg-gray-800">
           <div className="text-4xl mb-3">✨</div>
-          <p className="text-gray-600 dark:text-gray-300 font-medium">ติดตั้งง่าย ไม่มีขั้นตอนพิเศษ</p>
-          <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">เพียงดาวน์โหลดและเปิดไฟล์ติดตั้ง</p>
+          <p className="text-gray-600 dark:text-gray-300 font-medium">{t('appDetail.noGuide.title')}</p>
+          <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">{t('appDetail.noGuide.subtitle')}</p>
         </div>
       )}
     </div>

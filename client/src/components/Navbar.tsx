@@ -1,4 +1,5 @@
 import { Link, useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useSelection } from '../context/SelectionContext';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
@@ -6,17 +7,18 @@ import type { AppType } from '../types';
 
 interface Tab {
   type: AppType;
-  label: string;
+  labelKey: string;
   icon: string;
 }
 
 const TABS: Tab[] = [
-  { type: 'GENERAL', label: 'ทั่วไป', icon: '🚀' },
-  { type: 'ENTERPRISE', label: 'องค์กร', icon: '🏢' },
-  { type: 'MANUAL', label: 'ติดตั้งพิเศษ', icon: '🔧' },
+  { type: 'GENERAL', labelKey: 'nav.general', icon: '🚀' },
+  { type: 'ENTERPRISE', labelKey: 'nav.enterprise', icon: '🏢' },
+  { type: 'MANUAL', labelKey: 'nav.manual', icon: '🔧' },
 ];
 
 export function Navbar() {
+  const { t, i18n } = useTranslation();
   const { selectionCount } = useSelection();
   const { user, signOut, loading } = useAuth();
   const { isDark, toggleTheme } = useTheme();
@@ -25,6 +27,11 @@ export function Navbar() {
 
   const handleSignOut = async () => {
     await signOut();
+  };
+
+  const toggleLanguage = () => {
+    const newLang = i18n.language === 'th' ? 'en' : 'th';
+    i18n.changeLanguage(newLang);
   };
 
   return (
@@ -56,13 +63,25 @@ export function Navbar() {
                 }`}
               >
                 <span className="text-base">{tab.icon}</span>
-                {tab.label}
+                {t(tab.labelKey)}
               </Link>
             ))}
           </div>
 
-          {/* Right: Theme Toggle + Summary + Auth */}
+          {/* Right: Language + Theme Toggle + Summary + Auth */}
           <div className="flex items-center gap-2">
+            {/* Language Toggle */}
+            <button
+              onClick={toggleLanguage}
+              className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors text-sm font-medium text-gray-700 dark:text-gray-300"
+              aria-label="Toggle language"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
+              </svg>
+              <span>{i18n.language === 'th' ? 'TH' : 'EN'}</span>
+            </button>
+
             {/* Theme Toggle */}
             <button
               onClick={toggleTheme}
@@ -88,7 +107,7 @@ export function Navbar() {
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
               </svg>
-              <span className="hidden sm:inline text-sm font-medium">สรุป</span>
+              <span className="hidden sm:inline text-sm font-medium">{t('summary.title')}</span>
               {selectionCount > 0 && (
                 <span className="absolute -top-1 -right-1 bg-gradient-to-r from-indigo-500 to-purple-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center shadow-lg">
                   {selectionCount}
@@ -127,7 +146,7 @@ export function Navbar() {
                     onClick={handleSignOut}
                     className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 px-2 py-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
                   >
-                    ออก
+                    {t('nav.logout')}
                   </button>
                 </div>
               </div>
@@ -137,13 +156,13 @@ export function Navbar() {
                   to="/login"
                   className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-colors font-medium"
                 >
-                  เข้าสู่ระบบ
+                  {t('nav.login')}
                 </Link>
                 <Link
                   to="/register"
                   className="text-sm text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 px-4 py-2 rounded-xl transition-all shadow-lg shadow-indigo-200 dark:shadow-indigo-900/30 hover:shadow-indigo-300 dark:hover:shadow-indigo-800/40 font-medium"
                 >
-                  สมัครสมาชิก
+                  {t('nav.register')}
                 </Link>
               </div>
             )}
@@ -163,7 +182,7 @@ export function Navbar() {
               }`}
             >
               <span>{tab.icon}</span>
-              {tab.label}
+              {t(tab.labelKey)}
             </Link>
           ))}
         </div>
