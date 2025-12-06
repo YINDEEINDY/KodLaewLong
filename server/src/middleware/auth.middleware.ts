@@ -83,7 +83,7 @@ export async function optionalAuth(req: Request, res: Response, next: NextFuncti
           role,
         };
       }
-    } catch (error) {
+    } catch (_error) {
       // Ignore errors for optional auth
     }
   }

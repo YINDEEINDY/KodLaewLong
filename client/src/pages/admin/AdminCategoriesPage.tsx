@@ -65,8 +65,8 @@ export function AdminCategoriesPage() {
     return name
       .toLowerCase()
       .replace(/\s+/g, '-')
-      .replace(/[^\w\-]+/g, '')
-      .replace(/\-\-+/g, '-');
+      .replace(/[^\w-]+/g, '')
+      .replace(/--+/g, '-');
   }
 
   async function handleSubmit(e: React.FormEvent) {
