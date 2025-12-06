@@ -23,6 +23,8 @@ const APP_ID_PATTERN = /^[a-zA-Z0-9_-]+$/;
 
 // Store for generated builds
 const buildsDir = path.join(process.cwd(), 'builds');
+const assetsDir = path.join(process.cwd(), 'assets');
+const SCRIPT_MARKER = '###KODLAEWLONG_SCRIPT_START###';
 
 // Helper to validate buildId format (UUID)
 export function isValidBuildId(buildId: string): boolean {
@@ -108,14 +110,26 @@ export class GenerateService {
     const buildDir = path.join(buildsDir, buildId);
     fs.mkdirSync(buildDir, { recursive: true });
 
-    const scriptPath = path.join(buildDir, 'KodLaewLong-Installer.ps1');
-    fs.writeFileSync(scriptPath, script, 'utf-8');
+    // Create single EXE by appending script to stub
+    const stubPath = path.join(assetsDir, 'installer-stub.exe');
+    const exePath = path.join(buildDir, 'KodLaewLong-Installer.exe');
 
-    // Create BAT launcher for running the PowerShell script
-    // Note: ps2exe only works on Windows, Railway runs Linux
-    const batContent = this.generateBatLauncher();
-    const batPath = path.join(buildDir, 'Install.bat');
-    fs.writeFileSync(batPath, batContent, 'utf-8');
+    if (fs.existsSync(stubPath)) {
+      // Read stub EXE and append script with marker
+      const stubBytes = fs.readFileSync(stubPath);
+      const scriptBytes = Buffer.from(SCRIPT_MARKER + script, 'utf-8');
+      const finalExe = Buffer.concat([stubBytes, scriptBytes]);
+      fs.writeFileSync(exePath, finalExe);
+      console.log('Single-file EXE created:', exePath);
+    } else {
+      // Fallback: create PS1 + BAT if stub not available
+      console.log('Stub EXE not found, falling back to PS1+BAT');
+      const scriptPath = path.join(buildDir, 'KodLaewLong-Installer.ps1');
+      fs.writeFileSync(scriptPath, script, 'utf-8');
+      const batContent = this.generateBatLauncher();
+      const batPath = path.join(buildDir, 'Install.bat');
+      fs.writeFileSync(batPath, batContent, 'utf-8');
+    }
     console.log('Installer package created:', buildDir);
 
     const downloadUrl = `/api/downloads/${buildId}`;
@@ -140,8 +154,12 @@ export class GenerateService {
     return null;
   }
 
-  getExePath(_buildId: string): string | null {
-    // EXE compilation not supported on Linux server
+  getExePath(buildId: string): string | null {
+    const buildDir = path.join(buildsDir, buildId);
+    const exePath = path.join(buildDir, 'KodLaewLong-Installer.exe');
+    if (fs.existsSync(exePath)) {
+      return exePath;
+    }
     return null;
   }
 

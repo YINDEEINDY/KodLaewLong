@@ -51,3 +51,6 @@ installer-app/bin/
 installer-app/obj/
 installer-app/publish/
 installer-app/publish-small/
+installer-stub/bin/
+installer-stub/obj/
+installer-stub/publish/
