@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
 import { SelectionProvider } from './context/SelectionContext';
 import { AuthProvider } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
@@ -25,6 +26,31 @@ function App() {
               <PopularAppsProvider>
                 <BrowserRouter>
                 <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+                  <Toaster
+                    position="top-center"
+                    toastOptions={{
+                      duration: 2000,
+                      style: {
+                        background: 'var(--toast-bg, #fff)',
+                        color: 'var(--toast-color, #1f2937)',
+                        borderRadius: '12px',
+                        padding: '12px 16px',
+                        boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+                      },
+                      success: {
+                        iconTheme: {
+                          primary: '#10b981',
+                          secondary: '#fff',
+                        },
+                      },
+                      error: {
+                        iconTheme: {
+                          primary: '#ef4444',
+                          secondary: '#fff',
+                        },
+                      },
+                    }}
+                  />
                   <Navbar />
                   <main>
                     <Routes>

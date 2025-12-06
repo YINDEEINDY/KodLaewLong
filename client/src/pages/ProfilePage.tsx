@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
 
 export default function ProfilePage() {
@@ -15,8 +16,6 @@ export default function ProfilePage() {
 
   const [isSaving, setIsSaving] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
-  const [successMessage, setSuccessMessage] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
     if (!loading && !user) {
@@ -31,8 +30,6 @@ export default function ProfilePage() {
   const handleProfileUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
-    setErrorMessage('');
-    setSuccessMessage('');
 
     const { error } = await updateProfile({
       displayName,
@@ -42,26 +39,24 @@ export default function ProfilePage() {
     setIsSaving(false);
 
     if (error) {
-      setErrorMessage(error.message);
+      toast.error(error.message);
     } else {
-      setSuccessMessage(t('profile.updateSuccess'));
+      toast.success(t('profile.updateSuccess'));
     }
   };
 
   const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsChangingPassword(true);
-    setErrorMessage('');
-    setSuccessMessage('');
 
     if (newPassword !== confirmPassword) {
-      setErrorMessage(t('profile.passwordMismatch'));
+      toast.error(t('profile.passwordMismatch'));
       setIsChangingPassword(false);
       return;
     }
 
     if (newPassword.length < 6) {
-      setErrorMessage(t('profile.passwordTooShort'));
+      toast.error(t('profile.passwordTooShort'));
       setIsChangingPassword(false);
       return;
     }
@@ -71,9 +66,9 @@ export default function ProfilePage() {
     setIsChangingPassword(false);
 
     if (error) {
-      setErrorMessage(error.message);
+      toast.error(error.message);
     } else {
-      setSuccessMessage(t('profile.passwordSuccess'));
+      toast.success(t('profile.passwordSuccess'));
       setNewPassword('');
       setConfirmPassword('');
     }
@@ -112,18 +107,6 @@ export default function ProfilePage() {
             {t('profile.subtitle')}
           </p>
         </div>
-
-        {/* Success/Error Messages */}
-        {successMessage && (
-          <div className="mb-6 p-4 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl text-emerald-700 dark:text-emerald-400">
-            {successMessage}
-          </div>
-        )}
-        {errorMessage && (
-          <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl text-red-700 dark:text-red-400">
-            {errorMessage}
-          </div>
-        )}
 
         {/* Profile Avatar Section */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 mb-6">

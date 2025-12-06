@@ -201,5 +201,11 @@
     "passwordTooShort": "Password must be at least 6 characters",
     "accountCreated": "Account created on",
     "viewProfile": "View Profile"
+  },
+  "toast": {
+    "appAdded": "Added {{name}}",
+    "appRemoved": "Removed {{name}}",
+    "selectionCleared": "Selection cleared",
+    "exportSuccess": "Selection exported successfully"
   }
 }

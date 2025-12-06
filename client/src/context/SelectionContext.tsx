@@ -1,4 +1,6 @@
 import { createContext, useContext, useState, useCallback, useEffect, useRef, type ReactNode } from 'react';
+import toast from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
 import type { App } from '../types';
 import { useAuth } from './AuthContext';
 import * as selectionsApi from '../api/selectionsApi';
@@ -23,6 +25,7 @@ interface SelectionProviderProps {
 }
 
 export function SelectionProvider({ children }: SelectionProviderProps) {
+  const { t } = useTranslation();
   const [selectedApps, setSelectedApps] = useState<App[]>([]);
   const [isSyncing, setIsSyncing] = useState(false);
   const { session } = useAuth();
@@ -104,11 +107,15 @@ export function SelectionProvider({ children }: SelectionProviderProps) {
     setSelectedApps((prev) => {
       const exists = prev.some((a) => a.id === app.id);
       if (exists) {
+        toast(t('toast.appRemoved', { name: app.name }), {
+          icon: '🗑️',
+        });
         return prev.filter((a) => a.id !== app.id);
       }
+      toast.success(t('toast.appAdded', { name: app.name }));
       return [...prev, app];
     });
-  }, []);
+  }, [t]);
 
   const addToSelection = useCallback((app: App) => {
     setSelectedApps((prev) => {
@@ -128,8 +135,15 @@ export function SelectionProvider({ children }: SelectionProviderProps) {
   }, []);
 
   const clearSelection = useCallback(() => {
-    setSelectedApps([]);
-  }, []);
+    setSelectedApps((prev) => {
+      if (prev.length > 0) {
+        toast(t('toast.selectionCleared'), {
+          icon: '🧹',
+        });
+      }
+      return [];
+    });
+  }, [t]);
 
   const importApps = useCallback((apps: App[]) => {
     setSelectedApps(apps);

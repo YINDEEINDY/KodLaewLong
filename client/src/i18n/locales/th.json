@@ -201,5 +201,11 @@
     "passwordTooShort": "รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร",
     "accountCreated": "สร้างบัญชีเมื่อ",
     "viewProfile": "ดูโปรไฟล์"
+  },
+  "toast": {
+    "appAdded": "เพิ่ม {{name}} แล้ว",
+    "appRemoved": "ลบ {{name}} แล้ว",
+    "selectionCleared": "ล้างรายการทั้งหมดแล้ว",
+    "exportSuccess": "ส่งออกรายการเรียบร้อยแล้ว"
   }
 }

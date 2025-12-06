@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import toast from 'react-hot-toast';
 import { useSelection } from '../context/SelectionContext';
 import { generateInstaller } from '../api/appsApi';
 import { SummaryList } from '../components/SummaryList';
@@ -34,7 +35,6 @@ export function SummaryPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<GenerateResponse | null>(null);
-  const [importMessage, setImportMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const paidApps = selectedApps.filter((app) => !app.isPublicFree);
@@ -55,6 +55,7 @@ export function SummaryPage() {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+    toast.success(t('toast.exportSuccess'));
   };
 
   // Import selections from JSON file
@@ -68,14 +69,12 @@ export function SummaryPage() {
         const data = JSON.parse(e.target?.result as string) as ExportData;
         if (data.version && Array.isArray(data.apps)) {
           importApps(data.apps);
-          setImportMessage({ type: 'success', text: t('summary.importSuccess', { count: data.apps.length }) });
-          setTimeout(() => setImportMessage(null), 3000);
+          toast.success(t('summary.importSuccess', { count: data.apps.length }));
         } else {
           throw new Error('Invalid format');
         }
       } catch {
-        setImportMessage({ type: 'error', text: t('summary.importError') });
-        setTimeout(() => setImportMessage(null), 3000);
+        toast.error(t('summary.importError'));
       }
     };
     reader.readAsText(file);
@@ -190,17 +189,6 @@ export function SummaryPage() {
               </label>
             </div>
           </div>
-
-          {/* Import Message */}
-          {importMessage && (
-            <div className={`mt-3 sm:mt-4 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm ${
-              importMessage.type === 'success'
-                ? 'bg-green-500/20 text-green-100'
-                : 'bg-red-500/20 text-red-100'
-            }`}>
-              {importMessage.text}
-            </div>
-          )}
         </div>
       </div>
 
