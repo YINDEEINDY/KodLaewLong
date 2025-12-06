@@ -469,6 +469,30 @@ Task: "Create AppCategorySection component" (T028)
 
 ---
 
+## Phase 13: Docker & CI/CD
+
+**Purpose**: Containerize application and set up automated deployment pipeline
+
+### Docker Configuration
+
+- [x] T137 Create client Dockerfile with multi-stage build in `client/Dockerfile`
+- [x] T138 Create nginx config for SPA routing in `client/nginx.conf`
+- [x] T139 Create server Dockerfile with multi-stage build in `server/Dockerfile`
+- [x] T140 Create docker-compose.yml for orchestration at project root
+- [x] T141 Create .dockerignore files for client and server
+
+### CI/CD Pipeline
+
+- [x] T142 Create GitHub Actions workflow in `.github/workflows/ci.yml`
+- [x] T143 Add lint and type check job
+- [x] T144 Add build job with artifact upload
+- [x] T145 Add Docker build job for main branch
+- [x] T146 Add security scan job with npm audit
+
+**Checkpoint**: Docker & CI/CD complete - app can be deployed via containers with automated testing
+
+---
+
 ## Task Summary
 
 | Phase | Story | Task Count | Parallel Tasks |
@@ -485,7 +509,8 @@ Task: "Create AppCategorySection component" (T028)
 | Phase 10 | Auth | 14 | 2 |
 | Phase 11 | User Selections | 11 | 2 |
 | Phase 12 | Admin Panel | 18 | 2 |
-| **Total** | | **136** | **28** |
+| Phase 13 | Docker & CI/CD | 10 | 4 |
+| **Total** | | **146** | **32** |
 
 ---
 
@@ -506,3 +531,6 @@ Task: "Create AppCategorySection component" (T028)
 - Admin panel: Role-based access via user_metadata.role = 'admin' in Supabase
 - Admin routes protected with requireAuth + requireAdmin middleware
 - User management: Admins can promote/demote users to/from admin role via UI
+- Docker: Multi-stage builds for client (nginx) and server (node:20-alpine)
+- CI/CD: GitHub Actions with lint, build, Docker, and security scan jobs
+- Environment variables passed via build args (VITE_*) or runtime (.env)
