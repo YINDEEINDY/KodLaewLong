@@ -47,3 +47,7 @@ server/builds/
 # Drizzle generated dist
 server/dist/
 client/dist/
+installer-app/bin/
+installer-app/obj/
+installer-app/publish/
+installer-app/publish-small/

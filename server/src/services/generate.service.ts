@@ -1,12 +1,8 @@
 import { v4 as uuidv4, validate as uuidValidate } from 'uuid';
 import * as fs from 'fs';
 import * as path from 'path';
-import { execFile } from 'child_process';
-import { promisify } from 'util';
 import type { App, GenerateResponse, ErrorResponse } from '../types/index.js';
 import { appsService } from './apps.service.js';
-
-const execFileAsync = promisify(execFile);
 
 export interface GenerateResult {
   success: true;
@@ -27,7 +23,6 @@ const APP_ID_PATTERN = /^[a-zA-Z0-9_-]+$/;
 
 // Store for generated builds
 const buildsDir = path.join(process.cwd(), 'builds');
-const assetsDir = path.join(process.cwd(), 'assets');
 
 // Helper to validate buildId format (UUID)
 export function isValidBuildId(buildId: string): boolean {
@@ -116,38 +111,12 @@ export class GenerateService {
     const scriptPath = path.join(buildDir, 'KodLaewLong-Installer.ps1');
     fs.writeFileSync(scriptPath, script, 'utf-8');
 
-    // Try to compile to EXE
-    const exePath = path.join(buildDir, 'KodLaewLong-Installer.exe');
-    const iconPath = path.join(assetsDir, 'installer.ico');
-    const ps2exePath = path.join(assetsDir, 'ps2exe.ps1');
-
-    try {
-      // Use execFile with array arguments to prevent command injection
-      const ps2exeScript = `. '${ps2exePath}'; Invoke-ps2exe -inputFile '${scriptPath}' -outputFile '${exePath}' -iconFile '${iconPath}' -title 'KodLaewLong Installer' -company 'KodLaewLong' -product 'Software Installer' -version '1.0.0.0' -noConsole -requireAdmin`;
-
-      await execFileAsync('powershell', [
-        '-ExecutionPolicy', 'Bypass',
-        '-NoProfile',
-        '-NonInteractive',
-        '-Command', ps2exeScript
-      ], {
-        timeout: 60000,
-        windowsHide: true,
-        cwd: process.cwd()
-      });
-
-      if (fs.existsSync(exePath)) {
-        // Remove ps1 if exe was generated successfully
-        fs.unlinkSync(scriptPath);
-        console.log('EXE generated successfully:', exePath);
-      }
-    } catch (error) {
-      console.log('EXE compilation failed, falling back to BAT:', error);
-      // Fallback: create BAT launcher
-      const batContent = this.generateBatLauncher();
-      const batPath = path.join(buildDir, 'Install.bat');
-      fs.writeFileSync(batPath, batContent, 'utf-8');
-    }
+    // Create BAT launcher for running the PowerShell script
+    // Note: ps2exe only works on Windows, Railway runs Linux
+    const batContent = this.generateBatLauncher();
+    const batPath = path.join(buildDir, 'Install.bat');
+    fs.writeFileSync(batPath, batContent, 'utf-8');
+    console.log('Installer package created:', buildDir);
 
     const downloadUrl = `/api/downloads/${buildId}`;
 
@@ -171,12 +140,8 @@ export class GenerateService {
     return null;
   }
 
-  getExePath(buildId: string): string | null {
-    const buildDir = path.join(buildsDir, buildId);
-    const exePath = path.join(buildDir, 'KodLaewLong-Installer.exe');
-    if (fs.existsSync(exePath)) {
-      return exePath;
-    }
+  getExePath(_buildId: string): string | null {
+    // EXE compilation not supported on Linux server
     return null;
   }
 
@@ -418,9 +383,31 @@ $form.Add_Shown({
   private generateBatLauncher(): string {
     return `@echo off
 chcp 65001 >nul
-echo Starting KodLaewLong Installer...
-powershell -ExecutionPolicy Bypass -File "%~dp0KodLaewLong-Installer.ps1"
-pause
+title KodLaewLong Installer
+
+:: Check for admin rights
+net session >nul 2>&1
+if %errorLevel% == 0 (
+    goto :run
+) else (
+    echo Requesting administrator privileges...
+    powershell -Command "Start-Process '%~f0' -Verb RunAs"
+    exit /b
+)
+
+:run
+echo.
+echo  =============================================
+echo   KodLaewLong - Software Installer
+echo   https://kodlaewlong.vercel.app
+echo  =============================================
+echo.
+echo Starting installation...
+echo.
+powershell -ExecutionPolicy Bypass -NoProfile -File "%~dp0KodLaewLong-Installer.ps1"
+echo.
+echo Installation completed. Press any key to close...
+pause >nul
 `;
   }
 }

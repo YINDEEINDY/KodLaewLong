@@ -1,0 +1,20 @@
+{
+  "buildId": "sample-build",
+  "generatedAt": "2024-01-01T00:00:00Z",
+  "apps": [
+    {
+      "id": "chrome",
+      "name": "Google Chrome",
+      "wingetId": "Google.Chrome",
+      "installerUrl": null,
+      "silentArgs": "/S"
+    },
+    {
+      "id": "vscode",
+      "name": "Visual Studio Code",
+      "wingetId": "Microsoft.VisualStudioCode",
+      "installerUrl": null,
+      "silentArgs": "/VERYSILENT"
+    }
+  ]
+}
