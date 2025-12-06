@@ -42,15 +42,42 @@ export function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-14 sm:h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 group">
-            <div className="w-8 h-8 sm:w-9 sm:h-9 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-200 dark:shadow-indigo-900/30 group-hover:shadow-indigo-300 dark:group-hover:shadow-indigo-800/40 transition-shadow">
-              <svg className="w-4 h-4 sm:w-5 sm:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-              </svg>
+          <Link to="/" className="flex items-center gap-2.5 group">
+            <div className="relative w-9 h-9 sm:w-10 sm:h-10">
+              {/* Stacked layers effect */}
+              <div className="absolute inset-0 bg-purple-400 rounded-xl transform rotate-6 opacity-40 group-hover:rotate-12 transition-transform" />
+              <div className="absolute inset-0 bg-indigo-400 rounded-xl transform -rotate-3 opacity-60 group-hover:-rotate-6 transition-transform" />
+              {/* Main logo container */}
+              <div className="relative w-full h-full bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-200 dark:shadow-indigo-900/30 group-hover:shadow-indigo-300 dark:group-hover:shadow-indigo-800/40 transition-all group-hover:scale-105">
+                {/* Custom KL monogram with installation element */}
+                <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" viewBox="0 0 24 24" fill="none">
+                  {/* Stylized K shape */}
+                  <path
+                    d="M6 4v16M6 12l6-6M6 12l6 6"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                  {/* Download arrow integrated */}
+                  <path
+                    d="M16 8v8M13 13l3 3 3-3"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </div>
             </div>
-            <span className="text-lg sm:text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-              KodLaewLong
-            </span>
+            <div className="flex flex-col">
+              <span className="text-lg sm:text-xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent leading-tight">
+                KodLaewLong
+              </span>
+              <span className="hidden sm:block text-[10px] text-gray-400 dark:text-gray-500 font-medium tracking-wide -mt-0.5">
+                Software Picker
+              </span>
+            </div>
           </Link>
 
           {/* Center: Tab Navigation (Desktop) */}
