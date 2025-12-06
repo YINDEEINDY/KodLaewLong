@@ -142,9 +142,17 @@ export function Navbar() {
 
                 {/* User Menu */}
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 bg-gradient-to-br from-indigo-400 to-purple-500 rounded-full flex items-center justify-center text-white font-medium text-sm">
-                    {user.email?.charAt(0).toUpperCase()}
-                  </div>
+                  <Link
+                    to="/profile"
+                    className="flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg px-2 py-1 transition-colors"
+                  >
+                    <div className="w-8 h-8 bg-gradient-to-br from-indigo-400 to-purple-500 rounded-full flex items-center justify-center text-white font-medium text-sm">
+                      {user.email?.charAt(0).toUpperCase()}
+                    </div>
+                    <span className="hidden lg:inline text-sm text-gray-700 dark:text-gray-300">
+                      {user.user_metadata?.display_name || user.email?.split('@')[0]}
+                    </span>
+                  </Link>
                   <button
                     onClick={handleSignOut}
                     className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 px-2 py-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
@@ -269,18 +277,27 @@ export function Navbar() {
               <div className="h-12 bg-gray-100 dark:bg-gray-800 rounded-xl animate-pulse" />
             ) : user ? (
               <div className="space-y-2">
-                {/* User info */}
-                <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-xl">
+                {/* User info - Clickable to profile */}
+                <Link
+                  to="/profile"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                >
                   <div className="w-10 h-10 bg-gradient-to-br from-indigo-400 to-purple-500 rounded-full flex items-center justify-center text-white font-medium">
                     {user.email?.charAt(0).toUpperCase()}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{user.email}</p>
+                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+                      {user.user_metadata?.display_name || user.email}
+                    </p>
                     <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {user.user_metadata?.role === 'admin' ? 'Admin' : 'User'}
+                      {user.user_metadata?.role === 'admin' ? 'Admin' : 'User'} • {t('profile.viewProfile')}
                     </p>
                   </div>
-                </div>
+                  <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </Link>
 
                 {/* Admin link */}
                 {user.user_metadata?.role === 'admin' && (

@@ -12,6 +12,7 @@ import { SummaryPage } from './pages/SummaryPage';
 import { AppDetailPage } from './pages/AppDetailPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
+import ProfilePage from './pages/ProfilePage';
 import { AdminDashboard, AdminAppsPage, AdminCategoriesPage, AdminUsersPage } from './pages/admin';
 
 function App() {
@@ -32,6 +33,7 @@ function App() {
                       <Route path="/apps/:id" element={<AppDetailPage />} />
                       <Route path="/login" element={<LoginPage />} />
                       <Route path="/register" element={<RegisterPage />} />
+                      <Route path="/profile" element={<ProfilePage />} />
 
                       {/* Admin routes */}
                       <Route path="/admin" element={<AdminLayout />}>

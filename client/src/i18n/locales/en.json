@@ -184,5 +184,22 @@
   "language": {
     "th": "Thai",
     "en": "English"
+  },
+  "profile": {
+    "title": "Profile",
+    "subtitle": "Manage your personal information",
+    "editInfo": "Edit Personal Info",
+    "displayName": "Display Name",
+    "displayNamePlaceholder": "Enter your display name",
+    "avatarUrl": "Avatar URL",
+    "emailCannotChange": "Email cannot be changed",
+    "changePassword": "Change Password",
+    "newPassword": "New Password",
+    "updateSuccess": "Profile updated successfully",
+    "passwordSuccess": "Password changed successfully",
+    "passwordMismatch": "Passwords do not match",
+    "passwordTooShort": "Password must be at least 6 characters",
+    "accountCreated": "Account created on",
+    "viewProfile": "View Profile"
   }
 }
