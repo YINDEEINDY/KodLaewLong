@@ -32,6 +32,9 @@ export interface App {
   // Manual app specific fields
   manualDownloadUrl?: string;
   manualDownloadFileName?: string;
+
+  // Winget package ID
+  wingetId?: string;
 }
 
 // Category definition

@@ -38,6 +38,7 @@ export const apps = pgTable('apps', {
   vendor: varchar('vendor', { length: 200 }),
   manualDownloadUrl: varchar('manual_download_url', { length: 500 }),
   manualDownloadFileName: varchar('manual_download_file_name', { length: 200 }),
+  wingetId: varchar('winget_id', { length: 100 }), // Windows Package Manager ID
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });

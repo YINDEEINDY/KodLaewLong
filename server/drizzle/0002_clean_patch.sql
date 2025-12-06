@@ -1,0 +1,1 @@
+ALTER TABLE "apps" ADD COLUMN "winget_id" varchar(100);

@@ -37,6 +37,7 @@ function transformApp(dbApp: DbApp): App {
     vendor: dbApp.vendor ?? undefined,
     manualDownloadUrl: dbApp.manualDownloadUrl ?? undefined,
     manualDownloadFileName: dbApp.manualDownloadFileName ?? undefined,
+    wingetId: dbApp.wingetId ?? undefined,
   };
 }
 
