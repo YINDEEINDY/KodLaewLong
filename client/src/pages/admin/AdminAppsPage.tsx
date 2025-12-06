@@ -17,6 +17,13 @@ const emptyApp: Partial<DbApp> = {
   officialWebsiteUrl: '',
   officialDownloadUrl: '',
   hasInstallGuide: false,
+  installGuideTitle: '',
+  installGuideSteps: '',
+  installNotes: '',
+  version: '',
+  vendor: '',
+  manualDownloadUrl: '',
+  manualDownloadFileName: '',
 };
 
 export function AdminAppsPage() {
@@ -223,6 +230,100 @@ export function AdminAppsPage() {
                 className="w-full border rounded-lg px-3 py-2"
               />
             </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">เวอร์ชัน</label>
+              <input
+                type="text"
+                value={formData.version || ''}
+                onChange={(e) => setFormData({ ...formData, version: e.target.value })}
+                className="w-full border rounded-lg px-3 py-2"
+                placeholder="เช่น 1.0.0"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">ผู้พัฒนา/บริษัท</label>
+              <input
+                type="text"
+                value={formData.vendor || ''}
+                onChange={(e) => setFormData({ ...formData, vendor: e.target.value })}
+                className="w-full border rounded-lg px-3 py-2"
+                placeholder="เช่น Google, Microsoft"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">URL ดาวน์โหลดแบบ Manual</label>
+              <input
+                type="url"
+                value={formData.manualDownloadUrl || ''}
+                onChange={(e) => setFormData({ ...formData, manualDownloadUrl: e.target.value })}
+                className="w-full border rounded-lg px-3 py-2"
+                placeholder="สำหรับแอปที่ต้องดาวน์โหลดเอง"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">ชื่อไฟล์ดาวน์โหลด</label>
+              <input
+                type="text"
+                value={formData.manualDownloadFileName || ''}
+                onChange={(e) => setFormData({ ...formData, manualDownloadFileName: e.target.value })}
+                className="w-full border rounded-lg px-3 py-2"
+                placeholder="เช่น setup.exe"
+              />
+            </div>
+          </div>
+
+          {/* Install Guide Section */}
+          <div className="mt-6 pt-6 border-t">
+            <div className="flex items-center gap-3 mb-4">
+              <input
+                type="checkbox"
+                id="hasInstallGuide"
+                checked={formData.hasInstallGuide || false}
+                onChange={(e) => setFormData({ ...formData, hasInstallGuide: e.target.checked })}
+                className="h-4 w-4 text-blue-600 rounded border-gray-300"
+              />
+              <label htmlFor="hasInstallGuide" className="text-lg font-medium text-gray-900">
+                มีคู่มือการติดตั้ง
+              </label>
+            </div>
+
+            {formData.hasInstallGuide && (
+              <div className="space-y-4 pl-7">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">หัวข้อคู่มือ</label>
+                  <input
+                    type="text"
+                    value={formData.installGuideTitle || ''}
+                    onChange={(e) => setFormData({ ...formData, installGuideTitle: e.target.value })}
+                    className="w-full border rounded-lg px-3 py-2"
+                    placeholder="เช่น วิธีการติดตั้ง Chrome"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    ขั้นตอนการติดตั้ง (แยกแต่ละขั้นตอนด้วยการขึ้นบรรทัดใหม่)
+                  </label>
+                  <textarea
+                    value={formData.installGuideSteps || ''}
+                    onChange={(e) => setFormData({ ...formData, installGuideSteps: e.target.value })}
+                    className="w-full border rounded-lg px-3 py-2"
+                    rows={6}
+                    placeholder="ขั้นตอนที่ 1: ดาวน์โหลดไฟล์ติดตั้ง&#10;ขั้นตอนที่ 2: เปิดไฟล์ที่ดาวน์โหลด&#10;ขั้นตอนที่ 3: ทำตามขั้นตอนการติดตั้ง"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">แต่ละบรรทัดจะกลายเป็น 1 ขั้นตอน</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">หมายเหตุเพิ่มเติม</label>
+                  <textarea
+                    value={formData.installNotes || ''}
+                    onChange={(e) => setFormData({ ...formData, installNotes: e.target.value })}
+                    className="w-full border rounded-lg px-3 py-2"
+                    rows={3}
+                    placeholder="ข้อควรระวังหรือเคล็ดลับในการติดตั้ง"
+                  />
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="flex gap-4 mt-6">
@@ -267,6 +368,7 @@ export function AdminAppsPage() {
               <th className="text-left px-6 py-3 text-sm font-medium text-gray-500">ชื่อ</th>
               <th className="text-left px-6 py-3 text-sm font-medium text-gray-500">หมวดหมู่</th>
               <th className="text-left px-6 py-3 text-sm font-medium text-gray-500">License</th>
+              <th className="text-left px-6 py-3 text-sm font-medium text-gray-500">คู่มือ</th>
               <th className="text-left px-6 py-3 text-sm font-medium text-gray-500">จัดการ</th>
             </tr>
           </thead>
@@ -299,6 +401,15 @@ export function AdminAppsPage() {
                   >
                     {app.licenseType}
                   </span>
+                </td>
+                <td className="px-6 py-4">
+                  {app.hasInstallGuide ? (
+                    <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                      มีคู่มือ
+                    </span>
+                  ) : (
+                    <span className="text-gray-400 text-xs">-</span>
+                  )}
                 </td>
                 <td className="px-6 py-4">
                   <button
