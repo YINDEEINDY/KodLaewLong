@@ -27,34 +27,34 @@ export function SummaryList({ apps }: SummaryListProps) {
 
   if (apps.length === 0) {
     return (
-      <div className="card text-center py-12">
-        <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-2xl flex items-center justify-center mx-auto mb-4">
-          <svg className="w-8 h-8 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div className="card text-center py-8 sm:py-12">
+        <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gray-100 dark:bg-gray-700 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-4">
+          <svg className="w-6 h-6 sm:w-8 sm:h-8 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
           </svg>
         </div>
-        <p className="text-gray-500 dark:text-gray-400 font-medium">ยังไม่ได้เลือกซอฟต์แวร์ใด ๆ</p>
-        <p className="text-gray-400 dark:text-gray-500 text-sm mt-1">กลับไปเลือกซอฟต์แวร์ที่ต้องการติดตั้ง</p>
+        <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 font-medium">ยังไม่ได้เลือกซอฟต์แวร์ใด ๆ</p>
+        <p className="text-xs sm:text-sm text-gray-400 dark:text-gray-500 mt-1">กลับไปเลือกซอฟต์แวร์ที่ต้องการติดตั้ง</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-2 sm:space-y-3">
       {apps.map((app, index) => (
         <div
           key={app.id}
-          className="group bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-4 hover:shadow-md dark:hover:shadow-gray-900/20 hover:border-gray-200 dark:hover:border-gray-600 transition-all duration-200"
+          className="group bg-white dark:bg-gray-800 rounded-lg sm:rounded-xl border border-gray-100 dark:border-gray-700 p-3 sm:p-4 hover:shadow-md dark:hover:shadow-gray-900/20 hover:border-gray-200 dark:hover:border-gray-600 transition-all duration-200"
           style={{ animationDelay: `${index * 50}ms` }}
         >
-          <div className="flex items-center gap-4">
-            {/* Number Badge */}
-            <div className="flex-shrink-0 w-8 h-8 bg-gradient-to-br from-gray-100 to-gray-50 dark:from-gray-700 dark:to-gray-600 rounded-lg flex items-center justify-center text-gray-500 dark:text-gray-400 font-semibold text-sm">
+          <div className="flex items-center gap-2 sm:gap-4">
+            {/* Number Badge - hidden on mobile */}
+            <div className="hidden sm:flex flex-shrink-0 w-8 h-8 bg-gradient-to-br from-gray-100 to-gray-50 dark:from-gray-700 dark:to-gray-600 rounded-lg items-center justify-center text-gray-500 dark:text-gray-400 font-semibold text-sm">
               {index + 1}
             </div>
 
             {/* App Icon */}
-            <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-gray-50 to-white dark:from-gray-700 dark:to-gray-600 rounded-xl p-1.5 border border-gray-100 dark:border-gray-600">
+            <div className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-gray-50 to-white dark:from-gray-700 dark:to-gray-600 rounded-lg sm:rounded-xl p-1 sm:p-1.5 border border-gray-100 dark:border-gray-600">
               <img
                 src={app.iconUrl}
                 alt={app.name}
@@ -68,19 +68,19 @@ export function SummaryList({ apps }: SummaryListProps) {
 
             {/* App Info */}
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-0.5">
-                <span className="font-semibold text-gray-900 dark:text-gray-100">{app.name}</span>
+              <div className="flex items-center gap-1.5 sm:gap-2 mb-0.5 flex-wrap">
+                <span className="font-semibold text-sm sm:text-base text-gray-900 dark:text-gray-100">{app.name}</span>
                 <LicenseBadge type={app.licenseType} />
               </div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">{app.vendor || app.description}</p>
+              <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 truncate">{app.vendor || app.description}</p>
             </div>
 
-            {/* Remove Button */}
+            {/* Remove Button - always visible on mobile */}
             <button
               onClick={() => removeFromSelection(app.id)}
-              className="flex-shrink-0 opacity-0 group-hover:opacity-100 p-2 text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all"
+              className="flex-shrink-0 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 p-1.5 sm:p-2 text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
               </svg>
             </button>
