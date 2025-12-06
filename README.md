@@ -1,17 +1,42 @@
-# KodLaewLong
+<p align="center">
+  <img src="client/public/favicon.svg" alt="KodLaewLong Logo" width="80" height="80">
+</p>
 
-Ninite-style software installer web application for Windows. Browse, select, and generate a combined installer for multiple applications.
+<h1 align="center">KodLaewLong</h1>
+
+<p align="center">
+  <strong>Software Picker - Ninite-style installer for Windows</strong>
+</p>
+
+<p align="center">
+  Browse, select, and generate a combined installer for multiple applications.
+</p>
+
+<p align="center">
+  <a href="#features">Features</a> •
+  <a href="#tech-stack">Tech Stack</a> •
+  <a href="#quick-start">Quick Start</a> •
+  <a href="#docker-deployment">Docker</a> •
+  <a href="#api-endpoints">API</a>
+</p>
+
+---
 
 ## Features
 
-- Browse software by category (Web Browsers, Messaging, Media, Developer Tools, Utilities, Security)
-- Select multiple applications with visual feedback
-- View detailed app information with installation guides
-- Generate combined installer (mock for MVP)
-- User authentication (register, login, logout)
-- Persistent user selections across sessions
-- Admin panel for managing apps, categories, and users
-- Thai language interface
+- **Multi-app Selection** - Browse and select multiple applications with visual feedback
+- **Category Browsing** - Web Browsers, Messaging, Media, Developer Tools, Utilities, Security
+- **App Details** - View detailed information with installation guides
+- **Combined Installer** - Generate single installer for all selected apps
+- **User Authentication** - Register, login, logout with Supabase Auth
+- **Persistent Selections** - Save selections across sessions when logged in
+- **Admin Panel** - Manage apps, categories, and users
+- **Dark Mode** - Full dark/light theme support
+- **i18n Support** - Thai and English languages
+- **Toast Notifications** - Beautiful feedback for user actions
+- **User Profile** - Manage display name, avatar, and password
+- **Mobile Responsive** - Works on all screen sizes
+- **Favorites** - Mark apps as favorites for quick access
 
 ## Tech Stack
 
@@ -20,6 +45,8 @@ Ninite-style software installer web application for Windows. Browse, select, and
 - Vite 5
 - Tailwind CSS 3
 - React Router 6
+- react-i18next (internationalization)
+- react-hot-toast (notifications)
 - Supabase Auth Client
 
 ### Backend
@@ -34,6 +61,7 @@ Ninite-style software installer web application for Windows. Browse, select, and
 - Docker + Docker Compose
 - GitHub Actions CI/CD
 - Nginx (production)
+- Vercel (frontend hosting)
 
 ## Prerequisites
 
@@ -164,11 +192,13 @@ docker-compose restart    # Restart containers
 ```
 KodLaewLong/
 ├── client/                 # React frontend
+│   ├── public/            # Static assets (favicon)
 │   ├── src/
 │   │   ├── api/           # API client utilities
 │   │   ├── components/    # React components
-│   │   ├── context/       # React Context (auth, selection)
+│   │   ├── context/       # React Context (auth, selection, theme)
 │   │   ├── hooks/         # Custom hooks
+│   │   ├── i18n/          # Internationalization (th, en)
 │   │   ├── lib/           # Supabase client
 │   │   ├── pages/         # Page components
 │   │   │   └── admin/     # Admin panel pages
