@@ -9,6 +9,7 @@
     <Company>KodLaewLong</Company>
     <Description>Software Installer Stub</Description>
     <Version>1.0.0</Version>
+    <ApplicationIcon>icon.ico</ApplicationIcon>
 
     <!-- Make it as small as possible -->
     <PublishSingleFile>true</PublishSingleFile>
