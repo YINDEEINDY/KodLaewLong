@@ -1,6 +1,9 @@
 import { useTranslation } from 'react-i18next';
 import type { GenerateResponse } from '../types';
 
+// Get API base URL for downloads
+const API_BASE = import.meta.env.VITE_API_URL || '';
+
 interface DownloadPanelProps {
   loading: boolean;
   error: string | null;
@@ -86,7 +89,7 @@ export function DownloadPanel({ loading, error, result, onRetry }: DownloadPanel
         {/* Download Button */}
         <div>
           <a
-            href={result.downloadUrl}
+            href={`${API_BASE}${result.downloadUrl}`}
             className="inline-flex items-center gap-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-8 py-4 rounded-2xl font-bold text-lg shadow-lg shadow-emerald-200 dark:shadow-emerald-900/30 hover:shadow-xl hover:shadow-emerald-300 dark:hover:shadow-emerald-800/40 hover:-translate-y-0.5 transition-all"
             download
           >
