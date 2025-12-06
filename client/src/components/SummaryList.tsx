@@ -9,7 +9,8 @@ function LicenseBadge({ type }: { type: App['licenseType'] }) {
     TRIAL: { label: 'ทดลอง', className: 'bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-800' },
   };
 
-  const { label, className } = config[type];
+  const safeConfig = config[type] || config.FREE;
+  const { label, className } = safeConfig;
   return (
     <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${className}`}>
       {label}
