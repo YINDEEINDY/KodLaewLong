@@ -1,0 +1,319 @@
+openapi: 3.0.3
+info:
+  title: KodLaewLong API
+  description: API for the KodLaewLong software installer web application
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:3001/api
+    description: Development server
+
+paths:
+  /apps:
+    get:
+      summary: Get all applications grouped by category
+      description: Returns all available applications organized by category for the selection page
+      operationId: getApps
+      tags:
+        - Apps
+      responses:
+        '200':
+          description: Successful response with categorized apps
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppsListResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /apps/{id}:
+    get:
+      summary: Get a single application by ID
+      description: Returns detailed information about a specific application
+      operationId: getAppById
+      tags:
+        - Apps
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Application ID (slug)
+          schema:
+            type: string
+            example: chrome
+      responses:
+        '200':
+          description: Successful response with app details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/App'
+        '404':
+          description: Application not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "App not found"
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /generate:
+    post:
+      summary: Generate installer package
+      description: |
+        Generates a combined installer package for the selected applications.
+        For free apps, includes download and install commands.
+        For paid apps, includes instructions to visit official websites.
+      operationId: generateInstaller
+      tags:
+        - Generate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenerateRequest'
+      responses:
+        '200':
+          description: Installer generated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenerateResponse'
+        '400':
+          description: Invalid request (no apps selected or invalid IDs)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                noApps:
+                  summary: No apps selected
+                  value:
+                    error: "No apps selected"
+                invalidIds:
+                  summary: Some apps not found
+                  value:
+                    error: "Some appIds not found"
+                    missing: ["invalid-id-1", "invalid-id-2"]
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    LicenseType:
+      type: string
+      enum:
+        - FREE
+        - PAID
+        - FREEMIUM
+        - TRIAL
+      description: Type of software license
+
+    App:
+      type: object
+      required:
+        - id
+        - name
+        - category
+        - description
+        - iconUrl
+        - licenseType
+        - isPublicFree
+        - officialWebsiteUrl
+        - hasInstallGuide
+      properties:
+        id:
+          type: string
+          description: Unique identifier (slug format)
+          example: chrome
+        name:
+          type: string
+          description: Display name
+          example: Google Chrome
+        category:
+          type: string
+          description: Category slug
+          example: web-browsers
+        description:
+          type: string
+          description: Brief description
+          example: Fast, secure web browser from Google
+        iconUrl:
+          type: string
+          format: uri
+          description: URL to application icon
+          example: https://www.google.com/chrome/static/images/chrome-logo.svg
+        licenseType:
+          $ref: '#/components/schemas/LicenseType'
+        isPublicFree:
+          type: boolean
+          description: True if completely free
+          example: true
+        officialWebsiteUrl:
+          type: string
+          format: uri
+          description: Official website URL
+          example: https://www.google.com/chrome/
+        officialDownloadUrl:
+          type: string
+          format: uri
+          description: Direct download page URL
+          example: https://www.google.com/chrome/
+        isRecommended:
+          type: boolean
+          description: Featured/recommended flag
+        hasInstallGuide:
+          type: boolean
+          description: Whether detailed install guide exists
+          example: false
+        installGuideTitle:
+          type: string
+          description: Title for installation guide section
+        installGuideSteps:
+          type: array
+          items:
+            type: string
+          description: Step-by-step installation instructions
+        installNotes:
+          type: string
+          description: Additional notes (e.g., licensing requirements)
+        installerSourceUrl:
+          type: string
+          format: uri
+          description: Direct installer download URL
+        installerType:
+          type: string
+          description: Installer format
+          enum:
+            - exe
+            - msi
+            - zip
+        silentArguments:
+          type: string
+          description: Command-line args for silent install
+        version:
+          type: string
+          description: Current version number
+        vendor:
+          type: string
+          description: Software vendor/publisher name
+
+    CategoryWithApps:
+      type: object
+      required:
+        - name
+        - slug
+        - apps
+      properties:
+        name:
+          type: string
+          description: Category display name
+          example: Web Browsers
+        slug:
+          type: string
+          description: Category slug
+          example: web-browsers
+        apps:
+          type: array
+          items:
+            $ref: '#/components/schemas/App'
+
+    AppsListResponse:
+      type: object
+      required:
+        - categories
+      properties:
+        categories:
+          type: array
+          items:
+            $ref: '#/components/schemas/CategoryWithApps'
+
+    GenerateRequest:
+      type: object
+      required:
+        - appIds
+      properties:
+        appIds:
+          type: array
+          items:
+            type: string
+          minItems: 1
+          description: Array of app IDs to include in installer
+          example: ["chrome", "discord", "vscode"]
+
+    GenerateResponse:
+      type: object
+      required:
+        - selectedApps
+        - generatedScript
+        - downloadUrl
+        - generatedAt
+        - buildId
+      properties:
+        selectedApps:
+          type: array
+          items:
+            $ref: '#/components/schemas/App'
+          description: Full App objects for selected applications
+        generatedScript:
+          type: string
+          description: Mock installation script/commands
+          example: |
+            # KodLaewLong Installer Script
+            # Generated: 2025-11-30T12:00:00Z
+
+            # Installing free applications...
+            download_and_install "chrome" "https://dl.google.com/chrome/install"
+
+            # Paid applications - opening official websites...
+            open_browser "https://www.adobe.com/products/premiere.html"
+        downloadUrl:
+          type: string
+          format: uri
+          description: URL to download the generated installer
+          example: https://kodlaewlong.example.com/download/build-abc123.exe
+        generatedAt:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp of generation
+          example: "2025-11-30T12:00:00.000Z"
+        buildId:
+          type: string
+          description: Unique identifier for this build
+          example: build-abc123
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          description: Human-readable error message
+          example: App not found
+        missing:
+          type: array
+          items:
+            type: string
+          description: List of missing app IDs (for validation errors)
+
+tags:
+  - name: Apps
+    description: Application listing and details
+  - name: Generate
+    description: Installer generation
