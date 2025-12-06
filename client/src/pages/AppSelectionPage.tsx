@@ -1,32 +1,62 @@
-import { useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import type { AppType, CategoryWithApps } from '../types';
+import { useEffect, useState, useMemo } from 'react';
+import { useSearchParams, Link } from 'react-router-dom';
+import type { AppType, CategoryWithApps, LicenseType, App } from '../types';
 import { getApps } from '../api/appsApi';
 import { AppGrid } from '../components/AppGrid';
 import { BottomBar } from '../components/BottomBar';
+import { useSelection } from '../context/SelectionContext';
+import { useFavorites } from '../context/FavoritesContext';
+import { useRecentlyViewed } from '../context/RecentlyViewedContext';
 
-const TYPE_TITLES: Record<AppType, { title: string; subtitle: string }> = {
+const LICENSE_OPTIONS: { value: LicenseType | 'ALL'; label: string; color: string }[] = [
+  { value: 'ALL', label: 'ทั้งหมด', color: 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300' },
+  { value: 'FREE', label: 'ฟรี', color: 'bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-400' },
+  { value: 'FREEMIUM', label: 'ฟรีเมียม', color: 'bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-400' },
+  { value: 'TRIAL', label: 'ทดลองใช้', color: 'bg-yellow-100 dark:bg-yellow-900/50 text-yellow-700 dark:text-yellow-400' },
+  { value: 'PAID', label: 'เสียเงิน', color: 'bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-400' },
+];
+
+const TYPE_CONFIG: Record<AppType, {
+  title: string;
+  subtitle: string;
+  icon: string;
+  gradient: string;
+}> = {
   GENERAL: {
-    title: 'ซอฟต์แวร์ทั่วไป',
-    subtitle: 'โปรแกรมฟรีและโอเพนซอร์สสำหรับการใช้งานทั่วไป',
+    title: 'ซอฟต์แวร์ยอดนิยม',
+    subtitle: 'เลือกโปรแกรมที่ต้องการติดตั้ง แล้วกดดำเนินการต่อ',
+    icon: '🚀',
+    gradient: 'from-indigo-500 to-purple-600',
   },
   ENTERPRISE: {
     title: 'ซอฟต์แวร์องค์กร',
-    subtitle: 'โปรแกรมที่ต้องใช้ License องค์กรหรือ Internal Tools',
+    subtitle: 'โปรแกรมสำหรับใช้งานภายในองค์กร',
+    icon: '🏢',
+    gradient: 'from-blue-500 to-cyan-600',
   },
   MANUAL: {
     title: 'ติดตั้งพิเศษ',
-    subtitle: 'โปรแกรมที่ต้องดาวน์โหลดไฟล์พิเศษและทำตามขั้นตอน',
+    subtitle: 'โปรแกรมที่ต้องดาวน์โหลดและติดตั้งด้วยตนเอง',
+    icon: '🔧',
+    gradient: 'from-orange-500 to-red-500',
   },
 };
 
 export function AppSelectionPage() {
   const [searchParams] = useSearchParams();
   const appType = (searchParams.get('type') as AppType) || 'GENERAL';
+  const { selectedCount } = useSelection();
+  const { favoriteIds, favoritesCount } = useFavorites();
+  const { recentlyViewedIds, recentlyViewedCount, clearRecentlyViewed } = useRecentlyViewed();
 
   const [categories, setCategories] = useState<CategoryWithApps[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [licenseFilter, setLicenseFilter] = useState<LicenseType | 'ALL'>('ALL');
+  const [categoryFilter, setCategoryFilter] = useState<string>('ALL');
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
+  const [showRecentlyViewed, setShowRecentlyViewed] = useState(true);
 
   const fetchApps = async (type: AppType) => {
     setLoading(true);
@@ -45,31 +75,96 @@ export function AppSelectionPage() {
     fetchApps(appType);
   }, [appType]);
 
-  const { title, subtitle } = TYPE_TITLES[appType];
+  // Get unique category names for filter
+  const categoryOptions = useMemo(() => {
+    return [{ value: 'ALL', label: 'ทุกหมวดหมู่' }, ...categories.map(cat => ({ value: cat.slug, label: cat.name }))];
+  }, [categories]);
+
+  // Filter categories and apps based on search, license, category, and favorites
+  const filteredCategories = useMemo(() => {
+    const query = searchQuery.toLowerCase().trim();
+
+    return categories
+      .filter(cat => categoryFilter === 'ALL' || cat.slug === categoryFilter)
+      .map(cat => ({
+        ...cat,
+        apps: cat.apps.filter(app => {
+          // Favorites filter
+          if (showFavoritesOnly && !favoriteIds.has(app.id)) {
+            return false;
+          }
+
+          // Search filter
+          const matchesSearch = !query ||
+            app.name.toLowerCase().includes(query) ||
+            app.description.toLowerCase().includes(query);
+
+          // License filter
+          const matchesLicense = licenseFilter === 'ALL' || app.licenseType === licenseFilter;
+
+          return matchesSearch && matchesLicense;
+        })
+      }))
+      .filter(cat => cat.apps.length > 0);
+  }, [categories, searchQuery, licenseFilter, categoryFilter, showFavoritesOnly, favoriteIds]);
+
+  // Check if any filters are active
+  const hasActiveFilters = searchQuery.trim() || licenseFilter !== 'ALL' || categoryFilter !== 'ALL' || showFavoritesOnly;
+
+  // Clear all filters
+  const clearAllFilters = () => {
+    setSearchQuery('');
+    setLicenseFilter('ALL');
+    setCategoryFilter('ALL');
+    setShowFavoritesOnly(false);
+  };
+
+  const totalApps = categories.reduce((sum, cat) => sum + cat.apps.length, 0);
+  const config = TYPE_CONFIG[appType];
+
+  // Get recently viewed apps
+  const recentlyViewedApps = useMemo(() => {
+    if (recentlyViewedIds.length === 0) return [];
+
+    const allApps = categories.flatMap(cat => cat.apps);
+    return recentlyViewedIds
+      .map(id => allApps.find(app => app.id === id))
+      .filter((app): app is App => app !== undefined)
+      .slice(0, 5);
+  }, [categories, recentlyViewedIds]);
 
   if (loading) {
     return (
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">{title}</h1>
-        <p className="text-gray-600 mb-6">{subtitle}</p>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[1, 2, 3, 4, 5, 6].map((i) => (
-            <div key={i} className="card animate-pulse">
-              <div className="h-6 bg-gray-200 rounded w-1/3 mb-4"></div>
-              <div className="space-y-3">
-                {[1, 2, 3].map((j) => (
-                  <div key={j} className="flex items-center gap-3">
-                    <div className="h-4 w-4 bg-gray-200 rounded"></div>
-                    <div className="h-8 w-8 bg-gray-200 rounded"></div>
-                    <div className="flex-1">
-                      <div className="h-4 bg-gray-200 rounded w-2/3 mb-2"></div>
-                      <div className="h-3 bg-gray-200 rounded w-full"></div>
+      <div className="min-h-screen dark:bg-gray-900">
+        {/* Hero Skeleton */}
+        <div className={`bg-gradient-to-r ${config.gradient} text-white`}>
+          <div className="max-w-7xl mx-auto px-4 py-12">
+            <div className="h-10 bg-white/20 rounded-lg w-64 mb-4 skeleton"></div>
+            <div className="h-6 bg-white/20 rounded-lg w-96 skeleton"></div>
+          </div>
+        </div>
+
+        {/* Grid Skeleton */}
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div key={i} className="card">
+                <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-1/3 mb-4 skeleton"></div>
+                <div className="space-y-3">
+                  {[1, 2, 3].map((j) => (
+                    <div key={j} className="flex items-center gap-3">
+                      <div className="h-5 w-5 bg-gray-200 dark:bg-gray-700 rounded skeleton"></div>
+                      <div className="h-10 w-10 bg-gray-200 dark:bg-gray-700 rounded-lg skeleton"></div>
+                      <div className="flex-1">
+                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-2/3 mb-2 skeleton"></div>
+                        <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-full skeleton"></div>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
     );
@@ -77,11 +172,11 @@ export function AppSelectionPage() {
 
   if (error) {
     return (
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">{title}</h1>
-        <p className="text-gray-600 mb-6">{subtitle}</p>
-        <div className="card text-center py-12">
-          <p className="text-red-600 mb-4">{error}</p>
+      <div className="min-h-screen flex items-center justify-center dark:bg-gray-900">
+        <div className="card text-center py-12 max-w-md mx-4">
+          <div className="text-6xl mb-4">😵</div>
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">เกิดข้อผิดพลาด</h2>
+          <p className="text-gray-600 dark:text-gray-400 mb-6">{error}</p>
           <button onClick={() => fetchApps(appType)} className="btn-primary">
             ลองใหม่อีกครั้ง
           </button>
@@ -90,30 +185,283 @@ export function AppSelectionPage() {
     );
   }
 
-  // Empty state
-  if (categories.length === 0) {
-    return (
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">{title}</h1>
-        <p className="text-gray-600 mb-6">{subtitle}</p>
-        <div className="card text-center py-12">
-          <p className="text-gray-500 mb-2">ยังไม่มีโปรแกรมในหมวดหมู่นี้</p>
-          <p className="text-sm text-gray-400">
-            {appType === 'ENTERPRISE' && 'รอข้อมูลโปรแกรมจากองค์กร'}
-            {appType === 'MANUAL' && 'รอเพิ่มโปรแกรมที่ต้องติดตั้งพิเศษ'}
-          </p>
+  return (
+    <div className="min-h-screen pb-28 dark:bg-gray-900">
+      {/* Hero Section */}
+      <div className={`bg-gradient-to-r ${config.gradient} text-white relative overflow-hidden`}>
+        {/* Background decoration */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute -top-1/2 -right-1/4 w-96 h-96 bg-white/10 rounded-full blur-3xl"></div>
+          <div className="absolute -bottom-1/2 -left-1/4 w-96 h-96 bg-white/10 rounded-full blur-3xl"></div>
+        </div>
+
+        <div className="relative max-w-7xl mx-auto px-4 py-12 md:py-16">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+            <div>
+              <div className="flex items-center gap-3 mb-3">
+                <span className="text-4xl">{config.icon}</span>
+                <h1 className="text-3xl md:text-4xl font-bold">{config.title}</h1>
+              </div>
+              <p className="text-white/80 text-lg max-w-xl">{config.subtitle}</p>
+
+              {/* Stats */}
+              <div className="flex items-center gap-6 mt-6">
+                <div className="flex items-center gap-2">
+                  <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold">{totalApps}</p>
+                    <p className="text-xs text-white/70">โปรแกรมทั้งหมด</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold">{selectedCount}</p>
+                    <p className="text-xs text-white/70">เลือกแล้ว</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Search Box */}
+            <div className="w-full md:w-96">
+              <div className="relative">
+                <svg
+                  className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <input
+                  type="text"
+                  placeholder="ค้นหาโปรแกรม..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="input-search shadow-lg text-gray-900"
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery('')}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-    );
-  }
 
-  return (
-    <div className="max-w-7xl mx-auto px-4 py-8 pb-24">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">{title}</h1>
-        <p className="text-gray-600 mt-1">{subtitle}</p>
+      {/* Filter Bar */}
+      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-16 z-10 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 py-3">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+            {/* Favorites Toggle */}
+            <button
+              onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
+              disabled={favoritesCount === 0}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-full transition-all ${
+                showFavoritesOnly
+                  ? 'bg-rose-100 dark:bg-rose-900/50 text-rose-700 dark:text-rose-400 ring-2 ring-offset-1 ring-rose-400'
+                  : favoritesCount > 0
+                    ? 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-rose-50 dark:hover:bg-rose-900/30 hover:text-rose-600 dark:hover:text-rose-400'
+                    : 'bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed'
+              }`}
+              title={favoritesCount === 0 ? 'ยังไม่มีรายการโปรด' : 'แสดงเฉพาะรายการโปรด'}
+            >
+              <svg
+                className="w-4 h-4"
+                fill={showFavoritesOnly ? 'currentColor' : 'none'}
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                />
+              </svg>
+              รายการโปรด
+              {favoritesCount > 0 && (
+                <span className={`px-1.5 py-0.5 text-xs rounded-full ${
+                  showFavoritesOnly
+                    ? 'bg-rose-200 dark:bg-rose-800 text-rose-800 dark:text-rose-200'
+                    : 'bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300'
+                }`}>
+                  {favoritesCount}
+                </span>
+              )}
+            </button>
+
+            <div className="h-6 w-px bg-gray-200 dark:bg-gray-700 hidden sm:block" />
+
+            {/* License Filter */}
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium text-gray-600 dark:text-gray-400 whitespace-nowrap">ประเภท:</span>
+              <div className="flex flex-wrap gap-2">
+                {LICENSE_OPTIONS.map((option) => (
+                  <button
+                    key={option.value}
+                    onClick={() => setLicenseFilter(option.value)}
+                    className={`px-3 py-1.5 text-sm font-medium rounded-full transition-all ${
+                      licenseFilter === option.value
+                        ? `${option.color} ring-2 ring-offset-1 ring-current`
+                        : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'
+                    }`}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Category Filter */}
+            <div className="flex items-center gap-2 sm:ml-auto">
+              <span className="text-sm font-medium text-gray-600 dark:text-gray-400 whitespace-nowrap">หมวดหมู่:</span>
+              <select
+                value={categoryFilter}
+                onChange={(e) => setCategoryFilter(e.target.value)}
+                className="px-3 py-1.5 text-sm font-medium rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-0 focus:ring-2 focus:ring-indigo-500 cursor-pointer"
+              >
+                {categoryOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Clear Filters */}
+            {hasActiveFilters && (
+              <button
+                onClick={clearAllFilters}
+                className="flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                ล้างตัวกรอง
+              </button>
+            )}
+          </div>
+        </div>
       </div>
-      <AppGrid categories={categories} />
+
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        {/* Recently Viewed Section */}
+        {recentlyViewedApps.length > 0 && showRecentlyViewed && !hasActiveFilters && (
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                <svg className="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                ดูล่าสุด
+              </h2>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={clearRecentlyViewed}
+                  className="text-sm text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400"
+                >
+                  ล้างประวัติ
+                </button>
+                <button
+                  onClick={() => setShowRecentlyViewed(false)}
+                  className="p-1 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300"
+                  title="ซ่อน"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
+              {recentlyViewedApps.map((app) => (
+                <Link
+                  key={app.id}
+                  to={`/apps/${app.id}`}
+                  className="flex-shrink-0 flex items-center gap-3 p-3 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-indigo-300 dark:hover:border-indigo-600 hover:shadow-md transition-all group"
+                >
+                  <img
+                    src={app.iconUrl}
+                    alt={app.name}
+                    className="w-10 h-10 object-contain rounded-lg bg-gray-50 dark:bg-gray-700 p-1"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src =
+                        'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="%236366f1" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="12" cy="12" r="3"/></svg>';
+                    }}
+                  />
+                  <div className="min-w-0">
+                    <p className="font-medium text-gray-900 dark:text-gray-100 truncate max-w-[120px] group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
+                      {app.name}
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 truncate max-w-[120px]">
+                      {app.description.slice(0, 30)}...
+                    </p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Filter Results Info */}
+        {hasActiveFilters && (
+          <div className="mb-6 flex items-center gap-2 text-gray-600 dark:text-gray-400">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+            </svg>
+            <span>
+              พบ <strong className="text-gray-900 dark:text-gray-100">{filteredCategories.reduce((sum, cat) => sum + cat.apps.length, 0)}</strong> โปรแกรม
+              {searchQuery && <> ที่ค้นหา "<strong className="text-gray-900 dark:text-gray-100">{searchQuery}</strong>"</>}
+              {licenseFilter !== 'ALL' && <> ประเภท <strong className="text-gray-900 dark:text-gray-100">{LICENSE_OPTIONS.find(o => o.value === licenseFilter)?.label}</strong></>}
+              {categoryFilter !== 'ALL' && <> ในหมวด <strong className="text-gray-900 dark:text-gray-100">{categoryOptions.find(o => o.value === categoryFilter)?.label}</strong></>}
+            </span>
+          </div>
+        )}
+
+        {/* Empty state */}
+        {filteredCategories.length === 0 && (
+          <div className="card text-center py-16">
+            <div className="text-6xl mb-4">🔍</div>
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">ไม่พบโปรแกรม</h3>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">
+              {hasActiveFilters
+                ? 'ไม่พบโปรแกรมที่ตรงกับตัวกรองที่เลือก'
+                : 'ยังไม่มีโปรแกรมในหมวดหมู่นี้'
+              }
+            </p>
+            {hasActiveFilters && (
+              <button onClick={clearAllFilters} className="btn-secondary">
+                ล้างตัวกรองทั้งหมด
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* App Grid */}
+        {filteredCategories.length > 0 && (
+          <AppGrid categories={filteredCategories} />
+        )}
+      </div>
+
+      {/* Bottom Bar */}
       <BottomBar />
     </div>
   );

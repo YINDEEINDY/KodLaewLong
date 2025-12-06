@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getAppById } from '../api/appsApi';
 import { useSelection } from '../context/SelectionContext';
+import { useFavorites } from '../context/FavoritesContext';
+import { useRecentlyViewed } from '../context/RecentlyViewedContext';
 import type { App } from '../types';
 
 function LicenseBadge({ type }: { type: App['licenseType'] }) {
@@ -28,6 +30,8 @@ export function AppDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { isSelected, addToSelection, removeFromSelection } = useSelection();
+  const { isFavorite, toggleFavorite } = useFavorites();
+  const { addToRecentlyViewed } = useRecentlyViewed();
 
   useEffect(() => {
     if (!id) return;
@@ -38,6 +42,8 @@ export function AppDetailPage() {
       try {
         const data = await getAppById(id);
         setApp(data);
+        // Add to recently viewed
+        addToRecentlyViewed(id);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'ไม่พบซอฟต์แวร์');
       } finally {
@@ -46,7 +52,7 @@ export function AppDetailPage() {
     };
 
     fetchApp();
-  }, [id]);
+  }, [id, addToRecentlyViewed]);
 
   if (loading) {
     return (
@@ -95,7 +101,7 @@ export function AppDetailPage() {
       {/* Back Button */}
       <Link
         to="/"
-        className="inline-flex items-center text-blue-600 hover:text-blue-800 text-sm mb-6 group"
+        className="inline-flex items-center text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 text-sm mb-6 group"
       >
         <svg className="w-4 h-4 mr-1 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -122,29 +128,29 @@ export function AppDetailPage() {
           {/* Info */}
           <div className="flex-1">
             <div className="flex flex-wrap items-center gap-3 mb-2">
-              <h1 className="text-3xl font-bold text-gray-900">{app.name}</h1>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">{app.name}</h1>
               <LicenseBadge type={app.licenseType} />
               {app.hasInstallGuide && (
-                <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-400">
                   มีคู่มือติดตั้ง
                 </span>
               )}
             </div>
 
             {app.vendor && (
-              <p className="text-gray-500 mb-2">โดย {app.vendor}</p>
+              <p className="text-gray-500 dark:text-gray-400 mb-2">โดย {app.vendor}</p>
             )}
 
             {app.version && (
-              <p className="text-sm text-gray-400">เวอร์ชัน {app.version}</p>
+              <p className="text-sm text-gray-400 dark:text-gray-500">เวอร์ชัน {app.version}</p>
             )}
 
-            <p className="text-gray-700 mt-4">{app.description}</p>
+            <p className="text-gray-700 dark:text-gray-300 mt-4">{app.description}</p>
           </div>
         </div>
 
         {/* Action Buttons */}
-        <div className="mt-6 pt-6 border-t flex flex-wrap gap-3">
+        <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700 flex flex-wrap gap-3">
           <button
             onClick={handleToggle}
             className={`px-6 py-3 rounded-lg font-medium transition-all ${
@@ -155,14 +161,38 @@ export function AppDetailPage() {
           >
             {selected ? '✓ อยู่ในรายการแล้ว - คลิกเพื่อลบ' : '+ เพิ่มในรายการติดตั้ง'}
           </button>
+
+          <button
+            onClick={() => toggleFavorite(app.id)}
+            className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all ${
+              isFavorite(app.id)
+                ? 'bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400 hover:bg-rose-200 dark:hover:bg-rose-900/50'
+                : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+            }`}
+          >
+            <svg
+              className="w-5 h-5"
+              fill={isFavorite(app.id) ? 'currentColor' : 'none'}
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+              />
+            </svg>
+            {isFavorite(app.id) ? 'เป็นรายการโปรด' : 'เพิ่มในรายการโปรด'}
+          </button>
         </div>
       </div>
 
       {/* Download Links Card */}
       {(app.officialWebsiteUrl || app.officialDownloadUrl || app.manualDownloadUrl) && (
         <div className="card mb-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
-            <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
+            <svg className="w-5 h-5 text-green-600 dark:text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
             </svg>
             ลิงก์ดาวน์โหลด
@@ -174,20 +204,20 @@ export function AppDetailPage() {
                 href={app.officialWebsiteUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors group"
+                className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors group"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/50 rounded-lg flex items-center justify-center">
+                    <svg className="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
                     </svg>
                   </div>
                   <div>
-                    <p className="font-medium text-gray-900">เว็บไซต์ทางการ</p>
-                    <p className="text-sm text-gray-500 truncate max-w-xs">{app.officialWebsiteUrl}</p>
+                    <p className="font-medium text-gray-900 dark:text-gray-100">เว็บไซต์ทางการ</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 truncate max-w-xs">{app.officialWebsiteUrl}</p>
                   </div>
                 </div>
-                <svg className="w-5 h-5 text-gray-400 group-hover:text-gray-600 group-hover:translate-x-1 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-300 group-hover:translate-x-1 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                 </svg>
               </a>
@@ -198,20 +228,20 @@ export function AppDetailPage() {
                 href={app.officialDownloadUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-between p-4 bg-green-50 rounded-lg hover:bg-green-100 transition-colors group"
+                className="flex items-center justify-between p-4 bg-green-50 dark:bg-green-900/20 rounded-lg hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors group"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                    <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="w-10 h-10 bg-green-100 dark:bg-green-900/50 rounded-lg flex items-center justify-center">
+                    <svg className="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                     </svg>
                   </div>
                   <div>
-                    <p className="font-medium text-gray-900">ดาวน์โหลดโดยตรง</p>
-                    <p className="text-sm text-gray-500">คลิกเพื่อดาวน์โหลดไฟล์ติดตั้ง</p>
+                    <p className="font-medium text-gray-900 dark:text-gray-100">ดาวน์โหลดโดยตรง</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">คลิกเพื่อดาวน์โหลดไฟล์ติดตั้ง</p>
                   </div>
                 </div>
-                <svg className="w-5 h-5 text-green-600 group-hover:translate-x-1 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 text-green-600 dark:text-green-400 group-hover:translate-x-1 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                 </svg>
               </a>
@@ -222,20 +252,20 @@ export function AppDetailPage() {
                 href={app.manualDownloadUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-between p-4 bg-orange-50 rounded-lg hover:bg-orange-100 transition-colors group"
+                className="flex items-center justify-between p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg hover:bg-orange-100 dark:hover:bg-orange-900/30 transition-colors group"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
-                    <svg className="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="w-10 h-10 bg-orange-100 dark:bg-orange-900/50 rounded-lg flex items-center justify-center">
+                    <svg className="w-5 h-5 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
                   </div>
                   <div>
-                    <p className="font-medium text-gray-900">ดาวน์โหลดไฟล์ {app.manualDownloadFileName || 'ติดตั้ง'}</p>
-                    <p className="text-sm text-gray-500">ต้องติดตั้งด้วยตัวเอง</p>
+                    <p className="font-medium text-gray-900 dark:text-gray-100">ดาวน์โหลดไฟล์ {app.manualDownloadFileName || 'ติดตั้ง'}</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">ต้องติดตั้งด้วยตัวเอง</p>
                   </div>
                 </div>
-                <svg className="w-5 h-5 text-orange-600 group-hover:translate-x-1 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 text-orange-600 dark:text-orange-400 group-hover:translate-x-1 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                 </svg>
               </a>
@@ -247,8 +277,8 @@ export function AppDetailPage() {
       {/* Install Guide Card */}
       {app.hasInstallGuide && app.installGuideSteps && app.installGuideSteps.length > 0 && (
         <div className="card mb-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
-            <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
+            <svg className="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
             </svg>
             {app.installGuideTitle || 'วิธีการติดตั้ง'}
@@ -257,25 +287,25 @@ export function AppDetailPage() {
           <div className="space-y-4">
             {app.installGuideSteps.map((step, index) => (
               <div key={index} className="flex gap-4">
-                <div className="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-semibold text-sm">
+                <div className="flex-shrink-0 w-8 h-8 bg-blue-100 dark:bg-blue-900/50 rounded-full flex items-center justify-center text-blue-600 dark:text-blue-400 font-semibold text-sm">
                   {index + 1}
                 </div>
                 <div className="flex-1 pt-1">
-                  <p className="text-gray-700">{step}</p>
+                  <p className="text-gray-700 dark:text-gray-300">{step}</p>
                 </div>
               </div>
             ))}
           </div>
 
           {app.installNotes && (
-            <div className="mt-6 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+            <div className="mt-6 p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-700">
               <div className="flex gap-3">
-                <svg className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 text-yellow-600 dark:text-yellow-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                 </svg>
                 <div>
-                  <p className="font-medium text-yellow-800 mb-1">หมายเหตุ</p>
-                  <p className="text-sm text-yellow-700">{app.installNotes}</p>
+                  <p className="font-medium text-yellow-800 dark:text-yellow-400 mb-1">หมายเหตุ</p>
+                  <p className="text-sm text-yellow-700 dark:text-yellow-300">{app.installNotes}</p>
                 </div>
               </div>
             </div>
@@ -285,10 +315,10 @@ export function AppDetailPage() {
 
       {/* No Install Guide */}
       {!app.hasInstallGuide && (
-        <div className="card text-center py-8 bg-gray-50">
+        <div className="card text-center py-8 bg-gray-50 dark:bg-gray-800">
           <div className="text-4xl mb-3">✨</div>
-          <p className="text-gray-600 font-medium">ติดตั้งง่าย ไม่มีขั้นตอนพิเศษ</p>
-          <p className="text-gray-500 text-sm mt-1">เพียงดาวน์โหลดและเปิดไฟล์ติดตั้ง</p>
+          <p className="text-gray-600 dark:text-gray-300 font-medium">ติดตั้งง่าย ไม่มีขั้นตอนพิเศษ</p>
+          <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">เพียงดาวน์โหลดและเปิดไฟล์ติดตั้ง</p>
         </div>
       )}
     </div>

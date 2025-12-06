@@ -12,7 +12,7 @@ export const config = {
   isProduction: process.env.NODE_ENV === 'production',
 
   // CORS
-  corsOrigins: (process.env.CORS_ORIGINS || 'http://localhost:5173')
+  corsOrigins: (process.env.CORS_ORIGINS || 'https://localhost:5173')
     .split(',')
     .map(origin => origin.trim()),
 

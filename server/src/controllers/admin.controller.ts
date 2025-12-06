@@ -2,6 +2,48 @@ import type { Request, Response } from 'express';
 import * as adminRepo from '../data/admin.repository.js';
 import type { NewApp, NewCategory } from '../db/schema.js';
 
+// Helper function to convert multi-line string to JSON array
+function parseInstallGuideSteps(input: string | null | undefined): string | null {
+  if (!input || typeof input !== 'string' || input.trim() === '') {
+    return null;
+  }
+
+  // If it's already a valid JSON array, return as-is
+  try {
+    const parsed = JSON.parse(input);
+    if (Array.isArray(parsed)) {
+      return input;
+    }
+  } catch {
+    // Not JSON, treat as multi-line string
+  }
+
+  // Convert multi-line string to JSON array
+  const steps = input
+    .split('\n')
+    .map(line => line.trim())
+    .filter(line => line.length > 0);
+
+  return steps.length > 0 ? JSON.stringify(steps) : null;
+}
+
+// Helper function to convert JSON array back to multi-line string for form
+function formatInstallGuideStepsForForm(input: string | null | undefined): string {
+  if (!input) return '';
+
+  try {
+    const parsed = JSON.parse(input);
+    if (Array.isArray(parsed)) {
+      return parsed.join('\n');
+    }
+  } catch {
+    // If it's not valid JSON, return as-is (might be already a multi-line string)
+    return input;
+  }
+
+  return input;
+}
+
 export class AdminController {
   // ==================== APPS ====================
 
@@ -9,7 +51,12 @@ export class AdminController {
   static async getApps(_req: Request, res: Response): Promise<void> {
     try {
       const apps = await adminRepo.getAllAppsRaw();
-      res.json({ apps });
+      // Format installGuideSteps for form display
+      const formattedApps = apps.map(app => ({
+        ...app,
+        installGuideSteps: formatInstallGuideStepsForForm(app.installGuideSteps),
+      }));
+      res.json({ apps: formattedApps });
     } catch (error) {
       console.error('Error fetching apps:', error);
       res.status(500).json({ error: 'เกิดข้อผิดพลาดในการดึงข้อมูล' });
@@ -27,7 +74,11 @@ export class AdminController {
         return;
       }
 
-      res.json(app);
+      // Format installGuideSteps for form display
+      res.json({
+        ...app,
+        installGuideSteps: formatInstallGuideStepsForForm(app.installGuideSteps),
+      });
     } catch (error) {
       console.error('Error fetching app:', error);
       res.status(500).json({ error: 'เกิดข้อผิดพลาดในการดึงข้อมูล' });
@@ -52,8 +103,18 @@ export class AdminController {
         return;
       }
 
-      const app = await adminRepo.createApp(appData);
-      res.status(201).json(app);
+      // Parse installGuideSteps from multi-line string to JSON array
+      const processedData: NewApp = {
+        ...appData,
+        installGuideSteps: parseInstallGuideSteps(appData.installGuideSteps as string),
+      };
+
+      const app = await adminRepo.createApp(processedData);
+      // Return with formatted steps for form
+      res.status(201).json({
+        ...app,
+        installGuideSteps: formatInstallGuideStepsForForm(app.installGuideSteps),
+      });
     } catch (error) {
       console.error('Error creating app:', error);
       res.status(500).json({ error: 'เกิดข้อผิดพลาดในการสร้างแอป' });
@@ -69,6 +130,11 @@ export class AdminController {
       // Don't allow changing the ID
       delete updateData.id;
 
+      // Parse installGuideSteps from multi-line string to JSON array if provided
+      if ('installGuideSteps' in updateData) {
+        updateData.installGuideSteps = parseInstallGuideSteps(updateData.installGuideSteps as string);
+      }
+
       const app = await adminRepo.updateApp(id, updateData);
 
       if (!app) {
@@ -76,7 +142,11 @@ export class AdminController {
         return;
       }
 
-      res.json(app);
+      // Return with formatted steps for form
+      res.json({
+        ...app,
+        installGuideSteps: formatInstallGuideStepsForForm(app.installGuideSteps),
+      });
     } catch (error) {
       console.error('Error updating app:', error);
       res.status(500).json({ error: 'เกิดข้อผิดพลาดในการแก้ไขแอป' });

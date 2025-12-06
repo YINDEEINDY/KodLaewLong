@@ -493,6 +493,89 @@ Task: "Create AppCategorySection component" (T028)
 
 ---
 
+## Phase 14: Install Guide Management & Dark Mode
+
+**Purpose**: Improve install guide editing experience and add dark mode support across admin and detail pages
+
+### Backend Fixes
+
+- [x] T147 Add helper functions to convert installGuideSteps between multi-line string and JSON array in `server/src/controllers/admin.controller.ts`
+- [x] T148 Update getApps, getAppById, createApp, updateApp to use conversion helpers
+
+### Admin UI Improvements
+
+- [x] T149 [P] Add theme toggle and dark mode support to `client/src/components/AdminLayout.tsx`
+- [x] T150 [P] Add dark mode support to `client/src/pages/admin/AdminAppsPage.tsx`
+- [x] T151 Add install guide preview in Admin Apps form
+
+### AppDetailPage Dark Mode
+
+- [x] T152 Add dark mode to AppDetailPage header and info section in `client/src/pages/AppDetailPage.tsx`
+- [x] T153 [P] Add dark mode to download links section
+- [x] T154 [P] Add dark mode to install guide section
+- [x] T155 Add dark mode to notes and fallback sections
+
+**Checkpoint**: Install guide management complete - admin can easily edit install guides with preview, dark mode supported across admin and detail pages
+
+---
+
+## Phase 15: Search & Filter
+
+**Purpose**: Add search and filtering capabilities to help users find apps quickly
+
+### Search Functionality
+
+- [x] T156 Add search state and filtering logic in `client/src/pages/AppSelectionPage.tsx`
+- [x] T157 Implement search by app name and description
+
+### Filter Functionality
+
+- [x] T158 Add LICENSE_OPTIONS config for filter chips
+- [x] T159 Add license filter state and UI (FREE, PAID, FREEMIUM, TRIAL)
+- [x] T160 Add category filter state and dropdown UI
+- [x] T161 Implement combined filtering logic (search + license + category)
+- [x] T162 Add sticky filter bar with dark mode support
+- [x] T163 Add "Clear all filters" button
+- [x] T164 Update filter results info display
+- [x] T165 Update empty state for filtered results
+
+**Checkpoint**: Search & Filter complete - users can quickly find apps by searching and filtering by license type or category
+
+---
+
+## Phase 16: User Experience Enhancements
+
+**Purpose**: Add favorites, recently viewed, and export/import functionality to improve user experience
+
+### Favorites System
+
+- [x] T166 Create FavoritesContext with localStorage persistence in `client/src/context/FavoritesContext.tsx`
+- [x] T167 Add favorite toggle button (heart icon) to `client/src/components/AppRow.tsx`
+- [x] T168 Add favorites filter toggle to `client/src/pages/AppSelectionPage.tsx`
+- [x] T169 Add favorite button to `client/src/pages/AppDetailPage.tsx`
+
+### Recently Viewed
+
+- [x] T170 Create RecentlyViewedContext with localStorage persistence (max 10 items) in `client/src/context/RecentlyViewedContext.tsx`
+- [x] T171 Add recently viewed tracking in `client/src/pages/AppDetailPage.tsx`
+- [x] T172 Add recently viewed section with horizontal scroll in `client/src/pages/AppSelectionPage.tsx`
+- [x] T173 Add clear history and hide section buttons
+
+### Export/Import Selections
+
+- [x] T174 Add importApps method to SelectionContext in `client/src/context/SelectionContext.tsx`
+- [x] T175 Add export button (JSON download) to `client/src/pages/SummaryPage.tsx`
+- [x] T176 Add import button with file input in `client/src/pages/SummaryPage.tsx`
+- [x] T177 Add import success/error message display
+
+### Context Integration
+
+- [x] T178 Update App.tsx to include FavoritesProvider and RecentlyViewedProvider
+
+**Checkpoint**: User Experience complete - users can favorite apps, see recently viewed, and export/import their selections
+
+---
+
 ## Task Summary
 
 | Phase | Story | Task Count | Parallel Tasks |
@@ -510,7 +593,10 @@ Task: "Create AppCategorySection component" (T028)
 | Phase 11 | User Selections | 11 | 2 |
 | Phase 12 | Admin Panel | 18 | 2 |
 | Phase 13 | Docker & CI/CD | 10 | 4 |
-| **Total** | | **146** | **32** |
+| Phase 14 | Install Guide & Dark Mode | 9 | 4 |
+| Phase 15 | Search & Filter | 10 | 0 |
+| Phase 16 | User Experience | 13 | 0 |
+| **Total** | | **178** | **36** |
 
 ---
 

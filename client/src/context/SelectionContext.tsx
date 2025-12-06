@@ -11,6 +11,7 @@ interface SelectionContextType {
   addToSelection: (app: App) => void;
   removeFromSelection: (id: string) => void;
   clearSelection: () => void;
+  importApps: (apps: App[]) => void;
   selectionCount: number;
   isSyncing: boolean;
 }
@@ -130,6 +131,10 @@ export function SelectionProvider({ children }: SelectionProviderProps) {
     setSelectedApps([]);
   }, []);
 
+  const importApps = useCallback((apps: App[]) => {
+    setSelectedApps(apps);
+  }, []);
+
   const value: SelectionContextType = {
     selectedIds,
     selectedApps,
@@ -138,6 +143,7 @@ export function SelectionProvider({ children }: SelectionProviderProps) {
     addToSelection,
     removeFromSelection,
     clearSelection,
+    importApps,
     selectionCount: selectedApps.length,
     isSyncing,
   };
