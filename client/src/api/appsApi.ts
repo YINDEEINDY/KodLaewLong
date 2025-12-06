@@ -4,6 +4,12 @@ const API_BASE = import.meta.env.VITE_API_URL
   ? `${import.meta.env.VITE_API_URL}/api`
   : '/api';
 
+// Debug log (remove in production later)
+if (typeof window !== 'undefined') {
+  console.log('[API] VITE_API_URL:', import.meta.env.VITE_API_URL);
+  console.log('[API] API_BASE:', API_BASE);
+}
+
 async function fetchApi<T>(endpoint: string, options?: RequestInit): Promise<T> {
   const response = await fetch(`${API_BASE}${endpoint}`, {
     headers: {
