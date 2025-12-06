@@ -10,6 +10,7 @@ import { config } from './config/index.js';
 import { appsRouter } from './routes/apps.routes.js';
 import { selectionsRouter } from './routes/selections.routes.js';
 import { adminRouter } from './routes/admin.routes.js';
+import statsRouter from './routes/stats.routes.js';
 
 const app = express();
 
@@ -61,6 +62,7 @@ app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 app.use('/api', appsRouter);
 app.use('/api/selections', selectionsRouter);
 app.use('/api/admin', adminRouter);
+app.use('/api/stats', statsRouter);
 
 // Health check
 app.get('/health', (_req, res) => {

@@ -2,6 +2,7 @@ import type { Request, Response } from 'express';
 import archiver from 'archiver';
 import { appsService } from '../services/apps.service.js';
 import { generateService, isValidBuildId } from '../services/generate.service.js';
+import { statsService } from '../services/stats.service.js';
 import type { AppsListResponse, AppType, ErrorResponse, GenerateRequest } from '../types/index.js';
 
 const VALID_APP_TYPES: AppType[] = ['GENERAL', 'ENTERPRISE', 'MANUAL'];
@@ -80,6 +81,11 @@ export class AppsController {
       res.status(404).json({ error: 'ไม่พบไฟล์ที่ต้องการดาวน์โหลด' });
       return;
     }
+
+    // Record download statistics (async, don't block response)
+    statsService.recordDownload(buildId).catch(err => {
+      console.error('Failed to record download stats:', err);
+    });
 
     // Check if EXE exists (preferred)
     const exePath = generateService.getExePath(buildId);

@@ -4,6 +4,7 @@ import { AuthProvider } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { FavoritesProvider } from './context/FavoritesContext';
 import { RecentlyViewedProvider } from './context/RecentlyViewedContext';
+import { PopularAppsProvider } from './context/PopularAppsContext';
 import { Navbar } from './components/Navbar';
 import { AdminLayout } from './components/AdminLayout';
 import { AppSelectionPage } from './pages/AppSelectionPage';
@@ -20,7 +21,8 @@ function App() {
         <SelectionProvider>
           <FavoritesProvider>
             <RecentlyViewedProvider>
-              <BrowserRouter>
+              <PopularAppsProvider>
+                <BrowserRouter>
                 <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
                   <Navbar />
                   <main>
@@ -42,6 +44,7 @@ function App() {
                   </main>
                 </div>
               </BrowserRouter>
+              </PopularAppsProvider>
             </RecentlyViewedProvider>
           </FavoritesProvider>
         </SelectionProvider>

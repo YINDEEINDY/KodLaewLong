@@ -81,7 +81,8 @@
     "addToFavorites": "Add to favorites",
     "removeFromFavorites": "Remove from favorites",
     "hasGuide": "Guide",
-    "download": "Download"
+    "download": "Download",
+    "popular": "Popular"
   },
   "appDetail": {
     "backToSelection": "Back to app selection",

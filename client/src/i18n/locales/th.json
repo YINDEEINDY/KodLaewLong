@@ -81,7 +81,8 @@
     "addToFavorites": "เพิ่มในรายการโปรด",
     "removeFromFavorites": "ลบออกจากรายการโปรด",
     "hasGuide": "คู่มือ",
-    "download": "ดาวน์โหลด"
+    "download": "ดาวน์โหลด",
+    "popular": "ยอดนิยม"
   },
   "appDetail": {
     "backToSelection": "กลับไปเลือกซอฟต์แวร์",

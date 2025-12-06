@@ -3,6 +3,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import type { App, GenerateResponse, ErrorResponse } from '../types/index.js';
 import { appsService } from './apps.service.js';
+import { statsService } from './stats.service.js';
 
 export interface GenerateResult {
   success: true;
@@ -133,6 +134,11 @@ export class GenerateService {
     console.log('Installer package created:', buildDir);
 
     const downloadUrl = `/api/downloads/${buildId}`;
+
+    // Record build statistics (async, don't block response)
+    statsService.recordBuild(buildId, appIds).catch(err => {
+      console.error('Failed to record build stats:', err);
+    });
 
     return {
       success: true,

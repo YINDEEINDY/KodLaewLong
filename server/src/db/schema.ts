@@ -52,6 +52,34 @@ export const userSelections = pgTable('user_selections', {
   pk: primaryKey({ columns: [table.userId, table.appId] }),
 }));
 
+// Build statistics table - tracks each generated installer build
+export const buildStats = pgTable('build_stats', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  buildId: varchar('build_id', { length: 50 }).notNull().unique(),
+  appCount: integer('app_count').notNull(),
+  downloadCount: integer('download_count').notNull().default(0),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  lastDownloadAt: timestamp('last_download_at'),
+});
+
+// Build apps junction table - tracks which apps were in each build
+export const buildApps = pgTable('build_apps', {
+  buildId: varchar('build_id', { length: 50 }).notNull(),
+  appId: varchar('app_id', { length: 50 }).notNull().references(() => apps.id, { onDelete: 'cascade' }),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+}, (table) => ({
+  pk: primaryKey({ columns: [table.buildId, table.appId] }),
+}));
+
+// App statistics table - aggregated selection counts per app
+export const appStats = pgTable('app_stats', {
+  appId: varchar('app_id', { length: 50 }).primaryKey().references(() => apps.id, { onDelete: 'cascade' }),
+  selectionCount: integer('selection_count').notNull().default(0),
+  downloadCount: integer('download_count').notNull().default(0),
+  lastSelectedAt: timestamp('last_selected_at'),
+  lastDownloadedAt: timestamp('last_downloaded_at'),
+});
+
 // Type exports for TypeScript
 export type Category = typeof categories.$inferSelect;
 export type NewCategory = typeof categories.$inferInsert;
@@ -59,3 +87,9 @@ export type App = typeof apps.$inferSelect;
 export type NewApp = typeof apps.$inferInsert;
 export type UserSelection = typeof userSelections.$inferSelect;
 export type NewUserSelection = typeof userSelections.$inferInsert;
+export type BuildStat = typeof buildStats.$inferSelect;
+export type NewBuildStat = typeof buildStats.$inferInsert;
+export type BuildApp = typeof buildApps.$inferSelect;
+export type NewBuildApp = typeof buildApps.$inferInsert;
+export type AppStat = typeof appStats.$inferSelect;
+export type NewAppStat = typeof appStats.$inferInsert;

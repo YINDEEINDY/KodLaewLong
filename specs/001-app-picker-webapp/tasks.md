@@ -610,6 +610,41 @@ Task: "Create AppCategorySection component" (T028)
 
 ---
 
+## Phase 18: Build Statistics & Analytics
+
+**Purpose**: Track build statistics and show popular apps to users
+
+### Database Schema
+
+- [x] T193 Add `build_stats` table for tracking builds in `server/src/db/schema.ts`
+- [x] T194 Add `build_apps` junction table in `server/src/db/schema.ts`
+- [x] T195 Add `app_stats` table for aggregated app statistics in `server/src/db/schema.ts`
+- [x] T196 Generate and apply database migration
+
+### Backend Implementation
+
+- [x] T197 Create StatsRepository in `server/src/data/stats.repository.ts`
+- [x] T198 Create StatsService in `server/src/services/stats.service.ts`
+- [x] T199 Update GenerateService to record build stats in `server/src/services/generate.service.ts`
+- [x] T200 Add download tracking in AppsController in `server/src/controllers/apps.controller.ts`
+- [x] T201 Create StatsController in `server/src/controllers/stats.controller.ts`
+- [x] T202 Create stats routes in `server/src/routes/stats.routes.ts`
+- [x] T203 Register stats routes in `server/src/index.ts`
+
+### Frontend Implementation
+
+- [x] T204 Create stats API client in `client/src/api/statsApi.ts`
+- [x] T205 Update AdminDashboard with build stats in `client/src/pages/admin/AdminDashboard.tsx`
+- [x] T206 Create PopularAppsContext in `client/src/context/PopularAppsContext.tsx`
+- [x] T207 Add PopularAppsProvider to App.tsx
+- [x] T208 Add Popular badge to AppRow in `client/src/components/AppRow.tsx`
+- [x] T209 [P] Add "popular" translation to `client/src/i18n/locales/th.json`
+- [x] T210 [P] Add "popular" translation to `client/src/i18n/locales/en.json`
+
+**Checkpoint**: Build Statistics complete - admin can view build/download stats, popular apps shown with badge
+
+---
+
 ## Task Summary
 
 | Phase | Story | Task Count | Parallel Tasks |
@@ -630,8 +665,9 @@ Task: "Create AppCategorySection component" (T028)
 | Phase 14 | Install Guide & Dark Mode | 9 | 4 |
 | Phase 15 | Search & Filter | 10 | 0 |
 | Phase 16 | User Experience | 13 | 0 |
+| Phase 18 | Build Statistics | 18 | 2 |
 | Phase 22 | i18n | 14 | 7 |
-| **Total** | | **192** | **43** |
+| **Total** | | **210** | **45** |
 
 ---
 
@@ -656,3 +692,6 @@ Task: "Create AppCategorySection component" (T028)
 - CI/CD: GitHub Actions with lint, build, Docker, and security scan jobs
 - Environment variables passed via build args (VITE_*) or runtime (.env)
 - i18n: react-i18next with Thai/English support, language preference persisted in localStorage (key: kodlaewlong_language)
+- Build Statistics: Tracks builds, downloads, and app selection counts
+- Popular apps: Apps with 3+ selections get "Popular" badge
+- Stats API: Public endpoints for popular apps, admin endpoints for full statistics
