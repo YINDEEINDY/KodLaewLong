@@ -184,40 +184,79 @@ export class GenerateService {
     const timestamp = new Date().toISOString();
 
     // Filter apps that have installerSourceUrl for auto-install
-    const autoInstallApps = apps.filter(app => app.installerSourceUrl);
-    const manualApps = apps.filter(app => !app.installerSourceUrl);
+    const autoInstallApps = apps.filter(app => app.installerSourceUrl || app.wingetId);
+    const manualApps = apps.filter(app => !app.installerSourceUrl && !app.wingetId);
 
-    // Generate install commands for each app
+    // Generate install commands for each app with Winget fallback support
     const installCommands = autoInstallApps.map((app, index) => {
       const extension = app.installerType === 'msi' ? 'msi' : 'exe';
       const silentArgs = app.silentArguments || '';
+      const hasDirectDownload = !!app.installerSourceUrl;
+      const hasWinget = !!app.wingetId;
 
-      if (app.installerType === 'msi') {
+      // MSI vs EXE install command
+      const msiInstallCmd = `Start-Process "msiexec.exe" -ArgumentList "/i \`"$installerPath\`" ${silentArgs}" -Wait -NoNewWindow`;
+      const exeInstallCmd = `Start-Process -FilePath $installerPath -ArgumentList "${silentArgs}" -Wait -NoNewWindow`;
+      const installCmd = app.installerType === 'msi' ? msiInstallCmd : exeInstallCmd;
+
+      if (hasDirectDownload && hasWinget) {
+        // Has both: try direct download first, then Winget as fallback
         return `
-        # ${app.name}
+        # ${app.name} (Direct + Winget fallback)
         Update-Progress -Current ${index + 1} -Total $totalApps -AppName "${app.name}" -Status "กำลังดาวน์โหลด..."
+        $installed = $false
         $installerPath = "$tempDir\\${app.id}.${extension}"
-        try {
-            Invoke-WebRequest -Uri "${app.installerSourceUrl}" -OutFile $installerPath -UseBasicParsing
-            Update-Progress -Current ${index + 1} -Total $totalApps -AppName "${app.name}" -Status "กำลังติดตั้ง..."
-            Start-Process "msiexec.exe" -ArgumentList "/i \`"$installerPath\`" ${silentArgs}" -Wait -NoNewWindow
-            $script:successCount++
-        } catch {
-            $script:failedApps += "${app.name}"
-        }`;
+        for ($retry = 1; $retry -le 3; $retry++) {
+            try {
+                Invoke-WebRequest -Uri "${app.installerSourceUrl}" -OutFile $installerPath -UseBasicParsing -TimeoutSec 120
+                if (Test-Path $installerPath) {
+                    Update-Progress -Current ${index + 1} -Total $totalApps -AppName "${app.name}" -Status "กำลังติดตั้ง..."
+                    ${installCmd}
+                    $installed = $true
+                    $script:successCount++
+                    break
+                }
+            } catch { if ($retry -lt 3) { Start-Sleep -Seconds 2 } }
+        }
+        if (-not $installed) {
+            Update-Progress -Current ${index + 1} -Total $totalApps -AppName "${app.name}" -Status "ใช้ Winget..."
+            try {
+                $null = winget install --id "${app.wingetId}" --silent --accept-package-agreements --accept-source-agreements 2>&1
+                if ($LASTEXITCODE -eq 0) { $installed = $true; $script:successCount++ }
+            } catch {}
+        }
+        if (-not $installed) { $script:failedApps += "${app.name}" }`;
+      } else if (hasDirectDownload) {
+        // Direct download only with retry
+        return `
+        # ${app.name} (Direct download)
+        Update-Progress -Current ${index + 1} -Total $totalApps -AppName "${app.name}" -Status "กำลังดาวน์โหลด..."
+        $installed = $false
+        $installerPath = "$tempDir\\${app.id}.${extension}"
+        for ($retry = 1; $retry -le 3; $retry++) {
+            try {
+                Invoke-WebRequest -Uri "${app.installerSourceUrl}" -OutFile $installerPath -UseBasicParsing -TimeoutSec 120
+                if (Test-Path $installerPath) {
+                    Update-Progress -Current ${index + 1} -Total $totalApps -AppName "${app.name}" -Status "กำลังติดตั้ง..."
+                    ${installCmd}
+                    $installed = $true
+                    $script:successCount++
+                    break
+                }
+            } catch { if ($retry -lt 3) { Start-Sleep -Seconds 2 } }
+        }
+        if (-not $installed) { $script:failedApps += "${app.name}" }`;
       } else {
+        // Winget only
         return `
-        # ${app.name}
-        Update-Progress -Current ${index + 1} -Total $totalApps -AppName "${app.name}" -Status "กำลังดาวน์โหลด..."
-        $installerPath = "$tempDir\\${app.id}.${extension}"
+        # ${app.name} (Winget)
+        Update-Progress -Current ${index + 1} -Total $totalApps -AppName "${app.name}" -Status "ติดตั้งผ่าน Winget..."
+        $installed = $false
         try {
-            Invoke-WebRequest -Uri "${app.installerSourceUrl}" -OutFile $installerPath -UseBasicParsing
-            Update-Progress -Current ${index + 1} -Total $totalApps -AppName "${app.name}" -Status "กำลังติดตั้ง..."
-            Start-Process -FilePath $installerPath -ArgumentList "${silentArgs}" -Wait -NoNewWindow
-            $script:successCount++
-        } catch {
-            $script:failedApps += "${app.name}"
-        }`;
+            $null = winget install --id "${app.wingetId}" --silent --accept-package-agreements --accept-source-agreements 2>&1
+            if ($LASTEXITCODE -eq 0) { $installed = $true; $script:successCount++ }
+        } catch {}
+        if (-not $installed) { $script:failedApps += "${app.name}" }`;
       }
     }).join("\n");
 
@@ -232,9 +271,10 @@ export class GenerateService {
     KodLaewLong Installer Script
 .DESCRIPTION
     สคริปต์ติดตั้งซอฟต์แวร์อัตโนมัติ สร้างโดย KodLaewLong
+    รองรับ Direct Download และ Windows Package Manager (Winget)
 .NOTES
     Generated: ${timestamp}
-    Apps: ${apps.length}
+    Apps: ${apps.length} | Auto: ${autoInstallApps.length} | Manual: ${manualApps.length}
 #>
 
 Add-Type -AssemblyName System.Windows.Forms
@@ -244,6 +284,10 @@ Add-Type -AssemblyName System.Drawing
 $script:successCount = 0
 $script:failedApps = @()
 $totalApps = ${autoInstallApps.length}
+
+# Check Winget availability
+$script:wingetAvailable = $false
+try { $null = Get-Command winget -ErrorAction Stop; $script:wingetAvailable = $true } catch {}
 
 # Create main form
 $form = New-Object System.Windows.Forms.Form
