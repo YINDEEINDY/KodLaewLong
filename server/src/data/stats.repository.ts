@@ -201,16 +201,17 @@ export class StatsRepository {
     // Get today's builds
     const today = new Date();
     today.setHours(0, 0, 0, 0);
+    const todayStr = today.toISOString();
     const [buildsToday] = await db.select({
       count: sql<number>`count(*)::int`,
     }).from(buildStats)
-      .where(sql`${buildStats.createdAt} >= ${today}`);
+      .where(sql`${buildStats.createdAt} >= ${todayStr}`);
 
     // Get today's downloads
     const [downloadsToday] = await db.select({
       sum: sql<number>`coalesce(sum(${buildStats.downloadCount}), 0)::int`,
     }).from(buildStats)
-      .where(sql`${buildStats.lastDownloadAt} >= ${today}`);
+      .where(sql`${buildStats.lastDownloadAt} >= ${todayStr}`);
 
     return {
       totalBuilds: buildCount?.count || 0,
