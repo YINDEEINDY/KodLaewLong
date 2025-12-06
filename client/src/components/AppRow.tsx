@@ -17,7 +17,8 @@ function LicenseBadge({ type }: { type: App['licenseType'] }) {
     TRIAL: { labelKey: 'appSelection.license.trial', className: 'bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-800', icon: '◷' },
   };
 
-  const { labelKey, className, icon } = config[type];
+  const safeConfig = config[type] || config.FREE;
+  const { labelKey, className, icon } = safeConfig;
   return (
     <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border ${className}`}>
       <span className="text-[10px]">{icon}</span>
@@ -35,7 +36,9 @@ function AppTypeBadge({ type }: { type: AppType }) {
     MANUAL: { labelKey: 'nav.manual', className: 'bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-800' },
   };
 
-  const { labelKey, className } = config[type];
+  const typeConfig = config[type as keyof typeof config];
+  if (!typeConfig) return null;
+  const { labelKey, className } = typeConfig;
   return (
     <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${className}`}>
       {t(labelKey)}
