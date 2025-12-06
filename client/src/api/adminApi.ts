@@ -1,4 +1,6 @@
-const API_BASE = '/api/admin';
+const API_BASE = import.meta.env.VITE_API_URL
+  ? `${import.meta.env.VITE_API_URL}/api/admin`
+  : '/api/admin';
 
 // Types
 export interface DbApp {
