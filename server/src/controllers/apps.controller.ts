@@ -3,6 +3,7 @@ import archiver from 'archiver';
 import { appsService } from '../services/apps.service.js';
 import { generateService, isValidBuildId } from '../services/generate.service.js';
 import { statsService } from '../services/stats.service.js';
+import * as adminRepo from '../data/admin.repository.js';
 import type { AppsListResponse, AppType, ErrorResponse, GenerateRequest } from '../types/index.js';
 
 const VALID_APP_TYPES: AppType[] = ['GENERAL', 'ENTERPRISE', 'MANUAL'];
@@ -115,5 +116,17 @@ export class AppsController {
     archive.directory(buildPath, 'KodLaewLong-Installer');
 
     archive.finalize();
+  }
+
+  // GET /api/apps/:id/changelogs - Get changelogs for an app (public)
+  static async getAppChangelogs(req: Request, res: Response): Promise<void> {
+    try {
+      const { id } = req.params;
+      const changelogs = await adminRepo.getChangelogsByAppId(id);
+      res.json({ changelogs });
+    } catch (error) {
+      console.error('Error fetching changelogs:', error);
+      res.status(500).json({ error: 'เกิดข้อผิดพลาดในการดึงข้อมูล changelog' });
+    }
   }
 }

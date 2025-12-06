@@ -6,6 +6,7 @@ const navItems = [
   { path: '/admin', label: 'แดชบอร์ด', icon: '📊' },
   { path: '/admin/apps', label: 'จัดการแอป', icon: '📱' },
   { path: '/admin/categories', label: 'จัดการหมวดหมู่', icon: '📁' },
+  { path: '/admin/changelogs', label: 'Changelog', icon: '📝' },
   { path: '/admin/users', label: 'จัดการผู้ใช้', icon: '👥' },
 ];
 

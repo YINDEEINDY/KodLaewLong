@@ -47,3 +47,24 @@ export async function generateInstaller(appIds: string[]): Promise<GenerateRespo
     body: JSON.stringify(request),
   });
 }
+
+// Changelog types
+export interface AppChangelog {
+  id: string;
+  appId: string;
+  version: string;
+  releaseDate: string;
+  changeType: 'major' | 'minor' | 'patch' | 'security' | 'update';
+  title: string;
+  description: string | null;
+  changes: string | null;
+  downloadUrl: string | null;
+  isHighlighted: boolean | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Get changelogs for an app (public)
+export async function getAppChangelogs(appId: string): Promise<{ changelogs: AppChangelog[] }> {
+  return fetchApi<{ changelogs: AppChangelog[] }>(`/apps/${appId}/changelogs`);
+}

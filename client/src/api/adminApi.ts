@@ -152,3 +152,52 @@ export async function updateUserRole(token: string, userId: string, role: 'user'
     body: JSON.stringify({ role }),
   });
 }
+
+// Changelogs
+export interface DbChangelog {
+  id: string;
+  appId: string;
+  appName?: string;
+  version: string;
+  releaseDate: string;
+  changeType: 'major' | 'minor' | 'patch' | 'security' | 'update';
+  title: string;
+  description: string | null;
+  changes: string | null;
+  downloadUrl: string | null;
+  isHighlighted: boolean | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export async function getChangelogs(token: string): Promise<{ changelogs: DbChangelog[] }> {
+  return fetchWithAuth<{ changelogs: DbChangelog[] }>('/changelogs', token);
+}
+
+export async function getChangelogById(token: string, id: string): Promise<DbChangelog> {
+  return fetchWithAuth<DbChangelog>(`/changelogs/${id}`, token);
+}
+
+export async function getChangelogsByAppId(token: string, appId: string): Promise<{ changelogs: DbChangelog[] }> {
+  return fetchWithAuth<{ changelogs: DbChangelog[] }>(`/apps/${appId}/changelogs`, token);
+}
+
+export async function createChangelog(token: string, data: Partial<DbChangelog>): Promise<DbChangelog> {
+  return fetchWithAuth<DbChangelog>('/changelogs', token, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function updateChangelog(token: string, id: string, data: Partial<DbChangelog>): Promise<DbChangelog> {
+  return fetchWithAuth<DbChangelog>(`/changelogs/${id}`, token, {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function deleteChangelog(token: string, id: string): Promise<void> {
+  await fetchWithAuth(`/changelogs/${id}`, token, {
+    method: 'DELETE',
+  });
+}

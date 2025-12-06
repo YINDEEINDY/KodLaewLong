@@ -80,6 +80,22 @@ export const appStats = pgTable('app_stats', {
   lastDownloadedAt: timestamp('last_downloaded_at'),
 });
 
+// App changelogs table - tracks version history and changes for each app
+export const appChangelogs = pgTable('app_changelogs', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  appId: varchar('app_id', { length: 50 }).notNull().references(() => apps.id, { onDelete: 'cascade' }),
+  version: varchar('version', { length: 50 }).notNull(),
+  releaseDate: timestamp('release_date').notNull(),
+  changeType: varchar('change_type', { length: 20 }).notNull().default('update'), // 'major', 'minor', 'patch', 'security', 'update'
+  title: varchar('title', { length: 200 }).notNull(),
+  description: text('description'), // Detailed description of changes
+  changes: text('changes'), // JSON array of change items
+  downloadUrl: varchar('download_url', { length: 500 }), // Direct download URL for this version
+  isHighlighted: boolean('is_highlighted').default(false), // Feature highlight
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
 // Type exports for TypeScript
 export type Category = typeof categories.$inferSelect;
 export type NewCategory = typeof categories.$inferInsert;
@@ -93,3 +109,5 @@ export type BuildApp = typeof buildApps.$inferSelect;
 export type NewBuildApp = typeof buildApps.$inferInsert;
 export type AppStat = typeof appStats.$inferSelect;
 export type NewAppStat = typeof appStats.$inferInsert;
+export type AppChangelog = typeof appChangelogs.$inferSelect;
+export type NewAppChangelog = typeof appChangelogs.$inferInsert;

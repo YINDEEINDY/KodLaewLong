@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
 import * as adminRepo from '../data/admin.repository.js';
-import type { NewApp, NewCategory } from '../db/schema.js';
+import type { NewApp, NewCategory, NewAppChangelog } from '../db/schema.js';
 
 // Helper function to convert multi-line string to JSON array
 function parseInstallGuideSteps(input: string | null | undefined): string | null {
@@ -322,6 +322,120 @@ export class AdminController {
     } catch (error) {
       console.error('Error updating user role:', error);
       res.status(500).json({ error: 'เกิดข้อผิดพลาดในการอัพเดท role' });
+    }
+  }
+
+  // ==================== CHANGELOGS ====================
+
+  // GET /api/admin/changelogs - List all changelogs
+  static async getChangelogs(_req: Request, res: Response): Promise<void> {
+    try {
+      const changelogs = await adminRepo.getAllChangelogs();
+      res.json({ changelogs });
+    } catch (error) {
+      console.error('Error fetching changelogs:', error);
+      res.status(500).json({ error: 'เกิดข้อผิดพลาดในการดึงข้อมูล changelog' });
+    }
+  }
+
+  // GET /api/admin/changelogs/:id - Get single changelog
+  static async getChangelogById(req: Request, res: Response): Promise<void> {
+    try {
+      const { id } = req.params;
+      const changelog = await adminRepo.getChangelogById(id);
+
+      if (!changelog) {
+        res.status(404).json({ error: 'ไม่พบ changelog ที่ต้องการ' });
+        return;
+      }
+
+      res.json(changelog);
+    } catch (error) {
+      console.error('Error fetching changelog:', error);
+      res.status(500).json({ error: 'เกิดข้อผิดพลาดในการดึงข้อมูล' });
+    }
+  }
+
+  // GET /api/admin/apps/:appId/changelogs - Get changelogs for an app
+  static async getChangelogsByAppId(req: Request, res: Response): Promise<void> {
+    try {
+      const { appId } = req.params;
+      const changelogs = await adminRepo.getChangelogsByAppId(appId);
+      res.json({ changelogs });
+    } catch (error) {
+      console.error('Error fetching changelogs:', error);
+      res.status(500).json({ error: 'เกิดข้อผิดพลาดในการดึงข้อมูล changelog' });
+    }
+  }
+
+  // POST /api/admin/changelogs - Create new changelog
+  static async createChangelog(req: Request, res: Response): Promise<void> {
+    try {
+      const changelogData: NewAppChangelog = req.body;
+
+      // Basic validation
+      if (!changelogData.appId || !changelogData.version || !changelogData.title || !changelogData.releaseDate) {
+        res.status(400).json({ error: 'กรุณากรอกข้อมูลที่จำเป็น (appId, version, title, releaseDate)' });
+        return;
+      }
+
+      // Convert releaseDate string to Date
+      const processedData: NewAppChangelog = {
+        ...changelogData,
+        releaseDate: new Date(changelogData.releaseDate),
+      };
+
+      const changelog = await adminRepo.createChangelog(processedData);
+      res.status(201).json(changelog);
+    } catch (error) {
+      console.error('Error creating changelog:', error);
+      res.status(500).json({ error: 'เกิดข้อผิดพลาดในการสร้าง changelog' });
+    }
+  }
+
+  // PUT /api/admin/changelogs/:id - Update changelog
+  static async updateChangelog(req: Request, res: Response): Promise<void> {
+    try {
+      const { id } = req.params;
+      const updateData: Partial<NewAppChangelog> = req.body;
+
+      // Don't allow changing the ID
+      delete (updateData as { id?: string }).id;
+
+      // Convert releaseDate string to Date if provided
+      if (updateData.releaseDate) {
+        updateData.releaseDate = new Date(updateData.releaseDate);
+      }
+
+      const changelog = await adminRepo.updateChangelog(id, updateData);
+
+      if (!changelog) {
+        res.status(404).json({ error: 'ไม่พบ changelog ที่ต้องการแก้ไข' });
+        return;
+      }
+
+      res.json(changelog);
+    } catch (error) {
+      console.error('Error updating changelog:', error);
+      res.status(500).json({ error: 'เกิดข้อผิดพลาดในการแก้ไข changelog' });
+    }
+  }
+
+  // DELETE /api/admin/changelogs/:id - Delete changelog
+  static async deleteChangelog(req: Request, res: Response): Promise<void> {
+    try {
+      const { id } = req.params;
+      const deleted = await adminRepo.deleteChangelog(id);
+
+      if (!deleted) {
+        res.status(404).json({ error: 'ไม่พบ changelog ที่ต้องการลบ' });
+        return;
+      }
+
+      res.json({ success: true, message: 'ลบ changelog สำเร็จ' });
+    } catch (error) {
+      console.error('Error deleting changelog:', error);
+      res.status(500).json({ error: 'เกิดข้อผิดพลาดในการลบ changelog' });
     }
   }
 }

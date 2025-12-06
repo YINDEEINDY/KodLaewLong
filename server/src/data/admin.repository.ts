@@ -1,6 +1,6 @@
-import { eq, asc, count } from 'drizzle-orm';
+import { eq, asc, desc, count } from 'drizzle-orm';
 import { db } from '../db/index.js';
-import { apps, categories, userSelections, type App as DbApp, type Category as DbCategory, type NewApp, type NewCategory } from '../db/schema.js';
+import { apps, categories, userSelections, appChangelogs, type App as DbApp, type Category as DbCategory, type NewApp, type NewCategory, type AppChangelog as DbAppChangelog, type NewAppChangelog } from '../db/schema.js';
 import { supabaseAdmin } from '../lib/supabase.js';
 
 // Apps CRUD
@@ -152,4 +152,52 @@ export async function updateUserRole(userId: string, role: 'user' | 'admin'): Pr
   if (error) {
     throw new Error(`Failed to update user role: ${error.message}`);
   }
+}
+
+// App Changelogs CRUD
+export async function createChangelog(data: NewAppChangelog): Promise<DbAppChangelog> {
+  const result = await db.insert(appChangelogs).values(data).returning();
+  return result[0];
+}
+
+export async function updateChangelog(id: string, data: Partial<NewAppChangelog>): Promise<DbAppChangelog | null> {
+  const result = await db
+    .update(appChangelogs)
+    .set({ ...data, updatedAt: new Date() })
+    .where(eq(appChangelogs.id, id))
+    .returning();
+  return result[0] || null;
+}
+
+export async function deleteChangelog(id: string): Promise<boolean> {
+  const result = await db.delete(appChangelogs).where(eq(appChangelogs.id, id)).returning();
+  return result.length > 0;
+}
+
+export async function getChangelogById(id: string): Promise<DbAppChangelog | null> {
+  const result = await db.select().from(appChangelogs).where(eq(appChangelogs.id, id)).limit(1);
+  return result[0] || null;
+}
+
+export async function getChangelogsByAppId(appId: string): Promise<DbAppChangelog[]> {
+  return await db
+    .select()
+    .from(appChangelogs)
+    .where(eq(appChangelogs.appId, appId))
+    .orderBy(desc(appChangelogs.releaseDate));
+}
+
+export async function getAllChangelogs(): Promise<(DbAppChangelog & { appName: string })[]> {
+  const changelogs = await db
+    .select()
+    .from(appChangelogs)
+    .orderBy(desc(appChangelogs.releaseDate));
+
+  const allApps = await db.select().from(apps);
+  const appMap = new Map(allApps.map(app => [app.id, app.name]));
+
+  return changelogs.map(changelog => ({
+    ...changelog,
+    appName: appMap.get(changelog.appId) || 'Unknown',
+  }));
 }

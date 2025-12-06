@@ -14,7 +14,7 @@ import { AppDetailPage } from './pages/AppDetailPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import ProfilePage from './pages/ProfilePage';
-import { AdminDashboard, AdminAppsPage, AdminCategoriesPage, AdminUsersPage } from './pages/admin';
+import { AdminDashboard, AdminAppsPage, AdminCategoriesPage, AdminUsersPage, AdminChangelogsPage } from './pages/admin';
 
 function App() {
   return (
@@ -67,6 +67,7 @@ function App() {
                         <Route path="apps" element={<AdminAppsPage />} />
                         <Route path="categories" element={<AdminCategoriesPage />} />
                         <Route path="users" element={<AdminUsersPage />} />
+                        <Route path="changelogs" element={<AdminChangelogsPage />} />
                       </Route>
                     </Routes>
                   </main>

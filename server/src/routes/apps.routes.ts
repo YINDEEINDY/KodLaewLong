@@ -9,6 +9,9 @@ appsRouter.get('/apps', AppsController.getApps);
 // GET /api/apps/:id - Get single app details
 appsRouter.get('/apps/:id', AppsController.getAppById);
 
+// GET /api/apps/:id/changelogs - Get changelogs for an app (public)
+appsRouter.get('/apps/:id/changelogs', AppsController.getAppChangelogs);
+
 // POST /api/generate - Generate installer
 appsRouter.post('/generate', AppsController.generate);
 

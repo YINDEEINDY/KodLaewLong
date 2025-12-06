@@ -28,3 +28,11 @@ adminRouter.delete('/categories/:id', AdminController.deleteCategory);
 // ==================== USERS ====================
 adminRouter.get('/users', AdminController.getUsers);
 adminRouter.put('/users/:id/role', AdminController.updateUserRole);
+
+// ==================== CHANGELOGS ====================
+adminRouter.get('/changelogs', AdminController.getChangelogs);
+adminRouter.get('/changelogs/:id', AdminController.getChangelogById);
+adminRouter.get('/apps/:appId/changelogs', AdminController.getChangelogsByAppId);
+adminRouter.post('/changelogs', AdminController.createChangelog);
+adminRouter.put('/changelogs/:id', AdminController.updateChangelog);
+adminRouter.delete('/changelogs/:id', AdminController.deleteChangelog);

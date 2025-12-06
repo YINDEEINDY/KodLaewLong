@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { getAppById } from '../api/appsApi';
+import { getAppById, getAppChangelogs, type AppChangelog } from '../api/appsApi';
 import { useSelection } from '../context/SelectionContext';
 import { useFavorites } from '../context/FavoritesContext';
 import { useRecentlyViewed } from '../context/RecentlyViewedContext';
@@ -30,8 +30,10 @@ export function AppDetailPage() {
   const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const [app, setApp] = useState<App | null>(null);
+  const [changelogs, setChangelogs] = useState<AppChangelog[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showAllChangelogs, setShowAllChangelogs] = useState(false);
   const { isSelected, addToSelection, removeFromSelection } = useSelection();
   const { isFavorite, toggleFavorite } = useFavorites();
   const { addToRecentlyViewed } = useRecentlyViewed();
@@ -39,12 +41,16 @@ export function AppDetailPage() {
   useEffect(() => {
     if (!id) return;
 
-    const fetchApp = async () => {
+    const fetchData = async () => {
       setLoading(true);
       setError(null);
       try {
-        const data = await getAppById(id);
-        setApp(data);
+        const [appData, changelogsData] = await Promise.all([
+          getAppById(id),
+          getAppChangelogs(id).catch(() => ({ changelogs: [] })),
+        ]);
+        setApp(appData);
+        setChangelogs(changelogsData.changelogs);
         // Add to recently viewed
         addToRecentlyViewed(id);
       } catch (err) {
@@ -54,7 +60,7 @@ export function AppDetailPage() {
       }
     };
 
-    fetchApp();
+    fetchData();
   }, [id, addToRecentlyViewed]);
 
   if (loading) {
@@ -322,6 +328,98 @@ export function AppDetailPage() {
           <div className="text-4xl mb-3">✨</div>
           <p className="text-gray-600 dark:text-gray-300 font-medium">{t('appDetail.noGuide.title')}</p>
           <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">{t('appDetail.noGuide.subtitle')}</p>
+        </div>
+      )}
+
+      {/* Changelog Section */}
+      {changelogs.length > 0 && (
+        <div className="card mt-6">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
+            <svg className="w-5 h-5 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+            </svg>
+            {t('appDetail.changelog.title', 'Version History')}
+          </h2>
+
+          <div className="space-y-4">
+            {(showAllChangelogs ? changelogs : changelogs.slice(0, 3)).map((changelog) => (
+              <div
+                key={changelog.id}
+                className={`p-4 rounded-lg border ${
+                  changelog.isHighlighted
+                    ? 'bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-700'
+                    : 'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700'
+                }`}
+              >
+                <div className="flex flex-wrap items-center gap-2 mb-2">
+                  <span className="font-semibold text-gray-900 dark:text-gray-100">v{changelog.version}</span>
+                  <span className={`px-2 py-0.5 rounded text-xs font-medium ${
+                    changelog.changeType === 'major' ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-300' :
+                    changelog.changeType === 'minor' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300' :
+                    changelog.changeType === 'patch' ? 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300' :
+                    changelog.changeType === 'security' ? 'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300' :
+                    'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300'
+                  }`}>
+                    {changelog.changeType === 'major' ? 'Major' :
+                     changelog.changeType === 'minor' ? 'Minor' :
+                     changelog.changeType === 'patch' ? 'Patch' :
+                     changelog.changeType === 'security' ? 'Security' : 'Update'}
+                  </span>
+                  {changelog.isHighlighted && (
+                    <span className="text-yellow-500" title="Featured">★</span>
+                  )}
+                  <span className="text-sm text-gray-500 dark:text-gray-400 ml-auto">
+                    {new Date(changelog.releaseDate).toLocaleDateString('th-TH', {
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric',
+                    })}
+                  </span>
+                </div>
+
+                <h3 className="font-medium text-gray-800 dark:text-gray-200 mb-1">{changelog.title}</h3>
+
+                {changelog.description && (
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">{changelog.description}</p>
+                )}
+
+                {changelog.changes && (
+                  <div className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                    <ul className="list-disc list-inside space-y-1">
+                      {changelog.changes.split('\n').filter(line => line.trim()).map((change, idx) => (
+                        <li key={idx}>{change.replace(/^[-*]\s*/, '')}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {changelog.downloadUrl && (
+                  <a
+                    href={changelog.downloadUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 mt-3 text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                    {t('appDetail.changelog.download', 'Download this version')}
+                  </a>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {changelogs.length > 3 && (
+            <button
+              onClick={() => setShowAllChangelogs(!showAllChangelogs)}
+              className="mt-4 text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 text-sm font-medium"
+            >
+              {showAllChangelogs
+                ? t('appDetail.changelog.showLess', 'Show less')
+                : t('appDetail.changelog.showMore', `Show all ${changelogs.length} versions`)}
+            </button>
+          )}
         </div>
       )}
     </div>
