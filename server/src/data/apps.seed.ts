@@ -8,6 +8,7 @@ export const CATEGORIES: Category[] = [
   { name: 'Utilities', slug: 'utilities', order: 5 },
   { name: 'Security', slug: 'security', order: 6 },
   { name: 'Productivity', slug: 'productivity', order: 7 },
+  { name: 'Education', slug: 'education', order: 8 },
 ];
 
 export const apps: App[] = [
@@ -344,6 +345,35 @@ export const apps: App[] = [
     installerType: 'exe',
     vendor: 'Bitwarden Inc.',
     appType: 'GENERAL',
+  },
+
+  // ============================================
+  // EDUCATION APPS
+  // ============================================
+  {
+    id: 'schoolapp-desktop',
+    name: 'SchoolApp Desktop',
+    category: 'education',
+    description: 'ระบบบริหารจัดการโรงเรียน - แอปพลิเคชันสำหรับใช้งานภายในองค์กร',
+    iconUrl: 'https://cdn-icons-png.flaticon.com/512/2232/2232688.png',
+    licenseType: 'FREE',
+    isPublicFree: false,
+    officialWebsiteUrl: 'http://166.166.1.1/SchoolApp/',
+    officialDownloadUrl: 'http://166.166.1.1/SchoolApp/SchoolAppDesktop/SchoolAppDesktop.application',
+    installerSourceUrl: 'http://166.166.1.1/SchoolApp/SchoolAppDesktop/SchoolAppDesktop.application',
+    hasInstallGuide: true,
+    installGuideTitle: 'วิธีติดตั้ง SchoolApp Desktop',
+    installGuideSteps: [
+      'ตรวจสอบว่าเชื่อมต่อกับเครือข่ายภายในโรงเรียน',
+      'คลิกที่ลิงก์ดาวน์โหลด SchoolApp Desktop',
+      'เบราว์เซอร์จะเปิดไฟล์ .application',
+      'คลิก Install เพื่อติดตั้งแอปพลิเคชัน',
+      'รอให้ติดตั้งเสร็จ แอปจะเปิดอัตโนมัติ',
+    ],
+    installNotes: 'ต้องเชื่อมต่อกับเครือข่ายภายในโรงเรียน (166.166.x.x) เพื่อติดตั้งและใช้งาน',
+    installerType: 'application',
+    vendor: 'School IT',
+    appType: 'ENTERPRISE',
   },
 
   // ============================================
