@@ -28,6 +28,7 @@ adminRouter.delete('/categories/:id', AdminController.deleteCategory);
 // ==================== USERS ====================
 adminRouter.get('/users', AdminController.getUsers);
 adminRouter.put('/users/:id/role', AdminController.updateUserRole);
+adminRouter.delete('/users/:id', AdminController.deleteUser);
 
 // ==================== CHANGELOGS ====================
 adminRouter.get('/changelogs', AdminController.getChangelogs);

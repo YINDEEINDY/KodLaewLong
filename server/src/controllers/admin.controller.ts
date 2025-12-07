@@ -325,6 +325,25 @@ export class AdminController {
     }
   }
 
+  // DELETE /api/admin/users/:id - Delete user
+  static async deleteUser(req: Request, res: Response): Promise<void> {
+    try {
+      const { id } = req.params;
+
+      // Prevent self-deletion
+      if (req.user?.id === id) {
+        res.status(400).json({ error: 'ไม่สามารถลบบัญชีของตัวเองได้' });
+        return;
+      }
+
+      await adminRepo.deleteUser(id);
+      res.json({ success: true, message: 'ลบผู้ใช้สำเร็จ' });
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      res.status(500).json({ error: 'เกิดข้อผิดพลาดในการลบผู้ใช้' });
+    }
+  }
+
   // ==================== CHANGELOGS ====================
 
   // GET /api/admin/changelogs - List all changelogs

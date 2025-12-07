@@ -153,6 +153,12 @@ export async function updateUserRole(token: string, userId: string, role: 'user'
   });
 }
 
+export async function deleteUser(token: string, userId: string): Promise<void> {
+  await fetchWithAuth(`/users/${userId}`, token, {
+    method: 'DELETE',
+  });
+}
+
 // Changelogs
 export interface DbChangelog {
   id: string;

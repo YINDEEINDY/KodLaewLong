@@ -154,6 +154,18 @@ export async function updateUserRole(userId: string, role: 'user' | 'admin'): Pr
   }
 }
 
+export async function deleteUser(userId: string): Promise<void> {
+  // First, delete user's selections from database
+  await db.delete(userSelections).where(eq(userSelections.userId, userId));
+
+  // Then, delete user from Supabase Auth
+  const { error } = await supabaseAdmin.auth.admin.deleteUser(userId);
+
+  if (error) {
+    throw new Error(`Failed to delete user: ${error.message}`);
+  }
+}
+
 // App Changelogs CRUD
 export async function createChangelog(data: NewAppChangelog): Promise<DbAppChangelog> {
   const result = await db.insert(appChangelogs).values(data).returning();

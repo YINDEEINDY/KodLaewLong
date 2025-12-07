@@ -756,6 +756,90 @@ Task: "Create AppCategorySection component" (T028)
 
 ---
 
+## Phase 17: Admin Panel Improvements
+
+**Purpose**: Enhance admin panel with missing features and improve UX/UI consistency
+
+### Part A: Core Features
+
+#### A1: Delete User
+
+- [x] T251 Add DELETE /api/admin/users/:id endpoint in `server/src/routes/admin.routes.ts`
+- [x] T252 Implement deleteUser in admin repository using Supabase Admin API in `server/src/data/admin.repository.ts`
+- [x] T253 Add deleteUser controller handler in `server/src/controllers/admin.controller.ts`
+- [x] T254 Add delete button and confirmation to AdminUsersPage in `client/src/pages/admin/AdminUsersPage.tsx`
+
+#### A2: Bulk Delete
+
+- [ ] T255 Create reusable BulkSelectContext in `client/src/context/BulkSelectContext.tsx`
+- [ ] T256 [P] Add bulk delete endpoint for apps DELETE /api/admin/apps/bulk in `server/src/routes/admin.routes.ts`
+- [ ] T257 [P] Add bulk delete endpoint for categories DELETE /api/admin/categories/bulk
+- [ ] T258 [P] Add bulk delete endpoint for users DELETE /api/admin/users/bulk
+- [ ] T259 Add multi-select checkboxes to AdminAppsPage in `client/src/pages/admin/AdminAppsPage.tsx`
+- [ ] T260 Add multi-select checkboxes to AdminCategoriesPage in `client/src/pages/admin/AdminCategoriesPage.tsx`
+- [ ] T261 Add multi-select checkboxes to AdminUsersPage in `client/src/pages/admin/AdminUsersPage.tsx`
+- [ ] T262 Add bulk action toolbar component in `client/src/components/admin/BulkActionToolbar.tsx`
+
+#### A3: Audit Log (Simple)
+
+- [ ] T263 Add audit_logs table to database schema in `server/src/db/schema.ts`
+- [ ] T264 Generate and apply database migration for audit_logs
+- [ ] T265 Create AuditLogRepository in `server/src/data/audit.repository.ts`
+- [ ] T266 Create AuditLogService with logAction method in `server/src/services/audit.service.ts`
+- [ ] T267 Integrate audit logging in admin controller (create, update, delete actions)
+- [ ] T268 Add GET /api/admin/audit-logs endpoint in `server/src/routes/admin.routes.ts`
+- [ ] T269 Create AdminAuditLogPage in `client/src/pages/admin/AdminAuditLogPage.tsx`
+- [ ] T270 Add Audit Log link to AdminLayout sidebar
+
+#### A4: Advanced Search
+
+- [ ] T271 Add search filters (category, license type) to AdminAppsPage
+- [ ] T272 Add search filters (role, email) to AdminUsersPage
+- [ ] T273 Create reusable SearchFilters component in `client/src/components/admin/SearchFilters.tsx`
+
+### Part B: UX/UI Improvements
+
+#### B1: Language Consistency (Thai + i18n)
+
+- [ ] T274 Add admin translations to `client/src/i18n/locales/th.json`
+- [ ] T275 [P] Add admin translations to `client/src/i18n/locales/en.json`
+- [ ] T276 Apply i18n to AdminLayout in `client/src/components/AdminLayout.tsx`
+- [ ] T277 [P] Apply i18n to AdminAppsPage
+- [ ] T278 [P] Apply i18n to AdminCategoriesPage
+- [ ] T279 [P] Apply i18n to AdminUsersPage
+- [ ] T280 [P] Apply i18n to AdminChangelogsPage
+- [ ] T281 [P] Apply i18n to AdminDashboard
+
+#### B2: Dark Mode Complete
+
+- [ ] T282 Add dark mode support to AdminCategoriesPage in `client/src/pages/admin/AdminCategoriesPage.tsx`
+- [ ] T283 Add dark mode support to AdminUsersPage in `client/src/pages/admin/AdminUsersPage.tsx`
+- [ ] T284 Add dark mode support to AdminChangelogsPage in `client/src/pages/admin/AdminChangelogsPage.tsx`
+- [ ] T285 Add dark mode support to AdminAuditLogPage
+
+#### B3: Modern Dialogs (Modal Component)
+
+- [x] T286 Create ConfirmDialog component in `client/src/components/admin/ConfirmDialog.tsx`
+- [x] T287 Replace all confirm() calls with ConfirmDialog in admin pages
+- [x] T288 Create AlertDialog component for error/success messages in `client/src/components/admin/AlertDialog.tsx`
+
+#### B4: Color Consistency
+
+- [ ] T289 Standardize AdminCategoriesPage colors to Indigo theme
+- [ ] T290 Standardize AdminChangelogsPage colors to Indigo theme
+- [ ] T291 Standardize AdminUsersPage colors to Indigo theme
+
+#### B5: Toast Notifications
+
+- [x] T292 Install react-hot-toast or create custom Toast component
+- [x] T293 Create ToastProvider and useToast hook in `client/src/context/ToastContext.tsx`
+- [x] T294 Replace all alert() and success messages with Toast notifications
+- [x] T295 Add Toast container to AdminLayout
+
+**Checkpoint**: Admin Panel Improvements complete - full CRUD for users, bulk operations, audit log, consistent UX/UI
+
+---
+
 ## Task Summary
 
 | Phase | Story | Task Count | Parallel Tasks |
@@ -776,13 +860,14 @@ Task: "Create AppCategorySection component" (T028)
 | Phase 14 | Install Guide & Dark Mode | 9 | 4 |
 | Phase 15 | Search & Filter | 10 | 0 |
 | Phase 16 | User Experience | 13 | 0 |
+| Phase 17 | Admin Panel Improvements | 45 | 9 |
 | Phase 18 | Build Statistics | 18 | 2 |
 | Phase 19 | PWA Support | 11 | 4 |
 | Phase 20 | Testing | 13 | 2 |
 | Phase 21 | Actual Installer | 8 | 0 |
 | Phase 22 | i18n | 14 | 7 |
 | Phase 26 | API Documentation | 8 | 3 |
-| **Total** | | **250** | **54** |
+| **Total** | | **295** | **63** |
 
 ---
 
