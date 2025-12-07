@@ -12,6 +12,7 @@ import { selectionsRouter } from './routes/selections.routes.js';
 import { adminRouter } from './routes/admin.routes.js';
 import statsRouter from './routes/stats.routes.js';
 import { setupSwagger } from './docs/swagger.js';
+import { loggingMiddleware, errorLoggingMiddleware } from './middleware/logging.middleware.js';
 
 const app = express();
 
@@ -59,6 +60,9 @@ app.use(cors({
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
+// Request logging
+app.use(loggingMiddleware);
+
 // API Documentation (Swagger)
 setupSwagger(app);
 
@@ -76,6 +80,9 @@ app.get('/health', (_req, res) => {
     environment: config.nodeEnv,
   });
 });
+
+// Error logging (after routes)
+app.use(errorLoggingMiddleware);
 
 // Start server (HTTPS if certificates available, HTTP otherwise)
 if (httpsOptions) {

@@ -1,4 +1,5 @@
-import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from 'react';
+import { createContext, useContext, useCallback, useMemo, type ReactNode } from 'react';
+import { useLocalStorage } from '../hooks/useLocalStorage';
 
 interface RecentlyViewedItem {
   id: string;
@@ -22,29 +23,7 @@ interface RecentlyViewedProviderProps {
 }
 
 export function RecentlyViewedProvider({ children }: RecentlyViewedProviderProps) {
-  const [recentItems, setRecentItems] = useState<RecentlyViewedItem[]>(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) {
-          return parsed;
-        }
-      }
-    } catch (e) {
-      console.error('Failed to load recently viewed:', e);
-    }
-    return [];
-  });
-
-  // Save to localStorage when recently viewed changes
-  useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(recentItems));
-    } catch (e) {
-      console.error('Failed to save recently viewed:', e);
-    }
-  }, [recentItems]);
+  const [recentItems, setRecentItems] = useLocalStorage<RecentlyViewedItem[]>(STORAGE_KEY, []);
 
   const addToRecentlyViewed = useCallback((id: string) => {
     setRecentItems((prev) => {
@@ -56,20 +35,18 @@ export function RecentlyViewedProvider({ children }: RecentlyViewedProviderProps
       // Keep only MAX_ITEMS
       return updated.slice(0, MAX_ITEMS);
     });
-  }, []);
+  }, [setRecentItems]);
 
   const clearRecentlyViewed = useCallback(() => {
     setRecentItems([]);
-  }, []);
+  }, [setRecentItems]);
 
-  const recentlyViewedIds = recentItems.map((item) => item.id);
-
-  const value: RecentlyViewedContextType = {
-    recentlyViewedIds,
+  const value: RecentlyViewedContextType = useMemo(() => ({
+    recentlyViewedIds: recentItems.map((item) => item.id),
     addToRecentlyViewed,
     clearRecentlyViewed,
     recentlyViewedCount: recentItems.length,
-  };
+  }), [recentItems, addToRecentlyViewed, clearRecentlyViewed]);
 
   return (
     <RecentlyViewedContext.Provider value={value}>

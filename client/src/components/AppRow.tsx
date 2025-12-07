@@ -1,62 +1,13 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import type { App, AppType } from '../types';
+import type { App } from '../types';
 import { useSelection } from '../context/SelectionContext';
 import { useFavorites } from '../context/FavoritesContext';
 import { usePopularApps } from '../context/PopularAppsContext';
+import { LicenseBadge, AppTypeBadge, PopularBadge, InstallGuideBadge } from './badges';
 
 interface AppRowProps {
   app: App;
-}
-
-function LicenseBadge({ type }: { type: App['licenseType'] }) {
-  const { t } = useTranslation();
-  const config: Record<App['licenseType'], { labelKey: string; className: string; icon: string }> = {
-    FREE: { labelKey: 'appSelection.license.free', className: 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800', icon: '✓' },
-    PAID: { labelKey: 'appSelection.license.paid', className: 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-900/30 dark:text-rose-400 dark:border-rose-800', icon: '$' },
-    FREEMIUM: { labelKey: 'appSelection.license.freemium', className: 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800', icon: '★' },
-    TRIAL: { labelKey: 'appSelection.license.trial', className: 'bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-800', icon: '◷' },
-  };
-
-  const safeConfig = config[type] || config.FREE;
-  const { labelKey, className, icon } = safeConfig;
-  return (
-    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border ${className}`}>
-      <span className="text-[10px]">{icon}</span>
-      {t(labelKey)}
-    </span>
-  );
-}
-
-function AppTypeBadge({ type }: { type: AppType }) {
-  const { t } = useTranslation();
-  if (type === 'GENERAL') return null;
-
-  const config: Record<Exclude<AppType, 'GENERAL'>, { labelKey: string; className: string }> = {
-    ENTERPRISE: { labelKey: 'nav.enterprise', className: 'bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-900/30 dark:text-purple-400 dark:border-purple-800' },
-    MANUAL: { labelKey: 'nav.manual', className: 'bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-800' },
-  };
-
-  const typeConfig = config[type as keyof typeof config];
-  if (!typeConfig) return null;
-  const { labelKey, className } = typeConfig;
-  return (
-    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${className}`}>
-      {t(labelKey)}
-    </span>
-  );
-}
-
-function PopularBadge() {
-  const { t } = useTranslation();
-  return (
-    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-gradient-to-r from-yellow-400 to-orange-400 text-white shadow-sm">
-      <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
-        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-      </svg>
-      {t('appRow.popular', 'Popular')}
-    </span>
-  );
 }
 
 export function AppRow({ app }: AppRowProps) {
@@ -145,11 +96,8 @@ export function AppRow({ app }: AppRowProps) {
           <span className="hidden sm:inline-flex"><AppTypeBadge type={app.appType} /></span>
           {popular && <span className="hidden xs:inline-flex"><PopularBadge /></span>}
           {app.hasInstallGuide && (
-            <span className="hidden md:inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-600 border border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800">
-              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-              </svg>
-              {t('appRow.hasGuide')}
+            <span className="hidden md:inline-flex">
+              <InstallGuideBadge />
             </span>
           )}
         </div>

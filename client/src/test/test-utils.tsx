@@ -1,12 +1,7 @@
 import { ReactElement, ReactNode } from 'react';
 import { render, RenderOptions } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
-import { SelectionProvider } from '../context/SelectionContext';
-import { AuthProvider } from '../context/AuthContext';
-import { ThemeProvider } from '../context/ThemeContext';
-import { FavoritesProvider } from '../context/FavoritesContext';
-import { RecentlyViewedProvider } from '../context/RecentlyViewedContext';
-import { PopularAppsProvider } from '../context/PopularAppsContext';
+import { RootProvider } from '../providers/RootProvider';
 import { I18nextProvider } from 'react-i18next';
 import i18n from '../i18n';
 
@@ -14,19 +9,9 @@ import i18n from '../i18n';
 function AllProviders({ children }: { children: ReactNode }) {
   return (
     <I18nextProvider i18n={i18n}>
-      <ThemeProvider>
-        <AuthProvider>
-          <SelectionProvider>
-            <FavoritesProvider>
-              <RecentlyViewedProvider>
-                <PopularAppsProvider>
-                  <BrowserRouter>{children}</BrowserRouter>
-                </PopularAppsProvider>
-              </RecentlyViewedProvider>
-            </FavoritesProvider>
-          </SelectionProvider>
-        </AuthProvider>
-      </ThemeProvider>
+      <RootProvider>
+        <BrowserRouter>{children}</BrowserRouter>
+      </RootProvider>
     </I18nextProvider>
   );
 }

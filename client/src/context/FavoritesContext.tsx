@@ -1,4 +1,5 @@
-import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from 'react';
+import { createContext, useContext, useMemo, type ReactNode } from 'react';
+import { useLocalStorageSet } from '../hooks/useLocalStorage';
 
 interface FavoritesContextType {
   favoriteIds: Set<string>;
@@ -19,76 +20,17 @@ interface FavoritesProviderProps {
 }
 
 export function FavoritesProvider({ children }: FavoritesProviderProps) {
-  const [favoriteIds, setFavoriteIds] = useState<Set<string>>(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) {
-          return new Set(parsed);
-        }
-      }
-    } catch (e) {
-      console.error('Failed to load favorites:', e);
-    }
-    return new Set();
-  });
+  const [favoriteIds, actions] = useLocalStorageSet(STORAGE_KEY);
 
-  // Save to localStorage when favorites change
-  useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify([...favoriteIds]));
-    } catch (e) {
-      console.error('Failed to save favorites:', e);
-    }
-  }, [favoriteIds]);
-
-  const isFavorite = useCallback(
-    (id: string) => favoriteIds.has(id),
-    [favoriteIds]
-  );
-
-  const toggleFavorite = useCallback((id: string) => {
-    setFavoriteIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) {
-        next.delete(id);
-      } else {
-        next.add(id);
-      }
-      return next;
-    });
-  }, []);
-
-  const addFavorite = useCallback((id: string) => {
-    setFavoriteIds((prev) => {
-      const next = new Set(prev);
-      next.add(id);
-      return next;
-    });
-  }, []);
-
-  const removeFavorite = useCallback((id: string) => {
-    setFavoriteIds((prev) => {
-      const next = new Set(prev);
-      next.delete(id);
-      return next;
-    });
-  }, []);
-
-  const clearFavorites = useCallback(() => {
-    setFavoriteIds(new Set());
-  }, []);
-
-  const value: FavoritesContextType = {
+  const value: FavoritesContextType = useMemo(() => ({
     favoriteIds,
-    isFavorite,
-    toggleFavorite,
-    addFavorite,
-    removeFavorite,
-    clearFavorites,
+    isFavorite: actions.has,
+    toggleFavorite: actions.toggle,
+    addFavorite: actions.add,
+    removeFavorite: actions.remove,
+    clearFavorites: actions.clear,
     favoritesCount: favoriteIds.size,
-  };
+  }), [favoriteIds, actions]);
 
   return (
     <FavoritesContext.Provider value={value}>
