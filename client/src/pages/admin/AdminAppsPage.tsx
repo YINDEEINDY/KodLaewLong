@@ -167,10 +167,12 @@ export function AdminAppsPage() {
     try {
       setBulkDeleting(true);
       const deletePromises = Array.from(selectedItems).map((id) =>
-        adminApi.deleteApp(session.access_token, id).catch((err) => ({ error: true, id, message: err.message }))
+        adminApi.deleteApp(session.access_token, id)
+          .then(() => ({ success: true, id }))
+          .catch((err) => ({ success: false, id, message: err.message }))
       );
       const results = await Promise.all(deletePromises);
-      const failed = results.filter((r) => r && typeof r === 'object' && 'error' in r);
+      const failed = results.filter((r) => !r.success);
 
       if (failed.length > 0) {
         toast.error(`ลบไม่สำเร็จ ${failed.length} รายการ`);
@@ -178,7 +180,8 @@ export function AdminAppsPage() {
         toast.success(`ลบแอป ${selectedItems.size} รายการสำเร็จ`);
       }
 
-      setApps(apps.filter((a) => !selectedItems.has(a.id) || failed.some((f) => f.id === a.id)));
+      const failedIds = new Set(failed.map((f) => f.id));
+      setApps(apps.filter((a) => !selectedItems.has(a.id) || failedIds.has(a.id)));
       setSelectedItems(new Set());
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'เกิดข้อผิดพลาดในการลบ');

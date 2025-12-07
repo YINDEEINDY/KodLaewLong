@@ -128,10 +128,12 @@ export function AdminUsersPage() {
     try {
       setBulkDeleting(true);
       const deletePromises = Array.from(selectedUsers).map((id) =>
-        adminApi.deleteUser(session.access_token, id).catch((err) => ({ error: true, id, message: err.message }))
+        adminApi.deleteUser(session.access_token, id)
+          .then(() => ({ success: true, id }))
+          .catch((err) => ({ success: false, id, message: err.message }))
       );
       const results = await Promise.all(deletePromises);
-      const failed = results.filter((r) => r && typeof r === 'object' && 'error' in r);
+      const failed = results.filter((r) => !r.success);
 
       if (failed.length > 0) {
         toast.error(`ลบไม่สำเร็จ ${failed.length} คน`);
@@ -139,7 +141,8 @@ export function AdminUsersPage() {
         toast.success(`ลบผู้ใช้ ${selectedUsers.size} คนสำเร็จ`);
       }
 
-      setUsers(users.filter((u) => !selectedUsers.has(u.id) || failed.some((f) => f.id === u.id)));
+      const failedIds = new Set(failed.map((f) => f.id));
+      setUsers(users.filter((u) => !selectedUsers.has(u.id) || failedIds.has(u.id)));
       setSelectedUsers(new Set());
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'เกิดข้อผิดพลาดในการลบผู้ใช้');
