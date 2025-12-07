@@ -207,3 +207,21 @@ export async function deleteChangelog(token: string, id: string): Promise<void> 
     method: 'DELETE',
   });
 }
+
+// Audit Logs
+export interface AuditLog {
+  id: string;
+  action: string;
+  entityType: string;
+  entityId: string | null;
+  entityName: string | null;
+  userId: string;
+  userEmail: string;
+  details: string | null;
+  createdAt: string;
+}
+
+export async function getAuditLogs(token: string, limit?: number): Promise<{ logs: AuditLog[] }> {
+  const query = limit ? `?limit=${limit}` : '';
+  return fetchWithAuth<{ logs: AuditLog[] }>(`/audit-logs${query}`, token);
+}

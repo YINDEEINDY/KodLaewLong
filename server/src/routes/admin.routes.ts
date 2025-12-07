@@ -37,3 +37,6 @@ adminRouter.get('/apps/:appId/changelogs', AdminController.getChangelogsByAppId)
 adminRouter.post('/changelogs', AdminController.createChangelog);
 adminRouter.put('/changelogs/:id', AdminController.updateChangelog);
 adminRouter.delete('/changelogs/:id', AdminController.deleteChangelog);
+
+// ==================== AUDIT LOGS ====================
+adminRouter.get('/audit-logs', AdminController.getAuditLogs);

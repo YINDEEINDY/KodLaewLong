@@ -10,7 +10,7 @@ import { AppDetailPage } from './pages/AppDetailPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import ProfilePage from './pages/ProfilePage';
-import { AdminDashboard, AdminAppsPage, AdminCategoriesPage, AdminUsersPage, AdminChangelogsPage } from './pages/admin';
+import { AdminDashboard, AdminAppsPage, AdminCategoriesPage, AdminUsersPage, AdminChangelogsPage, AdminAuditLogPage } from './pages/admin';
 
 // Toast configuration
 const toastOptions = {
@@ -60,6 +60,7 @@ function App() {
                 <Route path="categories" element={<AdminCategoriesPage />} />
                 <Route path="users" element={<AdminUsersPage />} />
                 <Route path="changelogs" element={<AdminChangelogsPage />} />
+                <Route path="audit-logs" element={<AdminAuditLogPage />} />
               </Route>
             </Routes>
           </main>

@@ -8,6 +8,7 @@ const navItems = [
   { path: '/admin/categories', label: 'จัดการหมวดหมู่', icon: '📁' },
   { path: '/admin/changelogs', label: 'Changelog', icon: '📝' },
   { path: '/admin/users', label: 'จัดการผู้ใช้', icon: '👥' },
+  { path: '/admin/audit-logs', label: 'ประวัติการดำเนินการ', icon: '📋' },
 ];
 
 export function AdminLayout() {

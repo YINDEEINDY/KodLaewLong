@@ -1,6 +1,6 @@
 import { eq, asc, desc, count } from 'drizzle-orm';
 import { db } from '../db/index.js';
-import { apps, categories, userSelections, appChangelogs, type App as DbApp, type Category as DbCategory, type NewApp, type NewCategory, type AppChangelog as DbAppChangelog, type NewAppChangelog } from '../db/schema.js';
+import { apps, categories, userSelections, appChangelogs, auditLogs, type App as DbApp, type Category as DbCategory, type NewApp, type NewCategory, type AppChangelog as DbAppChangelog, type NewAppChangelog, type AuditLog as DbAuditLog, type NewAuditLog } from '../db/schema.js';
 import { supabaseAdmin } from '../lib/supabase.js';
 
 // Apps CRUD
@@ -212,4 +212,28 @@ export async function getAllChangelogs(): Promise<(DbAppChangelog & { appName: s
     ...changelog,
     appName: appMap.get(changelog.appId) || 'Unknown',
   }));
+}
+
+// Audit Logs
+export interface AuditLogEntry {
+  action: string;
+  entityType: string;
+  entityId?: string;
+  entityName?: string;
+  userId: string;
+  userEmail: string;
+  details?: string;
+}
+
+export async function createAuditLog(entry: AuditLogEntry): Promise<DbAuditLog> {
+  const result = await db.insert(auditLogs).values(entry).returning();
+  return result[0];
+}
+
+export async function getAuditLogs(limit: number = 100): Promise<DbAuditLog[]> {
+  return await db
+    .select()
+    .from(auditLogs)
+    .orderBy(desc(auditLogs.createdAt))
+    .limit(limit);
 }

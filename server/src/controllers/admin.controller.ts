@@ -110,6 +110,17 @@ export class AdminController {
       };
 
       const app = await adminRepo.createApp(processedData);
+
+      // Log the action
+      await AdminController.logAction(
+        req.user!.id,
+        req.user!.email || 'unknown',
+        'create',
+        'app',
+        app.id,
+        app.name
+      );
+
       // Return with formatted steps for form
       res.status(201).json({
         ...app,
@@ -142,6 +153,16 @@ export class AdminController {
         return;
       }
 
+      // Log the action
+      await AdminController.logAction(
+        req.user!.id,
+        req.user!.email || 'unknown',
+        'update',
+        'app',
+        app.id,
+        app.name
+      );
+
       // Return with formatted steps for form
       res.json({
         ...app,
@@ -157,12 +178,25 @@ export class AdminController {
   static async deleteApp(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
+
+      // Get app info before deletion for logging
+      const appToDelete = await adminRepo.getAppByIdRaw(id);
       const deleted = await adminRepo.deleteApp(id);
 
       if (!deleted) {
         res.status(404).json({ error: 'ไม่พบแอปที่ต้องการลบ' });
         return;
       }
+
+      // Log the action
+      await AdminController.logAction(
+        req.user!.id,
+        req.user!.email || 'unknown',
+        'delete',
+        'app',
+        id,
+        appToDelete?.name
+      );
 
       res.json({ success: true, message: 'ลบแอปสำเร็จ' });
     } catch (error) {
@@ -221,6 +255,17 @@ export class AdminController {
       }
 
       const category = await adminRepo.createCategory(categoryData);
+
+      // Log the action
+      await AdminController.logAction(
+        req.user!.id,
+        req.user!.email || 'unknown',
+        'create',
+        'category',
+        category.id,
+        category.name
+      );
+
       res.status(201).json(category);
     } catch (error) {
       console.error('Error creating category:', error);
@@ -244,6 +289,16 @@ export class AdminController {
         return;
       }
 
+      // Log the action
+      await AdminController.logAction(
+        req.user!.id,
+        req.user!.email || 'unknown',
+        'update',
+        'category',
+        category.id,
+        category.name
+      );
+
       res.json(category);
     } catch (error) {
       console.error('Error updating category:', error);
@@ -255,12 +310,25 @@ export class AdminController {
   static async deleteCategory(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
+
+      // Get category info before deletion for logging
+      const catToDelete = await adminRepo.getCategoryById(id);
       const deleted = await adminRepo.deleteCategory(id);
 
       if (!deleted) {
         res.status(404).json({ error: 'ไม่พบหมวดหมู่ที่ต้องการลบ' });
         return;
       }
+
+      // Log the action
+      await AdminController.logAction(
+        req.user!.id,
+        req.user!.email || 'unknown',
+        'delete',
+        'category',
+        id,
+        catToDelete?.name
+      );
 
       res.json({ success: true, message: 'ลบหมวดหมู่สำเร็จ' });
     } catch (error: unknown) {
@@ -318,6 +386,18 @@ export class AdminController {
       }
 
       await adminRepo.updateUserRole(id, role);
+
+      // Log the action
+      await AdminController.logAction(
+        req.user!.id,
+        req.user!.email || 'unknown',
+        'update',
+        'user',
+        id,
+        undefined,
+        { newRole: role }
+      );
+
       res.json({ success: true, message: 'อัพเดท role สำเร็จ' });
     } catch (error) {
       console.error('Error updating user role:', error);
@@ -337,6 +417,16 @@ export class AdminController {
       }
 
       await adminRepo.deleteUser(id);
+
+      // Log the action
+      await AdminController.logAction(
+        req.user!.id,
+        req.user!.email || 'unknown',
+        'delete',
+        'user',
+        id
+      );
+
       res.json({ success: true, message: 'ลบผู้ใช้สำเร็จ' });
     } catch (error) {
       console.error('Error deleting user:', error);
@@ -405,6 +495,17 @@ export class AdminController {
       };
 
       const changelog = await adminRepo.createChangelog(processedData);
+
+      // Log the action
+      await AdminController.logAction(
+        req.user!.id,
+        req.user!.email || 'unknown',
+        'create',
+        'changelog',
+        changelog.id,
+        `${changelog.version} - ${changelog.title}`
+      );
+
       res.status(201).json(changelog);
     } catch (error) {
       console.error('Error creating changelog:', error);
@@ -433,6 +534,16 @@ export class AdminController {
         return;
       }
 
+      // Log the action
+      await AdminController.logAction(
+        req.user!.id,
+        req.user!.email || 'unknown',
+        'update',
+        'changelog',
+        changelog.id,
+        `${changelog.version} - ${changelog.title}`
+      );
+
       res.json(changelog);
     } catch (error) {
       console.error('Error updating changelog:', error);
@@ -444,6 +555,9 @@ export class AdminController {
   static async deleteChangelog(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
+
+      // Get changelog info before deletion for logging
+      const logToDelete = await adminRepo.getChangelogById(id);
       const deleted = await adminRepo.deleteChangelog(id);
 
       if (!deleted) {
@@ -451,10 +565,60 @@ export class AdminController {
         return;
       }
 
+      // Log the action
+      await AdminController.logAction(
+        req.user!.id,
+        req.user!.email || 'unknown',
+        'delete',
+        'changelog',
+        id,
+        logToDelete ? `${logToDelete.version} - ${logToDelete.title}` : undefined
+      );
+
       res.json({ success: true, message: 'ลบ changelog สำเร็จ' });
     } catch (error) {
       console.error('Error deleting changelog:', error);
       res.status(500).json({ error: 'เกิดข้อผิดพลาดในการลบ changelog' });
+    }
+  }
+
+  // ==================== AUDIT LOGS ====================
+
+  // GET /api/admin/audit-logs - List audit logs
+  static async getAuditLogs(req: Request, res: Response): Promise<void> {
+    try {
+      const limit = parseInt(req.query.limit as string) || 100;
+      const logs = await adminRepo.getAuditLogs(limit);
+      res.json({ logs });
+    } catch (error) {
+      console.error('Error fetching audit logs:', error);
+      res.status(500).json({ error: 'เกิดข้อผิดพลาดในการดึงข้อมูล audit log' });
+    }
+  }
+
+  // Helper to log admin actions
+  static async logAction(
+    userId: string,
+    userEmail: string,
+    action: string,
+    entityType: string,
+    entityId?: string,
+    entityName?: string,
+    details?: object
+  ): Promise<void> {
+    try {
+      await adminRepo.createAuditLog({
+        action,
+        entityType,
+        entityId,
+        entityName,
+        userId,
+        userEmail,
+        details: details ? JSON.stringify(details) : undefined,
+      });
+    } catch (error) {
+      console.error('Error creating audit log:', error);
+      // Don't throw - audit logging should not break main operations
     }
   }
 }

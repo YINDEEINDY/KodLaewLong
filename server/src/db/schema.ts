@@ -96,6 +96,19 @@ export const appChangelogs = pgTable('app_changelogs', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
+// Audit logs table - tracks admin actions
+export const auditLogs = pgTable('audit_logs', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  action: varchar('action', { length: 50 }).notNull(), // e.g., 'create', 'update', 'delete'
+  entityType: varchar('entity_type', { length: 50 }).notNull(), // e.g., 'app', 'user', 'category'
+  entityId: varchar('entity_id', { length: 100 }), // ID of the affected entity
+  entityName: varchar('entity_name', { length: 200 }), // Name for display
+  userId: uuid('user_id').notNull(), // Who performed the action
+  userEmail: varchar('user_email', { length: 200 }).notNull(), // For display
+  details: text('details'), // JSON with additional info
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
 // Type exports for TypeScript
 export type Category = typeof categories.$inferSelect;
 export type NewCategory = typeof categories.$inferInsert;
@@ -111,3 +124,5 @@ export type AppStat = typeof appStats.$inferSelect;
 export type NewAppStat = typeof appStats.$inferInsert;
 export type AppChangelog = typeof appChangelogs.$inferSelect;
 export type NewAppChangelog = typeof appChangelogs.$inferInsert;
+export type AuditLog = typeof auditLogs.$inferSelect;
+export type NewAuditLog = typeof auditLogs.$inferInsert;
