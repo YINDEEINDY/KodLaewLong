@@ -39,6 +39,9 @@ export function AdminAppsPage() {
   const [formData, setFormData] = useState<Partial<DbApp>>(emptyApp);
   const [saving, setSaving] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [filterCategory, setFilterCategory] = useState<string>('');
+  const [filterLicense, setFilterLicense] = useState<string>('');
+  const [filterAppType, setFilterAppType] = useState<string>('');
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
   const [bulkDeleting, setBulkDeleting] = useState(false);
   const { dialogProps, confirm } = useConfirmDialog();
@@ -125,10 +128,26 @@ export function AdminAppsPage() {
     setFormData(emptyApp);
   }
 
-  const filteredApps = apps.filter(app =>
-    app.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    app.id.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredApps = apps.filter(app => {
+    // Text search filter
+    const matchesSearch = searchQuery === '' ||
+      app.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      app.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      app.description.toLowerCase().includes(searchQuery.toLowerCase());
+
+    // Category filter
+    const matchesCategory = filterCategory === '' || app.categoryId === filterCategory;
+
+    // License type filter
+    const matchesLicense = filterLicense === '' || app.licenseType === filterLicense;
+
+    // App type filter
+    const matchesAppType = filterAppType === '' || app.appType === filterAppType;
+
+    return matchesSearch && matchesCategory && matchesLicense && matchesAppType;
+  });
+
+  const activeFiltersCount = [filterCategory, filterLicense, filterAppType].filter(f => f !== '').length;
 
   // Bulk delete handlers
   const allSelected = filteredApps.length > 0 && filteredApps.every((a) => selectedItems.has(a.id));
@@ -465,14 +484,78 @@ export function AdminAppsPage() {
         </div>
       </div>
 
-      <div className="mb-6">
-        <input
-          type="text"
-          placeholder="ค้นหาแอป..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full max-w-md px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-        />
+      <div className="mb-6 space-y-4">
+        {/* Search and filters row */}
+        <div className="flex flex-wrap gap-3 items-center">
+          {/* Search input */}
+          <div className="relative flex-1 min-w-[200px] max-w-md">
+            <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <input
+              type="text"
+              placeholder="ค้นหาชื่อ, รหัส หรือคำอธิบาย..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+            />
+          </div>
+
+          {/* Category filter */}
+          <select
+            value={filterCategory}
+            onChange={(e) => setFilterCategory(e.target.value)}
+            className="px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 min-w-[150px]"
+          >
+            <option value="">ทุกหมวดหมู่</option>
+            {categories.map((cat) => (
+              <option key={cat.id} value={cat.id}>{cat.name}</option>
+            ))}
+          </select>
+
+          {/* License type filter */}
+          <select
+            value={filterLicense}
+            onChange={(e) => setFilterLicense(e.target.value)}
+            className="px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 min-w-[130px]"
+          >
+            <option value="">ทุกใบอนุญาต</option>
+            <option value="FREE">ฟรี</option>
+            <option value="FREEMIUM">Freemium</option>
+            <option value="PAID">เสียเงิน</option>
+            <option value="TRIAL">ทดลองใช้</option>
+          </select>
+
+          {/* App type filter */}
+          <select
+            value={filterAppType}
+            onChange={(e) => setFilterAppType(e.target.value)}
+            className="px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 min-w-[130px]"
+          >
+            <option value="">ทุกประเภท</option>
+            <option value="GENERAL">ทั่วไป</option>
+            <option value="ENTERPRISE">องค์กร</option>
+            <option value="MANUAL">ติดตั้งเอง</option>
+          </select>
+
+          {/* Clear filters button */}
+          {activeFiltersCount > 0 && (
+            <button
+              onClick={() => {
+                setFilterCategory('');
+                setFilterLicense('');
+                setFilterAppType('');
+                setSearchQuery('');
+              }}
+              className="flex items-center gap-2 px-4 py-2.5 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+              ล้างตัวกรอง ({activeFiltersCount})
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
