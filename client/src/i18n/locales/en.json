@@ -207,5 +207,13 @@
     "appRemoved": "Removed {{name}}",
     "selectionCleared": "Selection cleared",
     "exportSuccess": "Selection exported successfully"
+  },
+  "pwa": {
+    "updateAvailable": "Update Available",
+    "updateDescription": "Refresh the page to use the latest version",
+    "refresh": "Refresh",
+    "later": "Later",
+    "installed": "App installed successfully",
+    "offline": "Ready for offline use"
   }
 }

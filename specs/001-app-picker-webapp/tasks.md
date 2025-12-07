@@ -645,6 +645,95 @@ Task: "Create AppCategorySection component" (T028)
 
 ---
 
+## Phase 19: PWA Support
+
+**Purpose**: Add Progressive Web App support for offline capability and installability
+
+### Setup & Configuration
+
+- [x] T211 Install vite-plugin-pwa dependency in `client/package.json`
+- [x] T212 Configure PWA plugin with proper caching strategies in `client/vite.config.ts`
+- [x] T213 Create PWA icon generation script in `client/scripts/generate-pwa-icons.js`
+- [x] T214 [P] Generate PWA icons (192x192, 512x512, apple-touch-icon)
+- [x] T215 [P] Update index.html with apple-touch-icon link
+
+### Update Prompt
+
+- [x] T216 Create PWAUpdatePrompt component in `client/src/components/PWAUpdatePrompt.tsx`
+- [x] T217 Add slide-up animation to `client/src/index.css`
+- [x] T218 Add PWA type declarations to `client/src/vite-env.d.ts`
+- [x] T219 Integrate PWAUpdatePrompt in `client/src/App.tsx`
+
+### Translations
+
+- [x] T220 [P] Add PWA translations to `client/src/i18n/locales/th.json`
+- [x] T221 [P] Add PWA translations to `client/src/i18n/locales/en.json`
+
+**Checkpoint**: PWA Support complete - app is installable and works offline with proper update prompts
+
+---
+
+## Phase 20: Testing
+
+**Purpose**: Add unit tests for client and server to ensure code quality and prevent regressions
+
+### Client Testing Setup
+
+- [x] T222 Install Vitest, Testing Library, and jsdom dependencies in `client/package.json`
+- [x] T223 Create Vitest configuration in `client/vitest.config.ts`
+- [x] T224 Create test setup file with mocks in `client/src/test/setup.ts`
+- [x] T225 Create test utilities with providers in `client/src/test/test-utils.tsx`
+- [x] T226 Add test scripts to `client/package.json`
+
+### Client Unit Tests
+
+- [x] T227 [P] Write tests for BottomBar component in `client/src/components/BottomBar.test.tsx`
+- [x] T228 [P] Write tests for AppRow component in `client/src/components/AppRow.test.tsx`
+
+### Server Testing Setup
+
+- [x] T229 Install Vitest and supertest dependencies in `server/package.json`
+- [x] T230 Create Vitest configuration in `server/vitest.config.ts`
+- [x] T231 Create test setup file with mocks in `server/src/test/setup.ts`
+- [x] T232 Add test scripts to `server/package.json`
+
+### Server Unit Tests
+
+- [x] T233 Write tests for AppsService in `server/src/services/apps.service.test.ts`
+
+### CI/CD Integration
+
+- [x] T234 Add test job to GitHub Actions workflow in `.github/workflows/ci.yml`
+
+**Checkpoint**: Testing complete - unit tests for client and server components, CI/CD runs tests automatically
+
+---
+
+## Phase 26: API Documentation
+
+**Purpose**: Add interactive API documentation with Swagger/OpenAPI
+
+### Setup
+
+- [x] T235 Install swagger-ui-express and swagger-jsdoc in `server/package.json`
+- [x] T236 Create Swagger configuration in `server/src/docs/swagger.ts`
+- [x] T237 Integrate Swagger in `server/src/index.ts`
+- [x] T238 Exclude test files from TypeScript build in `server/tsconfig.json`
+
+### Documentation
+
+- [x] T239 [P] Add JSDoc comments for apps routes in `server/src/routes/apps.routes.ts`
+- [x] T240 [P] Add JSDoc comments for stats routes in `server/src/routes/stats.routes.ts`
+- [x] T241 [P] Add JSDoc comments for selections routes in `server/src/routes/selections.routes.ts`
+
+### Integration
+
+- [x] T242 Add API Docs link to Admin panel in `client/src/components/AdminLayout.tsx`
+
+**Checkpoint**: API Documentation complete - Swagger UI available at /api/docs
+
+---
+
 ## Task Summary
 
 | Phase | Story | Task Count | Parallel Tasks |
@@ -666,8 +755,11 @@ Task: "Create AppCategorySection component" (T028)
 | Phase 15 | Search & Filter | 10 | 0 |
 | Phase 16 | User Experience | 13 | 0 |
 | Phase 18 | Build Statistics | 18 | 2 |
+| Phase 19 | PWA Support | 11 | 4 |
+| Phase 20 | Testing | 13 | 2 |
 | Phase 22 | i18n | 14 | 7 |
-| **Total** | | **210** | **45** |
+| Phase 26 | API Documentation | 8 | 3 |
+| **Total** | | **242** | **54** |
 
 ---
 
@@ -695,3 +787,11 @@ Task: "Create AppCategorySection component" (T028)
 - Build Statistics: Tracks builds, downloads, and app selection counts
 - Popular apps: Apps with 3+ selections get "Popular" badge
 - Stats API: Public endpoints for popular apps, admin endpoints for full statistics
+- PWA: vite-plugin-pwa with workbox caching strategies (NetworkFirst for API, CacheFirst for static assets)
+- PWA Update: User-friendly prompt when new version is available (registerType: 'prompt')
+- PWA Icons: Generated from SVG using sharp (192x192, 512x512, apple-touch-icon)
+- Testing: Vitest for unit tests, @testing-library/react for React components
+- Test Scripts: `npm run test` (watch mode), `npm run test:run` (single run), `npm run test:coverage` (with coverage)
+- CI/CD: Tests run automatically on push/PR via GitHub Actions
+- API Docs: Swagger UI at /api/docs, OpenAPI JSON at /api/docs.json
+- Swagger: swagger-jsdoc with JSDoc comments in route files

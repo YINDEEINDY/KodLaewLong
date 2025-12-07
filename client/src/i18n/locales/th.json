@@ -207,5 +207,13 @@
     "appRemoved": "ลบ {{name}} แล้ว",
     "selectionCleared": "ล้างรายการทั้งหมดแล้ว",
     "exportSuccess": "ส่งออกรายการเรียบร้อยแล้ว"
+  },
+  "pwa": {
+    "updateAvailable": "มีเวอร์ชันใหม่",
+    "updateDescription": "รีเฟรชหน้าเพื่อใช้งานเวอร์ชันล่าสุด",
+    "refresh": "รีเฟรช",
+    "later": "ไว้ทีหลัง",
+    "installed": "ติดตั้งแอปสำเร็จ",
+    "offline": "พร้อมใช้งานแบบออฟไลน์"
   }
 }

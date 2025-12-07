@@ -51,11 +51,45 @@ jobs:
         working-directory: ./server
         run: npx tsc --noEmit
 
-  # Build and test
+  # Run tests
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: |
+            client/package-lock.json
+            server/package-lock.json
+
+      - name: Install client dependencies
+        working-directory: ./client
+        run: npm ci
+
+      - name: Install server dependencies
+        working-directory: ./server
+        run: npm ci
+
+      - name: Run client tests
+        working-directory: ./client
+        run: npm run test:run
+
+      - name: Run server tests
+        working-directory: ./server
+        run: npm run test:run
+
+  # Build
   build:
     name: Build
     runs-on: ubuntu-latest
-    needs: lint
+    needs: [lint, test]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4

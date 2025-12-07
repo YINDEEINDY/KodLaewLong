@@ -8,6 +8,7 @@ import { RecentlyViewedProvider } from './context/RecentlyViewedContext';
 import { PopularAppsProvider } from './context/PopularAppsContext';
 import { Navbar } from './components/Navbar';
 import { AdminLayout } from './components/AdminLayout';
+import { PWAUpdatePrompt } from './components/PWAUpdatePrompt';
 import { AppSelectionPage } from './pages/AppSelectionPage';
 import { SummaryPage } from './pages/SummaryPage';
 import { AppDetailPage } from './pages/AppDetailPage';
@@ -52,6 +53,7 @@ function App() {
                     }}
                   />
                   <Navbar />
+                  <PWAUpdatePrompt />
                   <main>
                     <Routes>
                       <Route path="/" element={<AppSelectionPage />} />

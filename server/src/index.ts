@@ -11,6 +11,7 @@ import { appsRouter } from './routes/apps.routes.js';
 import { selectionsRouter } from './routes/selections.routes.js';
 import { adminRouter } from './routes/admin.routes.js';
 import statsRouter from './routes/stats.routes.js';
+import { setupSwagger } from './docs/swagger.js';
 
 const app = express();
 
@@ -57,6 +58,9 @@ app.use(cors({
 // Body parsing with size limits
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
+
+// API Documentation (Swagger)
+setupSwagger(app);
 
 // Routes
 app.use('/api', appsRouter);

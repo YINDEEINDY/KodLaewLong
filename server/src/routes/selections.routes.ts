@@ -7,17 +7,120 @@ export const selectionsRouter = Router();
 // All selection routes require authentication
 selectionsRouter.use(requireAuth);
 
-// GET /api/selections - Get user's saved selections
+/**
+ * @swagger
+ * /selections:
+ *   get:
+ *     summary: Get user's saved selections
+ *     tags: [Selections]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of selected app IDs
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 appIds:
+ *                   type: array
+ *                   items:
+ *                     type: string
+ *                     format: uuid
+ *       401:
+ *         description: Unauthorized
+ */
 selectionsRouter.get('/', SelectionsController.getSelections);
 
-// PUT /api/selections - Save user's selections (replace all)
+/**
+ * @swagger
+ * /selections:
+ *   put:
+ *     summary: Save user's selections (replace all)
+ *     tags: [Selections]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - appIds
+ *             properties:
+ *               appIds:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   format: uuid
+ *     responses:
+ *       200:
+ *         description: Selections saved successfully
+ *       401:
+ *         description: Unauthorized
+ */
 selectionsRouter.put('/', SelectionsController.saveSelections);
 
-// POST /api/selections/:appId - Add single selection
+/**
+ * @swagger
+ * /selections/{appId}:
+ *   post:
+ *     summary: Add single app to selections
+ *     tags: [Selections]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: appId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     responses:
+ *       200:
+ *         description: App added to selections
+ *       401:
+ *         description: Unauthorized
+ */
 selectionsRouter.post('/:appId', SelectionsController.addSelection);
 
-// DELETE /api/selections/:appId - Remove single selection
+/**
+ * @swagger
+ * /selections/{appId}:
+ *   delete:
+ *     summary: Remove single app from selections
+ *     tags: [Selections]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: appId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     responses:
+ *       200:
+ *         description: App removed from selections
+ *       401:
+ *         description: Unauthorized
+ */
 selectionsRouter.delete('/:appId', SelectionsController.removeSelection);
 
-// DELETE /api/selections - Clear all selections
+/**
+ * @swagger
+ * /selections:
+ *   delete:
+ *     summary: Clear all selections
+ *     tags: [Selections]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: All selections cleared
+ *       401:
+ *         description: Unauthorized
+ */
 selectionsRouter.delete('/', SelectionsController.clearSelections);
