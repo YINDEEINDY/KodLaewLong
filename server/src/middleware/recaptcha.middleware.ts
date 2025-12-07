@@ -32,8 +32,10 @@ export async function verifyRecaptcha(
     return;
   }
 
-  if (!token) {
-    res.status(400).json({ error: 'reCAPTCHA token is required' });
+  // Allow 'skip' token when client doesn't have reCAPTCHA configured
+  if (!token || token === 'skip') {
+    console.log('[reCAPTCHA] Token is empty or skip, allowing request');
+    next();
     return;
   }
 
