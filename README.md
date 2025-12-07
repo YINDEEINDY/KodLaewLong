@@ -25,18 +25,21 @@
 ## Features
 
 - **Multi-app Selection** - Browse and select multiple applications with visual feedback
-- **Category Browsing** - Web Browsers, Messaging, Media, Developer Tools, Utilities, Security
+- **Category Browsing** - Web Browsers, Messaging, Media, Developer Tools, Utilities, Security, Productivity, Education
 - **App Details** - View detailed information with installation guides
 - **Combined Installer** - Generate single installer for all selected apps
 - **User Authentication** - Register, login, logout with Supabase Auth
 - **Persistent Selections** - Save selections across sessions when logged in
-- **Admin Panel** - Manage apps, categories, and users
+- **Admin Panel** - Manage apps, categories, users, and changelogs
+- **Advanced Search** - Filter apps by name, category, license type, and status
+- **Audit Logs** - Track admin actions for security and accountability
 - **Dark Mode** - Full dark/light theme support
 - **i18n Support** - Thai and English languages
 - **Toast Notifications** - Beautiful feedback for user actions
 - **User Profile** - Manage display name, avatar, and password
 - **Mobile Responsive** - Works on all screen sizes
 - **Favorites** - Mark apps as favorites for quick access
+- **Popular Apps** - See most selected apps by users
 
 ## Tech Stack
 
@@ -232,6 +235,8 @@ KodLaewLong/
 | GET | `/api/apps` | List all apps by category |
 | GET | `/api/apps/:id` | Get single app details |
 | POST | `/api/generate` | Generate installer |
+| GET | `/api/stats/apps/popular` | Get popular apps |
+| GET | `/api/stats/apps/popular-ids` | Get popular app IDs |
 
 ### Authenticated
 
@@ -245,16 +250,30 @@ KodLaewLong/
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
+| GET | `/api/admin/stats` | Dashboard statistics |
 | GET | `/api/admin/apps` | List all apps |
+| GET | `/api/admin/apps/:id` | Get app by ID |
 | POST | `/api/admin/apps` | Create app |
 | PUT | `/api/admin/apps/:id` | Update app |
 | DELETE | `/api/admin/apps/:id` | Delete app |
 | GET | `/api/admin/categories` | List categories |
+| GET | `/api/admin/categories/:id` | Get category by ID |
 | POST | `/api/admin/categories` | Create category |
 | PUT | `/api/admin/categories/:id` | Update category |
 | DELETE | `/api/admin/categories/:id` | Delete category |
 | GET | `/api/admin/users` | List users |
 | PUT | `/api/admin/users/:id/role` | Update user role |
+| DELETE | `/api/admin/users/:id` | Delete user |
+| GET | `/api/admin/changelogs` | List changelogs |
+| GET | `/api/admin/changelogs/:id` | Get changelog by ID |
+| GET | `/api/admin/apps/:appId/changelogs` | Get changelogs by app |
+| POST | `/api/admin/changelogs` | Create changelog |
+| PUT | `/api/admin/changelogs/:id` | Update changelog |
+| DELETE | `/api/admin/changelogs/:id` | Delete changelog |
+| GET | `/api/admin/audit-logs` | View audit logs |
+| GET | `/api/stats/dashboard` | Dashboard statistics |
+| GET | `/api/stats/apps` | App selection statistics |
+| GET | `/api/stats/builds` | Recent builds |
 
 ## Available Scripts
 
@@ -300,6 +319,7 @@ Or use the admin panel if you already have an admin account.
 - Input validation
 - CORS configuration
 - Request body size limit (1MB)
+- Audit logging for admin actions
 
 ## License Types
 
