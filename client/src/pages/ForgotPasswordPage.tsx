@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useRecaptcha } from '../hooks/useRecaptcha';
+import { verifyRecaptcha } from '../api/authApi';
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
@@ -8,22 +10,40 @@ export default function ForgotPasswordPage() {
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
   const { resetPassword } = useAuth();
+  const { executeRecaptcha, isLoaded } = useRecaptcha();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
-    const { error } = await resetPassword(email);
+    try {
+      // Execute reCAPTCHA
+      const recaptchaToken = await executeRecaptcha('forgot_password');
+      if (!recaptchaToken) {
+        setError('ไม่สามารถยืนยัน reCAPTCHA ได้ กรุณาลองใหม่');
+        setLoading(false);
+        return;
+      }
 
-    if (error) {
-      setError('เกิดข้อผิดพลาดในการส่งอีเมล กรุณาลองใหม่อีกครั้ง');
+      // Verify reCAPTCHA with backend
+      await verifyRecaptcha(recaptchaToken);
+
+      // Proceed with password reset
+      const { error } = await resetPassword(email);
+
+      if (error) {
+        setError('เกิดข้อผิดพลาดในการส่งอีเมล กรุณาลองใหม่อีกครั้ง');
+        setLoading(false);
+        return;
+      }
+
+      setSuccess(true);
       setLoading(false);
-      return;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'เกิดข้อผิดพลาด กรุณาลองใหม่');
+      setLoading(false);
     }
-
-    setSuccess(true);
-    setLoading(false);
   };
 
   if (success) {
@@ -87,7 +107,7 @@ export default function ForgotPasswordPage() {
 
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || !isLoaded}
               className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-600/50 text-white font-medium py-2 px-4 rounded-lg transition-colors"
             >
               {loading ? 'กำลังส่ง...' : 'ส่งลิงก์รีเซ็ตรหัสผ่าน'}
@@ -99,6 +119,10 @@ export default function ForgotPasswordPage() {
             <Link to="/login" className="text-blue-400 hover:text-blue-300">
               เข้าสู่ระบบ
             </Link>
+          </p>
+
+          <p className="mt-4 text-center text-slate-500 text-xs">
+            Protected by reCAPTCHA
           </p>
         </div>
       </div>

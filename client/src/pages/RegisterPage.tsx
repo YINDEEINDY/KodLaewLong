@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useRecaptcha } from '../hooks/useRecaptcha';
+import { verifyRecaptcha } from '../api/authApi';
 
 export default function RegisterPage() {
   const [email, setEmail] = useState('');
@@ -11,6 +13,7 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const { signUp } = useAuth();
   const navigate = useNavigate();
+  const { executeRecaptcha, isLoaded } = useRecaptcha();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,25 +32,42 @@ export default function RegisterPage() {
 
     setLoading(true);
 
-    const { error } = await signUp(email, password);
-
-    if (error) {
-      if (error.message.includes('already registered')) {
-        setError('อีเมลนี้ถูกใช้งานแล้ว');
-      } else {
-        setError(error.message);
+    try {
+      // Execute reCAPTCHA
+      const recaptchaToken = await executeRecaptcha('register');
+      if (!recaptchaToken) {
+        setError('ไม่สามารถยืนยัน reCAPTCHA ได้ กรุณาลองใหม่');
+        setLoading(false);
+        return;
       }
+
+      // Verify reCAPTCHA with backend
+      await verifyRecaptcha(recaptchaToken);
+
+      // Proceed with registration
+      const { error } = await signUp(email, password);
+
+      if (error) {
+        if (error.message.includes('already registered')) {
+          setError('อีเมลนี้ถูกใช้งานแล้ว');
+        } else {
+          setError(error.message);
+        }
+        setLoading(false);
+        return;
+      }
+
+      setSuccess('สมัครสมาชิกสำเร็จ! กรุณาตรวจสอบอีเมลเพื่อยืนยันบัญชี');
       setLoading(false);
-      return;
+
+      // Redirect to login after 2 seconds
+      setTimeout(() => {
+        navigate('/login');
+      }, 2000);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'เกิดข้อผิดพลาด กรุณาลองใหม่');
+      setLoading(false);
     }
-
-    setSuccess('สมัครสมาชิกสำเร็จ! กรุณาตรวจสอบอีเมลเพื่อยืนยันบัญชี');
-    setLoading(false);
-
-    // Redirect to login after 2 seconds
-    setTimeout(() => {
-      navigate('/login');
-    }, 2000);
   };
 
   return (
@@ -119,7 +139,7 @@ export default function RegisterPage() {
 
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || !isLoaded}
               className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-600/50 text-white font-medium py-2 px-4 rounded-lg transition-colors"
             >
               {loading ? 'กำลังสมัคร...' : 'สมัครสมาชิก'}
@@ -131,6 +151,10 @@ export default function RegisterPage() {
             <Link to="/login" className="text-blue-400 hover:text-blue-300">
               เข้าสู่ระบบ
             </Link>
+          </p>
+
+          <p className="mt-4 text-center text-slate-500 text-xs">
+            Protected by reCAPTCHA
           </p>
         </div>
       </div>

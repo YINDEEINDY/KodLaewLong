@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useRecaptcha } from '../hooks/useRecaptcha';
+import { verifyRecaptcha } from '../api/authApi';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -9,23 +11,41 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const { signIn } = useAuth();
   const navigate = useNavigate();
+  const { executeRecaptcha, isLoaded } = useRecaptcha();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
-    const { error } = await signIn(email, password);
+    try {
+      // Execute reCAPTCHA
+      const recaptchaToken = await executeRecaptcha('login');
+      if (!recaptchaToken) {
+        setError('ไม่สามารถยืนยัน reCAPTCHA ได้ กรุณาลองใหม่');
+        setLoading(false);
+        return;
+      }
 
-    if (error) {
-      setError(error.message === 'Invalid login credentials'
-        ? 'อีเมลหรือรหัสผ่านไม่ถูกต้อง'
-        : error.message);
+      // Verify reCAPTCHA with backend
+      await verifyRecaptcha(recaptchaToken);
+
+      // Proceed with login
+      const { error } = await signIn(email, password);
+
+      if (error) {
+        setError(error.message === 'Invalid login credentials'
+          ? 'อีเมลหรือรหัสผ่านไม่ถูกต้อง'
+          : error.message);
+        setLoading(false);
+        return;
+      }
+
+      navigate('/');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'เกิดข้อผิดพลาด กรุณาลองใหม่');
       setLoading(false);
-      return;
     }
-
-    navigate('/');
   };
 
   return (
@@ -80,7 +100,7 @@ export default function LoginPage() {
 
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || !isLoaded}
               className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-600/50 text-white font-medium py-2 px-4 rounded-lg transition-colors"
             >
               {loading ? 'กำลังเข้าสู่ระบบ...' : 'เข้าสู่ระบบ'}
@@ -92,6 +112,10 @@ export default function LoginPage() {
             <Link to="/register" className="text-blue-400 hover:text-blue-300">
               สมัครสมาชิก
             </Link>
+          </p>
+
+          <p className="mt-4 text-center text-slate-500 text-xs">
+            Protected by reCAPTCHA
           </p>
         </div>
       </div>

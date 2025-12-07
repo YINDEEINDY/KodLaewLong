@@ -11,6 +11,7 @@ import { appsRouter } from './routes/apps.routes.js';
 import { selectionsRouter } from './routes/selections.routes.js';
 import { adminRouter } from './routes/admin.routes.js';
 import statsRouter from './routes/stats.routes.js';
+import authRouter from './routes/auth.routes.js';
 import { setupSwagger } from './docs/swagger.js';
 import { loggingMiddleware, errorLoggingMiddleware } from './middleware/logging.middleware.js';
 
@@ -71,6 +72,7 @@ app.use('/api', appsRouter);
 app.use('/api/selections', selectionsRouter);
 app.use('/api/admin', adminRouter);
 app.use('/api/stats', statsRouter);
+app.use('/api/auth', authRouter);
 
 // Health check
 app.get('/health', (_req, res) => {
