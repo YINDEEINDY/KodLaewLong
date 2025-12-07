@@ -88,7 +88,17 @@ export class AppsController {
       console.error('Failed to record download stats:', err);
     });
 
-    // Check if EXE exists (preferred)
+    // Check if CMD exists (preferred - single file installer)
+    const cmdPath = generateService.getCmdPath(buildId);
+    if (cmdPath) {
+      // Send CMD file directly
+      res.setHeader('Content-Type', 'application/x-msdos-program');
+      res.setHeader('Content-Disposition', `attachment; filename="KodLaewLong-Installer.cmd"`);
+      res.sendFile(cmdPath);
+      return;
+    }
+
+    // Check if EXE exists (second preference)
     const exePath = generateService.getExePath(buildId);
     if (exePath) {
       // Send EXE file directly

@@ -734,6 +734,28 @@ Task: "Create AppCategorySection component" (T028)
 
 ---
 
+## Phase 21: Actual Installer (Ninite-like)
+
+**Purpose**: Generate real installer that downloads and installs selected apps automatically
+
+### Installer Generation
+
+- [x] T243 Create single-file CMD installer with embedded PowerShell in `server/src/services/generate.service.ts`
+- [x] T244 Add Base64 encoding for PowerShell script embedding
+- [x] T245 Add getCmdPath method to generate service
+- [x] T246 Update download endpoint to serve CMD file directly in `server/src/controllers/apps.controller.ts`
+
+### PowerShell Features (already implemented)
+
+- [x] T247 GUI progress window with WinForms
+- [x] T248 Winget support with fallback to direct download
+- [x] T249 Silent installation with retry logic
+- [x] T250 Admin elevation (UAC) request
+
+**Checkpoint**: Actual Installer complete - single .cmd file that installs apps automatically
+
+---
+
 ## Task Summary
 
 | Phase | Story | Task Count | Parallel Tasks |
@@ -757,9 +779,10 @@ Task: "Create AppCategorySection component" (T028)
 | Phase 18 | Build Statistics | 18 | 2 |
 | Phase 19 | PWA Support | 11 | 4 |
 | Phase 20 | Testing | 13 | 2 |
+| Phase 21 | Actual Installer | 8 | 0 |
 | Phase 22 | i18n | 14 | 7 |
 | Phase 26 | API Documentation | 8 | 3 |
-| **Total** | | **242** | **54** |
+| **Total** | | **250** | **54** |
 
 ---
 
@@ -795,3 +818,6 @@ Task: "Create AppCategorySection component" (T028)
 - CI/CD: Tests run automatically on push/PR via GitHub Actions
 - API Docs: Swagger UI at /api/docs, OpenAPI JSON at /api/docs.json
 - Swagger: swagger-jsdoc with JSDoc comments in route files
+- Installer: Single-file .cmd with embedded Base64-encoded PowerShell script
+- Installer UI: WinForms GUI with progress bar and status updates
+- Installer supports: Winget (preferred) → Direct download (fallback) → Manual (open browser)

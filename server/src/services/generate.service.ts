@@ -111,26 +111,18 @@ export class GenerateService {
     const buildDir = path.join(buildsDir, buildId);
     fs.mkdirSync(buildDir, { recursive: true });
 
-    // Create single EXE by appending script to stub
-    const stubPath = path.join(assetsDir, 'installer-stub.exe');
-    const exePath = path.join(buildDir, 'KodLaewLong-Installer.exe');
+    // Create single-file CMD installer (preferred - no extraction needed)
+    const cmdContent = this.generateSingleFileCmdInstaller(script);
+    const cmdPath = path.join(buildDir, 'KodLaewLong-Installer.cmd');
+    fs.writeFileSync(cmdPath, cmdContent, 'utf-8');
 
-    if (fs.existsSync(stubPath)) {
-      // Read stub EXE and append script with marker
-      const stubBytes = fs.readFileSync(stubPath);
-      const scriptBytes = Buffer.from(SCRIPT_MARKER + script, 'utf-8');
-      const finalExe = Buffer.concat([stubBytes, scriptBytes]);
-      fs.writeFileSync(exePath, finalExe);
-      console.log('Single-file EXE created:', exePath);
-    } else {
-      // Fallback: create PS1 + BAT if stub not available
-      console.log('Stub EXE not found, falling back to PS1+BAT');
-      const scriptPath = path.join(buildDir, 'KodLaewLong-Installer.ps1');
-      fs.writeFileSync(scriptPath, script, 'utf-8');
-      const batContent = this.generateBatLauncher();
-      const batPath = path.join(buildDir, 'Install.bat');
-      fs.writeFileSync(batPath, batContent, 'utf-8');
-    }
+    // Also create PS1 + BAT as fallback
+    const scriptPath = path.join(buildDir, 'KodLaewLong-Installer.ps1');
+    fs.writeFileSync(scriptPath, script, 'utf-8');
+    const batContent = this.generateBatLauncher();
+    const batPath = path.join(buildDir, 'Install.bat');
+    fs.writeFileSync(batPath, batContent, 'utf-8');
+
     console.log('Installer package created:', buildDir);
 
     const downloadUrl = `/api/downloads/${buildId}`;
@@ -165,6 +157,15 @@ export class GenerateService {
     const exePath = path.join(buildDir, 'KodLaewLong-Installer.exe');
     if (fs.existsSync(exePath)) {
       return exePath;
+    }
+    return null;
+  }
+
+  getCmdPath(buildId: string): string | null {
+    const buildDir = path.join(buildsDir, buildId);
+    const cmdPath = path.join(buildDir, 'KodLaewLong-Installer.cmd');
+    if (fs.existsSync(cmdPath)) {
+      return cmdPath;
     }
     return null;
   }
@@ -401,6 +402,34 @@ $form.Add_Shown({
 
 # Run form
 [System.Windows.Forms.Application]::Run($form)
+`;
+  }
+
+  // Generate single-file CMD installer with embedded PowerShell (Base64 encoded)
+  private generateSingleFileCmdInstaller(psScript: string): string {
+    // Encode PowerShell script as Base64
+    const scriptBase64 = Buffer.from(psScript, 'utf-16le').toString('base64');
+
+    return `@echo off
+chcp 65001 >nul 2>&1
+title KodLaewLong Installer
+
+:: =============================================
+::  KodLaewLong - Software Installer
+::  Double-click to install selected apps
+::  https://kodlaewlong.vercel.app
+:: =============================================
+
+:: Check for admin rights and request if needed
+net session >nul 2>&1
+if %errorLevel% neq 0 (
+    echo Requesting administrator privileges...
+    powershell -Command "Start-Process cmd -ArgumentList '/c \"%~f0\"' -Verb RunAs"
+    exit /b
+)
+
+:: Run embedded PowerShell script (Base64 encoded)
+powershell -NoProfile -ExecutionPolicy Bypass -EncodedCommand ${scriptBase64}
 `;
   }
 
