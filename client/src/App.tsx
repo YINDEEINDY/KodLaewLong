@@ -10,6 +10,8 @@ import { AppDetailPage } from './pages/AppDetailPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import ProfilePage from './pages/ProfilePage';
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
 import { AdminDashboard, AdminAppsPage, AdminCategoriesPage, AdminUsersPage, AdminChangelogsPage, AdminAuditLogPage } from './pages/admin';
 
 // Toast configuration
@@ -52,6 +54,8 @@ function App() {
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
               <Route path="/profile" element={<ProfilePage />} />
+              <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+              <Route path="/reset-password" element={<ResetPasswordPage />} />
 
               {/* Admin routes */}
               <Route path="/admin" element={<AdminLayout />}>
