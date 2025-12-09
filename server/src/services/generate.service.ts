@@ -424,7 +424,7 @@ title KodLaewLong Installer
 net session >nul 2>&1
 if %errorLevel% neq 0 (
     echo Requesting administrator privileges...
-    powershell -Command "Start-Process cmd -ArgumentList '/c \"%~f0\"' -Verb RunAs"
+    powershell -Command "Start-Process cmd -ArgumentList '/c ""%~f0""' -Verb RunAs"
     exit /b
 )
 
