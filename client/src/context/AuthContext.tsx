@@ -31,6 +31,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!supabase) {
+      console.error('[Auth] Supabase client not initialized');
+      setLoading(false);
+      return;
+    }
+
     // Get initial session
     supabase.auth.getSession().then(({ data: { session: initialSession } }: { data: { session: Session | null } }) => {
       setSession(initialSession);
@@ -49,6 +55,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, []);
 
   const signUp = async (email: string, password: string) => {
+    if (!supabase) {
+      return { error: new Error('Supabase client not initialized') };
+    }
     const { error } = await supabase.auth.signUp({
       email,
       password,
@@ -57,6 +66,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
   };
 
   const signIn = async (email: string, password: string) => {
+    if (!supabase) {
+      return { error: new Error('Supabase client not initialized') };
+    }
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -65,10 +77,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
   };
 
   const signOut = async () => {
+    if (!supabase) return;
     await supabase.auth.signOut();
   };
 
   const updateProfile = async (data: UpdateProfileData) => {
+    if (!supabase) {
+      return { error: new Error('Supabase client not initialized') };
+    }
     const { error } = await supabase.auth.updateUser({
       data: {
         display_name: data.displayName,
@@ -79,6 +95,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
   };
 
   const updatePassword = async (newPassword: string) => {
+    if (!supabase) {
+      return { error: new Error('Supabase client not initialized') };
+    }
     const { error } = await supabase.auth.updateUser({
       password: newPassword,
     });
@@ -86,6 +105,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
   };
 
   const resetPassword = async (email: string) => {
+    if (!supabase) {
+      return { error: new Error('Supabase client not initialized') };
+    }
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/reset-password`,
     });

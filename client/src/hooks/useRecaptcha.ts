@@ -12,13 +12,18 @@ declare global {
 }
 
 export function useRecaptcha() {
-  const [isLoaded, setIsLoaded] = useState(false);
+  // Initialize as loaded if no site key (skip reCAPTCHA)
+  const [isLoaded, setIsLoaded] = useState(() => {
+    if (!RECAPTCHA_SITE_KEY) {
+      console.warn('[reCAPTCHA] VITE_RECAPTCHA_SITE_KEY not configured, skipping reCAPTCHA');
+      return true;
+    }
+    return false;
+  });
 
   useEffect(() => {
     // Skip if no site key configured
     if (!RECAPTCHA_SITE_KEY) {
-      console.warn('[reCAPTCHA] VITE_RECAPTCHA_SITE_KEY not configured, skipping reCAPTCHA');
-      setIsLoaded(true); // Allow form submission without reCAPTCHA
       return;
     }
 
