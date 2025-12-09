@@ -84,8 +84,17 @@
     "download": "Download",
     "popular": "Popular"
   },
+  "appCategory": {
+    "apps": "apps",
+    "selectAll": "Select all",
+    "selected": "selected"
+  },
   "appDetail": {
     "backToSelection": "Back to app selection",
+    "breadcrumb": {
+      "home": "Home",
+      "apps": "Apps"
+    },
     "by": "by",
     "version": "Version",
     "hasInstallGuide": "Has install guide",
@@ -131,8 +140,9 @@
       "manual": "Manual Install"
     },
     "items": "items",
-    "generate": "Generate Installer",
-    "generating": "Generating...",
+    "generate": "Create Install Package",
+    "generateHint": "Download a batch script to install all selected apps",
+    "generating": "Creating package...",
     "empty": {
       "title": "No software selected",
       "subtitle": "Go back to select software to install",
@@ -141,8 +151,8 @@
   },
   "bottomBar": {
     "selectedCount": "{{count}} items selected",
-    "proceed": "Proceed",
-    "viewSummary": "View Summary"
+    "proceed": "Review & Download",
+    "viewSummary": "Click to review your selections"
   },
   "download": {
     "creating": "Creating installer",
@@ -195,14 +205,231 @@
     "resetLinkSent": "We've sent a password reset link to",
     "checkSpamFolder": "If you don't see it, check your spam folder",
     "backToLogin": "Back to login",
-    "rememberPassword": "Remember your password?"
+    "rememberPassword": "Remember your password?",
+    "resetPasswordTitle": "Set new password",
+    "resetPasswordSubtitle": "Enter your new password below",
+    "newPassword": "New password",
+    "confirmNewPassword": "Confirm new password",
+    "saving": "Saving...",
+    "savePassword": "Save new password",
+    "resetSuccess": "Password changed successfully!",
+    "redirectingToLogin": "Redirecting to login...",
+    "loginNow": "Login now",
+    "resetError": "Failed to change password. Please try again"
   },
   "admin": {
+    "title": "Admin Panel",
+    "subtitle": "System Management",
     "dashboard": "Dashboard",
     "apps": "Manage Apps",
     "categories": "Categories",
+    "changelogs": "Changelogs",
     "users": "Users",
-    "backToSite": "Back to site"
+    "auditLogs": "Activity Log",
+    "backToSite": "Back to site",
+    "apiDocs": "API Docs",
+    "lightMode": "Light Mode",
+    "darkMode": "Dark Mode",
+    "manageUsers": "Manage Users",
+    "manageCategories": "Manage Categories",
+    "manageApps": "Manage Apps",
+    "manageChangelogs": "Manage Changelogs",
+    "activityHistory": "Activity History",
+    "addNew": "Add New",
+    "addNewApp": "Add New App",
+    "addNewCategory": "Add New Category",
+    "addNewChangelog": "Add New Changelog",
+    "editApp": "Edit App",
+    "editCategory": "Edit Category",
+    "editChangelog": "Edit Changelog",
+    "deleteSelected": "Delete Selected",
+    "deleting": "Deleting...",
+    "refresh": "Refresh",
+    "show": "Show",
+    "items": "items",
+    "of": "of",
+    "clearFilters": "Clear Filters",
+    "allCategories": "All Categories",
+    "allLicenses": "All Licenses",
+    "allTypes": "All Types",
+    "allApps": "All Apps",
+    "searchPlaceholder": "Search by name, ID or description...",
+    "empty": {
+      "users": {
+        "title": "No users found",
+        "description": "Users will appear here once they register"
+      },
+      "categories": {
+        "title": "No categories yet",
+        "description": "Add your first category to organize apps"
+      },
+      "apps": {
+        "title": "No apps found",
+        "description": "Add your first app to get started",
+        "noResults": "No apps match your search criteria",
+        "noResultsDesc": "Try adjusting your filters or search terms"
+      },
+      "changelogs": {
+        "title": "No changelogs found",
+        "description": "Add your first changelog!"
+      },
+      "auditLogs": {
+        "title": "No activity yet",
+        "description": "Actions will appear here once recorded"
+      }
+    },
+    "table": {
+      "email": "Email",
+      "role": "Role",
+      "registeredAt": "Registered",
+      "lastSignIn": "Last Sign In",
+      "actions": "Actions",
+      "order": "Order",
+      "id": "ID",
+      "name": "Name",
+      "slug": "Slug",
+      "icon": "Icon",
+      "category": "Category",
+      "license": "License",
+      "guide": "Guide",
+      "app": "App",
+      "version": "Version",
+      "type": "Type",
+      "title": "Title",
+      "date": "Date",
+      "time": "Time",
+      "actor": "Actor",
+      "action": "Action",
+      "entityType": "Entity Type",
+      "details": "Details"
+    },
+    "actions": {
+      "grantAdmin": "Grant Admin",
+      "revokeAdmin": "Revoke Admin",
+      "delete": "Delete",
+      "edit": "Edit",
+      "you": "You"
+    },
+    "confirmDialog": {
+      "grantAdmin": "Grant Admin Role",
+      "grantAdminMessage": "Are you sure you want to make this user an admin? They will have access to all admin features.",
+      "revokeAdmin": "Revoke Admin Role",
+      "revokeAdminMessage": "Are you sure you want to revoke this user's admin privileges?",
+      "deleteUser": "Delete User",
+      "deleteUserMessage": "Are you sure you want to delete user \"{{email}}\"? This action cannot be undone!",
+      "deleteUsers": "Delete Multiple Users",
+      "deleteUsersMessage": "Are you sure you want to delete {{count}} users? This action cannot be undone!",
+      "deleteCategory": "Delete Category",
+      "deleteCategoryMessage": "Are you sure you want to delete category \"{{name}}\"?",
+      "deleteCategories": "Delete Multiple Categories",
+      "deleteCategoriesMessage": "Are you sure you want to delete {{count}} categories?",
+      "deleteApp": "Delete App",
+      "deleteAppMessage": "Are you sure you want to delete app \"{{name}}\"?",
+      "deleteApps": "Delete Multiple Apps",
+      "deleteAppsMessage": "Are you sure you want to delete {{count}} apps?",
+      "deleteChangelog": "Delete Changelog",
+      "deleteChangelogMessage": "Are you sure you want to delete changelog \"{{title}}\"?"
+    },
+    "toast": {
+      "adminGranted": "Admin role granted successfully",
+      "adminRevoked": "Admin role revoked successfully",
+      "userDeleted": "User deleted successfully",
+      "usersDeleted": "{{count}} users deleted successfully",
+      "categoryCreated": "Category created successfully",
+      "categorySaved": "Category saved successfully",
+      "categoryDeleted": "Category deleted successfully",
+      "categoriesDeleted": "{{count}} categories deleted successfully",
+      "appCreated": "App created successfully",
+      "appSaved": "App saved successfully",
+      "appDeleted": "App deleted successfully",
+      "appsDeleted": "{{count}} apps deleted successfully",
+      "changelogCreated": "Changelog created successfully",
+      "changelogSaved": "Changelog saved successfully",
+      "changelogDeleted": "Changelog deleted successfully",
+      "deleteFailed": "Failed to delete {{count}} items"
+    },
+    "form": {
+      "categoryId": "Category ID",
+      "categoryIdPlaceholder": "e.g. browsers, media, dev-tools",
+      "categoryName": "Category Name",
+      "categoryNamePlaceholder": "e.g. Web Browsers, Media Players",
+      "displayOrder": "Display Order",
+      "appId": "App ID",
+      "appName": "App Name",
+      "description": "Description",
+      "iconUrl": "Icon URL",
+      "licenseType": "License Type",
+      "appType": "App Type",
+      "websiteUrl": "Website URL",
+      "downloadUrl": "Download URL",
+      "version": "Version",
+      "vendor": "Vendor",
+      "installGuide": "Installation Guide",
+      "enableGuide": "Enable Guide",
+      "guideTitle": "Guide Title",
+      "guideSteps": "Steps (one per line)",
+      "guideStepsPlaceholder": "Step 1\nStep 2\nStep 3",
+      "guideNotes": "Notes",
+      "preview": "Preview",
+      "enterStepsToPreview": "Enter steps to see preview",
+      "selectApp": "Select App",
+      "releaseDate": "Release Date",
+      "changeType": "Change Type",
+      "changeTitle": "Title",
+      "changeTitlePlaceholder": "Brief summary of the update",
+      "changeDescription": "Description",
+      "changes": "Changes (one per line)",
+      "changesPlaceholder": "- Added new feature X\n- Fixed bug Y\n- Improved performance Z",
+      "downloadLink": "Download Link",
+      "highlightUpdate": "Highlight this update (show as featured)",
+      "saving": "Saving...",
+      "save": "Save",
+      "cancel": "Cancel",
+      "required": "Required",
+      "generalInfo": "General Information",
+      "select": "Select"
+    },
+    "licenseTypes": {
+      "free": "Free",
+      "freemium": "Freemium",
+      "paid": "Paid",
+      "trial": "Trial"
+    },
+    "appTypes": {
+      "general": "General",
+      "enterprise": "Enterprise",
+      "manual": "Manual Install"
+    },
+    "changeTypes": {
+      "major": "Major Update",
+      "minor": "Minor Update",
+      "patch": "Patch",
+      "security": "Security Fix",
+      "update": "Update"
+    },
+    "auditActions": {
+      "create": "Created",
+      "update": "Updated",
+      "delete": "Deleted"
+    },
+    "entityTypes": {
+      "app": "App",
+      "category": "Category",
+      "user": "User",
+      "changelog": "Changelog"
+    },
+    "timeAgo": {
+      "justNow": "Just now",
+      "minutesAgo": "{{count}} minutes ago",
+      "hoursAgo": "{{count}} hours ago",
+      "daysAgo": "{{count}} days ago"
+    },
+    "stats": {
+      "adminCount": "Admin",
+      "userCount": "User"
+    },
+    "has": "Has",
+    "processing": "Processing..."
   },
   "theme": {
     "light": "Light",
@@ -220,6 +447,9 @@
     "displayName": "Display Name",
     "displayNamePlaceholder": "Enter your display name",
     "avatarUrl": "Avatar URL",
+    "avatarPreview": "Preview",
+    "avatarPreviewHint": "Enter a URL to see preview",
+    "avatarLoadError": "Unable to load image",
     "emailCannotChange": "Email cannot be changed",
     "changePassword": "Change Password",
     "newPassword": "New Password",

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { CategoryWithApps } from '../types';
 import { AppRow } from './AppRow';
 import { useSelection } from '../context/SelectionContext';
@@ -26,6 +27,7 @@ function getCategoryIcon(slug: string): string {
 }
 
 export function AppCategorySection({ category }: AppCategorySectionProps) {
+  const { t } = useTranslation();
   const [isExpanded, setIsExpanded] = useState(true);
   const { isSelected, addToSelection, removeFromSelection } = useSelection();
 
@@ -59,7 +61,7 @@ export function AppCategorySection({ category }: AppCategorySectionProps) {
           <span className="text-2xl">{getCategoryIcon(category.slug)}</span>
           <div>
             <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">{category.name}</h2>
-            <p className="text-xs text-gray-500 dark:text-gray-400">{category.apps.length} โปรแกรม</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">{category.apps.length} {t('appCategory.apps')}</p>
           </div>
         </div>
 
@@ -80,10 +82,10 @@ export function AppCategorySection({ category }: AppCategorySectionProps) {
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
-                เลือกทั้งหมด
+                {t('appCategory.selectAll')}
               </span>
             ) : (
-              `เลือกทั้งหมด${someSelected ? ` (${selectedCount})` : ''}`
+              `${t('appCategory.selectAll')}${someSelected ? ` (${selectedCount})` : ''}`
             )}
           </button>
 

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
 import { useAuth } from '../../context/AuthContext';
 import * as adminApi from '../../api/adminApi';
@@ -30,6 +31,7 @@ const emptyApp: Partial<DbApp> = {
 };
 
 export function AdminAppsPage() {
+  const { t } = useTranslation();
   const { session } = useAuth();
   const [apps, setApps] = useState<DbApp[]>([]);
   const [categories, setCategories] = useState<DbCategory[]>([]);
@@ -458,7 +460,7 @@ export function AdminAppsPage() {
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">จัดการแอป</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{t('admin.manageApps')}</h1>
         <div className="flex gap-3 items-center">
           {selectedItems.size > 0 && (
             <button
@@ -469,7 +471,7 @@ export function AdminAppsPage() {
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
               </svg>
-              {bulkDeleting ? 'กำลังลบ...' : `ลบที่เลือก (${selectedItems.size})`}
+              {bulkDeleting ? t('admin.deleting') : `${t('admin.deleteSelected')} (${selectedItems.size})`}
             </button>
           )}
           <button
@@ -479,7 +481,7 @@ export function AdminAppsPage() {
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
-            เพิ่มแอปใหม่
+            {t('admin.addNewApp')}
           </button>
         </div>
       </div>
@@ -494,7 +496,7 @@ export function AdminAppsPage() {
             </svg>
             <input
               type="text"
-              placeholder="ค้นหาชื่อ, รหัส หรือคำอธิบาย..."
+              placeholder={t('admin.searchPlaceholder')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
@@ -507,7 +509,7 @@ export function AdminAppsPage() {
             onChange={(e) => setFilterCategory(e.target.value)}
             className="px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 min-w-[150px]"
           >
-            <option value="">ทุกหมวดหมู่</option>
+            <option value="">{t('admin.allCategories')}</option>
             {categories.map((cat) => (
               <option key={cat.id} value={cat.id}>{cat.name}</option>
             ))}
@@ -519,11 +521,11 @@ export function AdminAppsPage() {
             onChange={(e) => setFilterLicense(e.target.value)}
             className="px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 min-w-[130px]"
           >
-            <option value="">ทุกใบอนุญาต</option>
-            <option value="FREE">ฟรี</option>
-            <option value="FREEMIUM">Freemium</option>
-            <option value="PAID">เสียเงิน</option>
-            <option value="TRIAL">ทดลองใช้</option>
+            <option value="">{t('admin.allLicenses')}</option>
+            <option value="FREE">{t('admin.licenseTypes.free')}</option>
+            <option value="FREEMIUM">{t('admin.licenseTypes.freemium')}</option>
+            <option value="PAID">{t('admin.licenseTypes.paid')}</option>
+            <option value="TRIAL">{t('admin.licenseTypes.trial')}</option>
           </select>
 
           {/* App type filter */}
@@ -532,10 +534,10 @@ export function AdminAppsPage() {
             onChange={(e) => setFilterAppType(e.target.value)}
             className="px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 min-w-[130px]"
           >
-            <option value="">ทุกประเภท</option>
-            <option value="GENERAL">ทั่วไป</option>
-            <option value="ENTERPRISE">องค์กร</option>
-            <option value="MANUAL">ติดตั้งเอง</option>
+            <option value="">{t('admin.allTypes')}</option>
+            <option value="GENERAL">{t('admin.appTypes.general')}</option>
+            <option value="ENTERPRISE">{t('admin.appTypes.enterprise')}</option>
+            <option value="MANUAL">{t('admin.appTypes.manual')}</option>
           </select>
 
           {/* Clear filters button */}
@@ -552,93 +554,136 @@ export function AdminAppsPage() {
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
-              ล้างตัวกรอง ({activeFiltersCount})
+              {t('admin.clearFilters')} ({activeFiltersCount})
             </button>
           )}
         </div>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-        <table className="w-full">
-          <thead className="bg-gray-50 dark:bg-gray-900">
-            <tr>
-              <th className="w-12 px-4 py-4">
-                <input
-                  type="checkbox"
-                  checked={allSelected}
-                  ref={(el) => { if (el) el.indeterminate = someSelected && !allSelected; }}
-                  onChange={handleSelectAll}
-                  className="w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-indigo-600 focus:ring-indigo-500"
-                />
-              </th>
-              <th className="text-left px-6 py-4 text-sm font-medium text-gray-500 dark:text-gray-400">ไอคอน</th>
-              <th className="text-left px-6 py-4 text-sm font-medium text-gray-500 dark:text-gray-400">ชื่อ</th>
-              <th className="text-left px-6 py-4 text-sm font-medium text-gray-500 dark:text-gray-400">หมวดหมู่</th>
-              <th className="text-left px-6 py-4 text-sm font-medium text-gray-500 dark:text-gray-400">ใบอนุญาต</th>
-              <th className="text-left px-6 py-4 text-sm font-medium text-gray-500 dark:text-gray-400">คู่มือ</th>
-              <th className="text-left px-6 py-4 text-sm font-medium text-gray-500 dark:text-gray-400">จัดการ</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-            {filteredApps.map((app) => {
-              const isSelected = selectedItems.has(app.id);
-              return (
-                <tr key={app.id} className={`hover:bg-gray-50 dark:hover:bg-gray-700/50 ${isSelected ? 'bg-indigo-50/50 dark:bg-indigo-900/10' : ''}`}>
-                  <td className="w-12 px-4 py-4">
-                    <input
-                      type="checkbox"
-                      checked={isSelected}
-                      onChange={() => handleSelectItem(app.id)}
-                      className="w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-indigo-600 focus:ring-indigo-500"
-                    />
-                  </td>
-                  <td className="px-6 py-4">
-                  <img src={app.iconUrl} alt={app.name} className="w-10 h-10 rounded-lg object-contain bg-gray-100 dark:bg-gray-700 p-1" />
-                </td>
-                <td className="px-6 py-4">
-                  <p className="font-medium text-gray-900 dark:text-gray-100">{app.name}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">{app.id}</p>
-                </td>
-                <td className="px-6 py-4 text-gray-600 dark:text-gray-400">
-                  {categories.find((c) => c.id === app.categoryId)?.name || app.categoryId}
-                </td>
-                <td className="px-6 py-4">
-                  <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
-                    app.licenseType === 'FREE' ? 'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-400' :
-                    app.licenseType === 'PAID' ? 'bg-rose-100 dark:bg-rose-900/50 text-rose-700 dark:text-rose-400' :
-                    'bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-400'
-                  }`}>
-                    {app.licenseType}
-                  </span>
-                </td>
-                <td className="px-6 py-4">
-                  {app.hasInstallGuide ? (
-                    <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-400">มี</span>
-                  ) : (
-                    <span className="text-gray-400">-</span>
-                  )}
-                </td>
-                <td className="px-6 py-4">
-                  <button onClick={() => handleEdit(app)} className="p-2 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-lg mr-2">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                    </svg>
-                  </button>
-                  <button onClick={() => handleDelete(app.id, app.name)} className="p-2 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900/30 rounded-lg">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
-                  </button>
-                </td>
+      {apps.length === 0 ? (
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-12 text-center">
+          <svg className="w-16 h-16 mx-auto text-gray-300 dark:text-gray-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
+          </svg>
+          <p className="text-gray-900 dark:text-gray-100 text-lg font-medium mb-1">{t('admin.empty.apps.title')}</p>
+          <p className="text-gray-500 dark:text-gray-400 mb-6">{t('admin.empty.apps.description')}</p>
+          <button
+            onClick={handleCreate}
+            className="inline-flex items-center gap-2 bg-indigo-600 text-white px-4 py-2.5 rounded-xl font-medium hover:bg-indigo-700"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            {t('admin.addNewApp')}
+          </button>
+        </div>
+      ) : filteredApps.length === 0 ? (
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-12 text-center">
+          <svg className="w-16 h-16 mx-auto text-gray-300 dark:text-gray-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          <p className="text-gray-900 dark:text-gray-100 text-lg font-medium mb-1">{t('admin.empty.apps.noResults')}</p>
+          <p className="text-gray-500 dark:text-gray-400 mb-6">{t('admin.empty.apps.noResultsDesc')}</p>
+          <button
+            onClick={() => {
+              setFilterCategory('');
+              setFilterLicense('');
+              setFilterAppType('');
+              setSearchQuery('');
+            }}
+            className="inline-flex items-center gap-2 text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 font-medium"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+            {t('admin.clearFilters')}
+          </button>
+        </div>
+      ) : (
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+          <table className="w-full">
+            <thead className="bg-gray-50 dark:bg-gray-900">
+              <tr>
+                <th className="w-12 px-4 py-4">
+                  <input
+                    type="checkbox"
+                    checked={allSelected}
+                    ref={(el) => { if (el) el.indeterminate = someSelected && !allSelected; }}
+                    onChange={handleSelectAll}
+                    className="w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-indigo-600 focus:ring-indigo-500"
+                  />
+                </th>
+                <th className="text-left px-6 py-4 text-sm font-medium text-gray-500 dark:text-gray-400">{t('admin.table.icon')}</th>
+                <th className="text-left px-6 py-4 text-sm font-medium text-gray-500 dark:text-gray-400">{t('admin.table.name')}</th>
+                <th className="text-left px-6 py-4 text-sm font-medium text-gray-500 dark:text-gray-400">{t('admin.table.category')}</th>
+                <th className="text-left px-6 py-4 text-sm font-medium text-gray-500 dark:text-gray-400">{t('admin.table.license')}</th>
+                <th className="text-left px-6 py-4 text-sm font-medium text-gray-500 dark:text-gray-400">{t('admin.table.guide')}</th>
+                <th className="text-left px-6 py-4 text-sm font-medium text-gray-500 dark:text-gray-400">{t('admin.table.actions')}</th>
               </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-      <div className="mt-4 text-sm text-gray-500 dark:text-gray-400">
-        แสดง {filteredApps.length} จาก {apps.length} แอป
-      </div>
+            </thead>
+            <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+              {filteredApps.map((app) => {
+                const isSelected = selectedItems.has(app.id);
+                return (
+                  <tr key={app.id} className={`hover:bg-gray-50 dark:hover:bg-gray-700/50 ${isSelected ? 'bg-indigo-50/50 dark:bg-indigo-900/10' : ''}`}>
+                    <td className="w-12 px-4 py-4">
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => handleSelectItem(app.id)}
+                        className="w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-indigo-600 focus:ring-indigo-500"
+                      />
+                    </td>
+                    <td className="px-6 py-4">
+                      <img src={app.iconUrl} alt={app.name} className="w-10 h-10 rounded-lg object-contain bg-gray-100 dark:bg-gray-700 p-1" />
+                    </td>
+                    <td className="px-6 py-4">
+                      <p className="font-medium text-gray-900 dark:text-gray-100">{app.name}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">{app.id}</p>
+                    </td>
+                    <td className="px-6 py-4 text-gray-600 dark:text-gray-400">
+                      {categories.find((c) => c.id === app.categoryId)?.name || app.categoryId}
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
+                        app.licenseType === 'FREE' ? 'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-400' :
+                        app.licenseType === 'PAID' ? 'bg-rose-100 dark:bg-rose-900/50 text-rose-700 dark:text-rose-400' :
+                        'bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-400'
+                      }`}>
+                        {app.licenseType}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      {app.hasInstallGuide ? (
+                        <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-400">{t('admin.has')}</span>
+                      ) : (
+                        <span className="text-gray-400">-</span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4">
+                      <button onClick={() => handleEdit(app)} className="p-2 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-lg mr-2">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                      </button>
+                      <button onClick={() => handleDelete(app.id, app.name)} className="p-2 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900/30 rounded-lg">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+      {apps.length > 0 && (
+        <div className="mt-4 text-sm text-gray-500 dark:text-gray-400">
+          {t('admin.show')} {filteredApps.length} {t('admin.of')} {apps.length} {t('admin.items')}
+        </div>
+      )}
 
       <ConfirmDialog {...dialogProps} />
     </div>

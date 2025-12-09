@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
 import { useAuth } from '../../context/AuthContext';
 import * as adminApi from '../../api/adminApi';
@@ -16,6 +17,7 @@ const emptyCategory: Partial<DbCategory> = {
 };
 
 export function AdminCategoriesPage() {
+  const { t } = useTranslation();
   const { session } = useAuth();
   const [categories, setCategories] = useState<DbCategory[]>([]);
   const [loading, setLoading] = useState(true);
@@ -284,7 +286,7 @@ export function AdminCategoriesPage() {
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">จัดการหมวดหมู่</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{t('admin.manageCategories')}</h1>
         <div className="flex gap-3 items-center">
           {selectedItems.size > 0 && (
             <button
@@ -295,7 +297,7 @@ export function AdminCategoriesPage() {
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
               </svg>
-              {bulkDeleting ? 'กำลังลบ...' : `ลบที่เลือก (${selectedItems.size})`}
+              {bulkDeleting ? t('admin.deleting') : `${t('admin.deleteSelected')} (${selectedItems.size})`}
             </button>
           )}
           <button
@@ -305,68 +307,87 @@ export function AdminCategoriesPage() {
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
-            เพิ่มหมวดหมู่ใหม่
+            {t('admin.addNewCategory')}
           </button>
         </div>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-        <table className="w-full">
-          <thead className="bg-gray-50 dark:bg-gray-900">
-            <tr>
-              <th className="w-12 px-4 py-4">
-                <input
-                  type="checkbox"
-                  checked={allSelected}
-                  ref={(el) => { if (el) el.indeterminate = someSelected && !allSelected; }}
-                  onChange={handleSelectAll}
-                  className="w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-indigo-600 focus:ring-indigo-500"
-                />
-              </th>
-              <th className="text-left px-6 py-4 text-sm font-medium text-gray-500 dark:text-gray-400">ลำดับ</th>
-              <th className="text-left px-6 py-4 text-sm font-medium text-gray-500 dark:text-gray-400">รหัส</th>
-              <th className="text-left px-6 py-4 text-sm font-medium text-gray-500 dark:text-gray-400">ชื่อ</th>
-              <th className="text-left px-6 py-4 text-sm font-medium text-gray-500 dark:text-gray-400">Slug</th>
-              <th className="text-left px-6 py-4 text-sm font-medium text-gray-500 dark:text-gray-400">จัดการ</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-            {categories.map((category) => {
-              const isSelected = selectedItems.has(category.id);
-              return (
-                <tr key={category.id} className={`hover:bg-gray-50 dark:hover:bg-gray-700/50 ${isSelected ? 'bg-indigo-50/50 dark:bg-indigo-900/10' : ''}`}>
-                  <td className="w-12 px-4 py-4">
-                    <input
-                      type="checkbox"
-                      checked={isSelected}
-                      onChange={() => handleSelectItem(category.id)}
-                      className="w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-indigo-600 focus:ring-indigo-500"
-                    />
-                  </td>
-                  <td className="px-6 py-4 text-gray-500 dark:text-gray-400">{category.order}</td>
-                  <td className="px-6 py-4 font-mono text-sm text-gray-600 dark:text-gray-300">{category.id}</td>
-                  <td className="px-6 py-4 font-medium text-gray-900 dark:text-gray-100">{category.name}</td>
-                  <td className="px-6 py-4 text-gray-500 dark:text-gray-400">{category.slug}</td>
-                  <td className="px-6 py-4">
-                    <button
-                      onClick={() => handleEdit(category)}
-                      className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 mr-4"
-                    >
-                      แก้ไข
-                    </button>
-                    <button
-                      onClick={() => handleDelete(category.id, category.name)}
-                      className="text-rose-600 dark:text-rose-400 hover:text-rose-800 dark:hover:text-rose-300"
-                    >
-                      ลบ
-                    </button>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+      {categories.length === 0 ? (
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-12 text-center">
+          <svg className="w-16 h-16 mx-auto text-gray-300 dark:text-gray-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+          </svg>
+          <p className="text-gray-900 dark:text-gray-100 text-lg font-medium mb-1">{t('admin.empty.categories.title')}</p>
+          <p className="text-gray-500 dark:text-gray-400 mb-6">{t('admin.empty.categories.description')}</p>
+          <button
+            onClick={handleCreate}
+            className="inline-flex items-center gap-2 bg-indigo-600 text-white px-4 py-2.5 rounded-xl font-medium hover:bg-indigo-700"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            {t('admin.addNewCategory')}
+          </button>
+        </div>
+      ) : (
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+          <table className="w-full">
+            <thead className="bg-gray-50 dark:bg-gray-900">
+              <tr>
+                <th className="w-12 px-4 py-4">
+                  <input
+                    type="checkbox"
+                    checked={allSelected}
+                    ref={(el) => { if (el) el.indeterminate = someSelected && !allSelected; }}
+                    onChange={handleSelectAll}
+                    className="w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-indigo-600 focus:ring-indigo-500"
+                  />
+                </th>
+                <th className="text-left px-6 py-4 text-sm font-medium text-gray-500 dark:text-gray-400">{t('admin.table.order')}</th>
+                <th className="text-left px-6 py-4 text-sm font-medium text-gray-500 dark:text-gray-400">{t('admin.table.id')}</th>
+                <th className="text-left px-6 py-4 text-sm font-medium text-gray-500 dark:text-gray-400">{t('admin.table.name')}</th>
+                <th className="text-left px-6 py-4 text-sm font-medium text-gray-500 dark:text-gray-400">{t('admin.table.slug')}</th>
+                <th className="text-left px-6 py-4 text-sm font-medium text-gray-500 dark:text-gray-400">{t('admin.table.actions')}</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+              {categories.map((category) => {
+                const isSelected = selectedItems.has(category.id);
+                return (
+                  <tr key={category.id} className={`hover:bg-gray-50 dark:hover:bg-gray-700/50 ${isSelected ? 'bg-indigo-50/50 dark:bg-indigo-900/10' : ''}`}>
+                    <td className="w-12 px-4 py-4">
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => handleSelectItem(category.id)}
+                        className="w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-indigo-600 focus:ring-indigo-500"
+                      />
+                    </td>
+                    <td className="px-6 py-4 text-gray-500 dark:text-gray-400">{category.order}</td>
+                    <td className="px-6 py-4 font-mono text-sm text-gray-600 dark:text-gray-300">{category.id}</td>
+                    <td className="px-6 py-4 font-medium text-gray-900 dark:text-gray-100">{category.name}</td>
+                    <td className="px-6 py-4 text-gray-500 dark:text-gray-400">{category.slug}</td>
+                    <td className="px-6 py-4">
+                      <button
+                        onClick={() => handleEdit(category)}
+                        className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 mr-4"
+                      >
+                        {t('admin.actions.edit')}
+                      </button>
+                      <button
+                        onClick={() => handleDelete(category.id, category.name)}
+                        className="text-rose-600 dark:text-rose-400 hover:text-rose-800 dark:hover:text-rose-300"
+                      >
+                        {t('admin.actions.delete')}
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       <ConfirmDialog {...dialogProps} />
     </div>

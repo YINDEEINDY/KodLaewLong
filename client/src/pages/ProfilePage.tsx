@@ -11,6 +11,7 @@ export default function ProfilePage() {
 
   const [displayName, setDisplayName] = useState('');
   const [avatarUrl, setAvatarUrl] = useState('');
+  const [avatarPreviewError, setAvatarPreviewError] = useState(false);
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
@@ -174,10 +175,48 @@ export default function ProfilePage() {
                 type="url"
                 id="avatarUrl"
                 value={avatarUrl}
-                onChange={(e) => setAvatarUrl(e.target.value)}
+                onChange={(e) => {
+                  setAvatarUrl(e.target.value);
+                  setAvatarPreviewError(false);
+                }}
                 className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
                 placeholder="https://example.com/avatar.jpg"
               />
+
+              {/* Avatar Preview */}
+              <div className="mt-3">
+                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">
+                  {t('profile.avatarPreview')}
+                </p>
+                {avatarUrl ? (
+                  <div className="flex items-center gap-3">
+                    {!avatarPreviewError ? (
+                      <img
+                        src={avatarUrl}
+                        alt="Avatar preview"
+                        className="w-16 h-16 rounded-full object-cover border-2 border-gray-200 dark:border-gray-600"
+                        onError={() => setAvatarPreviewError(true)}
+                        onLoad={() => setAvatarPreviewError(false)}
+                      />
+                    ) : (
+                      <div className="w-16 h-16 rounded-full bg-red-50 dark:bg-red-900/20 border-2 border-red-200 dark:border-red-800 flex items-center justify-center">
+                        <svg className="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </div>
+                    )}
+                    {avatarPreviewError && (
+                      <p className="text-xs text-red-500 dark:text-red-400">
+                        {t('profile.avatarLoadError')}
+                      </p>
+                    )}
+                  </div>
+                ) : (
+                  <p className="text-xs text-gray-400 dark:text-gray-500 italic">
+                    {t('profile.avatarPreviewHint')}
+                  </p>
+                )}
+              </div>
             </div>
 
             <div>

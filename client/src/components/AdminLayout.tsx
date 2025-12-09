@@ -1,20 +1,22 @@
 import { Link, useLocation, Outlet, Navigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 
-const navItems = [
-  { path: '/admin', label: 'แดชบอร์ด', icon: '📊' },
-  { path: '/admin/apps', label: 'จัดการแอป', icon: '📱' },
-  { path: '/admin/categories', label: 'จัดการหมวดหมู่', icon: '📁' },
-  { path: '/admin/changelogs', label: 'Changelog', icon: '📝' },
-  { path: '/admin/users', label: 'จัดการผู้ใช้', icon: '👥' },
-  { path: '/admin/audit-logs', label: 'ประวัติการดำเนินการ', icon: '📋' },
-];
-
 export function AdminLayout() {
+  const { t } = useTranslation();
   const { user, session, loading } = useAuth();
   const { isDark, toggleTheme } = useTheme();
   const location = useLocation();
+
+  const navItems = [
+    { path: '/admin', label: t('admin.dashboard'), icon: '📊' },
+    { path: '/admin/apps', label: t('admin.apps'), icon: '📱' },
+    { path: '/admin/categories', label: t('admin.categories'), icon: '📁' },
+    { path: '/admin/changelogs', label: t('admin.changelogs'), icon: '📝' },
+    { path: '/admin/users', label: t('admin.users'), icon: '👥' },
+    { path: '/admin/audit-logs', label: t('admin.auditLogs'), icon: '📋' },
+  ];
 
   if (loading) {
     return (
@@ -44,26 +46,33 @@ export function AdminLayout() {
               </svg>
             </div>
             <div>
-              <h2 className="text-lg font-bold">Admin Panel</h2>
-              <p className="text-xs text-gray-400">จัดการระบบ</p>
+              <h2 className="text-lg font-bold">{t('admin.title')}</h2>
+              <p className="text-xs text-gray-400">{t('admin.subtitle')}</p>
             </div>
           </div>
 
-          <nav className="space-y-1">
-            {navItems.map((item) => (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
-                  location.pathname === item.path
-                    ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-500/30'
-                    : 'text-gray-400 hover:text-white hover:bg-gray-800'
-                }`}
-              >
-                <span className="text-xl">{item.icon}</span>
-                <span className="font-medium">{item.label}</span>
-              </Link>
-            ))}
+          <nav className="space-y-1" aria-label="Admin navigation">
+            {navItems.map((item) => {
+              const isActive = item.path === '/admin'
+                ? location.pathname === '/admin'
+                : location.pathname.startsWith(item.path);
+
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
+                    isActive
+                      ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-500/30'
+                      : 'text-gray-400 hover:text-white hover:bg-gray-800'
+                  }`}
+                  aria-current={isActive ? 'page' : undefined}
+                >
+                  <span className="text-xl" aria-hidden="true">{item.icon}</span>
+                  <span className="font-medium">{item.label}</span>
+                </Link>
+              );
+            })}
           </nav>
         </div>
 
@@ -72,16 +81,17 @@ export function AdminLayout() {
           <button
             onClick={toggleTheme}
             className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-gray-400 hover:text-white hover:bg-gray-800 transition-colors"
+            aria-label={isDark ? t('admin.lightMode') : t('admin.darkMode')}
           >
             {isDark ? (
               <>
-                <span className="text-xl">☀️</span>
-                <span className="font-medium">Light Mode</span>
+                <span className="text-xl" aria-hidden="true">☀️</span>
+                <span className="font-medium">{t('admin.lightMode')}</span>
               </>
             ) : (
               <>
-                <span className="text-xl">🌙</span>
-                <span className="font-medium">Dark Mode</span>
+                <span className="text-xl" aria-hidden="true">🌙</span>
+                <span className="font-medium">{t('admin.darkMode')}</span>
               </>
             )}
           </button>
@@ -92,9 +102,9 @@ export function AdminLayout() {
             rel="noopener noreferrer"
             className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-400 hover:text-white hover:bg-gray-800 transition-colors"
           >
-            <span className="text-xl">📖</span>
-            <span className="font-medium">API Docs</span>
-            <svg className="w-4 h-4 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <span className="text-xl" aria-hidden="true">📖</span>
+            <span className="font-medium">{t('admin.apiDocs')}</span>
+            <svg className="w-4 h-4 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
             </svg>
           </a>
@@ -103,8 +113,8 @@ export function AdminLayout() {
             to="/"
             className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-400 hover:text-white hover:bg-gray-800 transition-colors"
           >
-            <span className="text-xl">🏠</span>
-            <span className="font-medium">กลับหน้าหลัก</span>
+            <span className="text-xl" aria-hidden="true">🏠</span>
+            <span className="font-medium">{t('admin.backToSite')}</span>
           </Link>
         </div>
       </aside>

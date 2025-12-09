@@ -254,7 +254,7 @@ export function SummaryPage() {
 
         {/* Generate Button */}
         {!result && (
-          <div className="flex justify-center mt-6 sm:mt-8">
+          <div className="flex flex-col items-center gap-3 mt-6 sm:mt-8">
             <button
               onClick={handleGenerate}
               disabled={loading}
@@ -276,6 +276,9 @@ export function SummaryPage() {
                 </>
               )}
             </button>
+            <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 text-center">
+              {t('summary.generateHint')}
+            </p>
           </div>
         )}
 

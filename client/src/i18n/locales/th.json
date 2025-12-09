@@ -84,8 +84,17 @@
     "download": "ดาวน์โหลด",
     "popular": "ยอดนิยม"
   },
+  "appCategory": {
+    "apps": "โปรแกรม",
+    "selectAll": "เลือกทั้งหมด",
+    "selected": "เลือกแล้ว"
+  },
   "appDetail": {
     "backToSelection": "กลับไปเลือกซอฟต์แวร์",
+    "breadcrumb": {
+      "home": "หน้าหลัก",
+      "apps": "แอป"
+    },
     "by": "โดย",
     "version": "เวอร์ชัน",
     "hasInstallGuide": "มีคู่มือติดตั้ง",
@@ -131,8 +140,9 @@
       "manual": "ติดตั้งพิเศษ"
     },
     "items": "รายการ",
-    "generate": "สร้างตัวติดตั้ง",
-    "generating": "กำลังสร้าง...",
+    "generate": "สร้างไฟล์ติดตั้ง",
+    "generateHint": "ดาวน์โหลดสคริปต์สำหรับติดตั้งโปรแกรมที่เลือกทั้งหมด",
+    "generating": "กำลังสร้างไฟล์...",
     "empty": {
       "title": "ยังไม่ได้เลือกซอฟต์แวร์",
       "subtitle": "กลับไปเลือกซอฟต์แวร์ที่ต้องการติดตั้ง",
@@ -141,8 +151,8 @@
   },
   "bottomBar": {
     "selectedCount": "เลือกแล้ว {{count}} รายการ",
-    "proceed": "ดำเนินการต่อ",
-    "viewSummary": "ดูสรุปรายการ"
+    "proceed": "ตรวจสอบและดาวน์โหลด",
+    "viewSummary": "คลิกเพื่อตรวจสอบรายการที่เลือก"
   },
   "download": {
     "creating": "กำลังสร้างตัวติดตั้ง",
@@ -195,14 +205,231 @@
     "resetLinkSent": "เราได้ส่งลิงก์สำหรับรีเซ็ตรหัสผ่านไปยัง",
     "checkSpamFolder": "หากไม่พบอีเมล กรุณาตรวจสอบโฟลเดอร์สแปม",
     "backToLogin": "กลับไปหน้าเข้าสู่ระบบ",
-    "rememberPassword": "จำรหัสผ่านได้แล้ว?"
+    "rememberPassword": "จำรหัสผ่านได้แล้ว?",
+    "resetPasswordTitle": "ตั้งรหัสผ่านใหม่",
+    "resetPasswordSubtitle": "กรุณากรอกรหัสผ่านใหม่ที่ต้องการใช้",
+    "newPassword": "รหัสผ่านใหม่",
+    "confirmNewPassword": "ยืนยันรหัสผ่านใหม่",
+    "saving": "กำลังบันทึก...",
+    "savePassword": "บันทึกรหัสผ่านใหม่",
+    "resetSuccess": "เปลี่ยนรหัสผ่านสำเร็จ!",
+    "redirectingToLogin": "กำลังนำคุณไปยังหน้าเข้าสู่ระบบ...",
+    "loginNow": "เข้าสู่ระบบเลย",
+    "resetError": "เกิดข้อผิดพลาดในการเปลี่ยนรหัสผ่าน กรุณาลองใหม่อีกครั้ง"
   },
   "admin": {
+    "title": "Admin Panel",
+    "subtitle": "จัดการระบบ",
     "dashboard": "แดชบอร์ด",
     "apps": "จัดการแอป",
-    "categories": "หมวดหมู่",
-    "users": "ผู้ใช้",
-    "backToSite": "กลับไปหน้าเว็บ"
+    "categories": "จัดการหมวดหมู่",
+    "changelogs": "Changelog",
+    "users": "จัดการผู้ใช้",
+    "auditLogs": "ประวัติการดำเนินการ",
+    "backToSite": "กลับหน้าหลัก",
+    "apiDocs": "API Docs",
+    "lightMode": "Light Mode",
+    "darkMode": "Dark Mode",
+    "manageUsers": "จัดการผู้ใช้",
+    "manageCategories": "จัดการหมวดหมู่",
+    "manageApps": "จัดการแอป",
+    "manageChangelogs": "จัดการ Changelog",
+    "activityHistory": "ประวัติการดำเนินการ",
+    "addNew": "เพิ่มใหม่",
+    "addNewApp": "เพิ่มแอปใหม่",
+    "addNewCategory": "เพิ่มหมวดหมู่ใหม่",
+    "addNewChangelog": "เพิ่ม Changelog ใหม่",
+    "editApp": "แก้ไขแอป",
+    "editCategory": "แก้ไขหมวดหมู่",
+    "editChangelog": "แก้ไข Changelog",
+    "deleteSelected": "ลบที่เลือก",
+    "deleting": "กำลังลบ...",
+    "refresh": "รีเฟรช",
+    "show": "แสดง",
+    "items": "รายการ",
+    "of": "จาก",
+    "clearFilters": "ล้างตัวกรอง",
+    "allCategories": "ทุกหมวดหมู่",
+    "allLicenses": "ทุกใบอนุญาต",
+    "allTypes": "ทุกประเภท",
+    "allApps": "ทุกแอป",
+    "searchPlaceholder": "ค้นหาชื่อ, รหัส หรือคำอธิบาย...",
+    "empty": {
+      "users": {
+        "title": "ไม่พบผู้ใช้",
+        "description": "ผู้ใช้จะแสดงที่นี่เมื่อมีการสมัครสมาชิก"
+      },
+      "categories": {
+        "title": "ยังไม่มีหมวดหมู่",
+        "description": "เพิ่มหมวดหมู่แรกเพื่อจัดระเบียบแอป"
+      },
+      "apps": {
+        "title": "ไม่พบแอป",
+        "description": "เพิ่มแอปแรกของคุณเพื่อเริ่มต้น",
+        "noResults": "ไม่พบแอปที่ตรงกับเงื่อนไขการค้นหา",
+        "noResultsDesc": "ลองปรับตัวกรองหรือคำค้นหาใหม่"
+      },
+      "changelogs": {
+        "title": "ไม่พบ Changelog",
+        "description": "เพิ่ม Changelog แรกของคุณ!"
+      },
+      "auditLogs": {
+        "title": "ยังไม่มีประวัติการดำเนินการ",
+        "description": "รายการจะแสดงที่นี่เมื่อมีการดำเนินการ"
+      }
+    },
+    "table": {
+      "email": "อีเมล",
+      "role": "บทบาท",
+      "registeredAt": "สมัครเมื่อ",
+      "lastSignIn": "เข้าสู่ระบบล่าสุด",
+      "actions": "จัดการ",
+      "order": "ลำดับ",
+      "id": "รหัส",
+      "name": "ชื่อ",
+      "slug": "Slug",
+      "icon": "ไอคอน",
+      "category": "หมวดหมู่",
+      "license": "ใบอนุญาต",
+      "guide": "คู่มือ",
+      "app": "แอป",
+      "version": "เวอร์ชัน",
+      "type": "ประเภท",
+      "title": "ชื่อเรื่อง",
+      "date": "วันที่",
+      "time": "เวลา",
+      "actor": "ผู้ดำเนินการ",
+      "action": "การดำเนินการ",
+      "entityType": "ประเภท",
+      "details": "รายละเอียด"
+    },
+    "actions": {
+      "grantAdmin": "ให้สิทธิ์ Admin",
+      "revokeAdmin": "ถอดสิทธิ์ Admin",
+      "delete": "ลบ",
+      "edit": "แก้ไข",
+      "you": "คุณ"
+    },
+    "confirmDialog": {
+      "grantAdmin": "ให้สิทธิ์ Admin",
+      "grantAdminMessage": "คุณแน่ใจหรือไม่ที่จะให้ผู้ใช้นี้เป็น Admin? ผู้ใช้จะสามารถเข้าถึงหน้าจัดการระบบได้",
+      "revokeAdmin": "ถอดสิทธิ์ Admin",
+      "revokeAdminMessage": "คุณแน่ใจหรือไม่ที่จะถอดสิทธิ์ Admin ของผู้ใช้นี้?",
+      "deleteUser": "ลบผู้ใช้",
+      "deleteUserMessage": "คุณแน่ใจหรือไม่ที่จะลบผู้ใช้ \"{{email}}\"? การดำเนินการนี้ไม่สามารถย้อนกลับได้!",
+      "deleteUsers": "ลบผู้ใช้หลายคน",
+      "deleteUsersMessage": "คุณแน่ใจหรือไม่ที่จะลบผู้ใช้ {{count}} คน? การดำเนินการนี้ไม่สามารถย้อนกลับได้!",
+      "deleteCategory": "ลบหมวดหมู่",
+      "deleteCategoryMessage": "คุณแน่ใจหรือไม่ที่จะลบหมวดหมู่ \"{{name}}\"?",
+      "deleteCategories": "ลบหมวดหมู่หลายรายการ",
+      "deleteCategoriesMessage": "คุณแน่ใจหรือไม่ที่จะลบหมวดหมู่ {{count}} รายการ?",
+      "deleteApp": "ลบแอป",
+      "deleteAppMessage": "คุณแน่ใจหรือไม่ที่จะลบแอป \"{{name}}\"?",
+      "deleteApps": "ลบแอปหลายรายการ",
+      "deleteAppsMessage": "คุณแน่ใจหรือไม่ที่จะลบแอป {{count}} รายการ?",
+      "deleteChangelog": "ลบ Changelog",
+      "deleteChangelogMessage": "คุณแน่ใจหรือไม่ที่จะลบ changelog \"{{title}}\"?"
+    },
+    "toast": {
+      "adminGranted": "ให้สิทธิ์ Admin สำเร็จ",
+      "adminRevoked": "ถอดสิทธิ์ Admin สำเร็จ",
+      "userDeleted": "ลบผู้ใช้สำเร็จ",
+      "usersDeleted": "ลบผู้ใช้ {{count}} คนสำเร็จ",
+      "categoryCreated": "เพิ่มหมวดหมู่สำเร็จ",
+      "categorySaved": "บันทึกหมวดหมู่สำเร็จ",
+      "categoryDeleted": "ลบหมวดหมู่สำเร็จ",
+      "categoriesDeleted": "ลบหมวดหมู่ {{count}} รายการสำเร็จ",
+      "appCreated": "เพิ่มแอปสำเร็จ",
+      "appSaved": "บันทึกแอปสำเร็จ",
+      "appDeleted": "ลบแอปสำเร็จ",
+      "appsDeleted": "ลบแอป {{count}} รายการสำเร็จ",
+      "changelogCreated": "เพิ่ม Changelog สำเร็จ",
+      "changelogSaved": "บันทึก Changelog สำเร็จ",
+      "changelogDeleted": "ลบ Changelog สำเร็จ",
+      "deleteFailed": "ลบไม่สำเร็จ {{count}} รายการ"
+    },
+    "form": {
+      "categoryId": "รหัสหมวดหมู่",
+      "categoryIdPlaceholder": "เช่น browsers, media, dev-tools",
+      "categoryName": "ชื่อหมวดหมู่",
+      "categoryNamePlaceholder": "เช่น เว็บเบราว์เซอร์, มีเดีย",
+      "displayOrder": "ลำดับการแสดง",
+      "appId": "รหัสแอป",
+      "appName": "ชื่อแอป",
+      "description": "คำอธิบาย",
+      "iconUrl": "URL ไอคอน",
+      "licenseType": "ใบอนุญาต",
+      "appType": "ประเภทแอป",
+      "websiteUrl": "URL เว็บไซต์",
+      "downloadUrl": "URL ดาวน์โหลด",
+      "version": "เวอร์ชัน",
+      "vendor": "ผู้พัฒนา",
+      "installGuide": "คู่มือการติดตั้ง",
+      "enableGuide": "เปิดใช้คู่มือ",
+      "guideTitle": "ชื่อคู่มือ",
+      "guideSteps": "ขั้นตอน (บรรทัดละขั้นตอน)",
+      "guideStepsPlaceholder": "ขั้นตอนที่ 1\nขั้นตอนที่ 2\nขั้นตอนที่ 3",
+      "guideNotes": "หมายเหตุ",
+      "preview": "ตัวอย่าง",
+      "enterStepsToPreview": "ใส่ขั้นตอนเพื่อดูตัวอย่าง",
+      "selectApp": "เลือกแอป",
+      "releaseDate": "วันที่ออก",
+      "changeType": "ประเภทการอัปเดต",
+      "changeTitle": "ชื่อเรื่อง",
+      "changeTitlePlaceholder": "สรุปสั้นๆ เกี่ยวกับการอัปเดต",
+      "changeDescription": "รายละเอียด",
+      "changes": "การเปลี่ยนแปลง (บรรทัดละรายการ)",
+      "changesPlaceholder": "- เพิ่มฟีเจอร์ใหม่ X\n- แก้ไขบัก Y\n- ปรับปรุงประสิทธิภาพ Z",
+      "downloadLink": "ลิงก์ดาวน์โหลด",
+      "highlightUpdate": "ไฮไลท์การอัปเดตนี้ (แสดงเป็นรายการเด่น)",
+      "saving": "กำลังบันทึก...",
+      "save": "บันทึก",
+      "cancel": "ยกเลิก",
+      "required": "จำเป็น",
+      "generalInfo": "ข้อมูลทั่วไป",
+      "select": "เลือก"
+    },
+    "licenseTypes": {
+      "free": "ฟรี",
+      "freemium": "Freemium",
+      "paid": "เสียเงิน",
+      "trial": "ทดลองใช้"
+    },
+    "appTypes": {
+      "general": "ทั่วไป",
+      "enterprise": "องค์กร",
+      "manual": "ติดตั้งเอง"
+    },
+    "changeTypes": {
+      "major": "Major Update",
+      "minor": "Minor Update",
+      "patch": "Patch",
+      "security": "Security Fix",
+      "update": "Update"
+    },
+    "auditActions": {
+      "create": "สร้าง",
+      "update": "แก้ไข",
+      "delete": "ลบ"
+    },
+    "entityTypes": {
+      "app": "แอป",
+      "category": "หมวดหมู่",
+      "user": "ผู้ใช้",
+      "changelog": "Changelog"
+    },
+    "timeAgo": {
+      "justNow": "เมื่อสักครู่",
+      "minutesAgo": "{{count}} นาทีที่แล้ว",
+      "hoursAgo": "{{count}} ชั่วโมงที่แล้ว",
+      "daysAgo": "{{count}} วันที่แล้ว"
+    },
+    "stats": {
+      "adminCount": "Admin",
+      "userCount": "User"
+    },
+    "has": "มี",
+    "processing": "กำลังดำเนินการ..."
   },
   "theme": {
     "light": "สว่าง",
@@ -220,6 +447,9 @@
     "displayName": "ชื่อที่แสดง",
     "displayNamePlaceholder": "กรอกชื่อที่ต้องการแสดง",
     "avatarUrl": "URL รูปโปรไฟล์",
+    "avatarPreview": "ตัวอย่าง",
+    "avatarPreviewHint": "กรอก URL เพื่อดูตัวอย่าง",
+    "avatarLoadError": "ไม่สามารถโหลดรูปภาพได้",
     "emailCannotChange": "ไม่สามารถเปลี่ยนอีเมลได้",
     "changePassword": "เปลี่ยนรหัสผ่าน",
     "newPassword": "รหัสผ่านใหม่",
