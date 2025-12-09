@@ -1,21 +1,23 @@
 import '@testing-library/jest-dom';
 import { cleanup } from '@testing-library/react';
-import { afterEach, beforeAll, vi } from 'vitest';
+import { afterAll, afterEach, beforeAll, vi } from 'vitest';
+import { server } from './mocks/server';
 
-// Mock fetch globally
+// Start MSW server before all tests
 beforeAll(() => {
-  global.fetch = vi.fn().mockImplementation(() =>
-    Promise.resolve({
-      ok: true,
-      json: () => Promise.resolve([]),
-    })
-  );
+  server.listen({ onUnhandledRequest: 'bypass' });
 });
 
-// Cleanup after each test
+// Reset handlers after each test
 afterEach(() => {
   cleanup();
   vi.clearAllMocks();
+  server.resetHandlers();
+});
+
+// Close server after all tests
+afterAll(() => {
+  server.close();
 });
 
 // Mock window.matchMedia
