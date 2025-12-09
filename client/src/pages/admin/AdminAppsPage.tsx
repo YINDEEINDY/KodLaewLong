@@ -64,7 +64,7 @@ export function AdminAppsPage() {
       setApps(appsRes.apps);
       setCategories(catsRes.categories);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'เกิดข้อผิดพลาดในการโหลดข้อมูล');
+      setError(err instanceof Error ? err.message : t('common.error'));
     } finally {
       setLoading(false);
     }
@@ -84,9 +84,9 @@ export function AdminAppsPage() {
     if (!session?.access_token) return;
 
     const confirmed = await confirm({
-      title: 'ลบแอป',
-      message: `คุณแน่ใจหรือไม่ที่จะลบแอป "${name}"?`,
-      confirmText: 'ลบแอป',
+      title: t('admin.confirmDialog.deleteApp'),
+      message: t('admin.confirmDialog.deleteAppMessage', { name }),
+      confirmText: t('admin.confirmDialog.deleteApp'),
       variant: 'danger',
     });
 
@@ -95,9 +95,9 @@ export function AdminAppsPage() {
     try {
       await adminApi.deleteApp(session.access_token, id);
       setApps(apps.filter((a) => a.id !== id));
-      toast.success('ลบแอปสำเร็จ');
+      toast.success(t('admin.toast.appDeleted'));
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'เกิดข้อผิดพลาด');
+      toast.error(err instanceof Error ? err.message : t('common.error'));
     }
   }
 
@@ -110,16 +110,16 @@ export function AdminAppsPage() {
       if (mode === 'create') {
         const newApp = await adminApi.createApp(session.access_token, formData);
         setApps([...apps, newApp]);
-        toast.success('เพิ่มแอปสำเร็จ');
+        toast.success(t('admin.toast.appCreated'));
       } else {
         const updated = await adminApi.updateApp(session.access_token, formData.id!, formData);
         setApps(apps.map((a) => (a.id === updated.id ? updated : a)));
-        toast.success('บันทึกแอปสำเร็จ');
+        toast.success(t('admin.toast.appSaved'));
       }
       setMode('list');
       setFormData(emptyApp);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'เกิดข้อผิดพลาด');
+      toast.error(err instanceof Error ? err.message : t('common.error'));
     } finally {
       setSaving(false);
     }
@@ -177,9 +177,9 @@ export function AdminAppsPage() {
     if (!session?.access_token || selectedItems.size === 0) return;
 
     const confirmed = await confirm({
-      title: 'ลบแอปหลายรายการ',
-      message: `คุณแน่ใจหรือไม่ที่จะลบแอป ${selectedItems.size} รายการ?`,
-      confirmText: `ลบ ${selectedItems.size} รายการ`,
+      title: t('admin.confirmDialog.deleteApps'),
+      message: t('admin.confirmDialog.deleteAppsMessage', { count: selectedItems.size }),
+      confirmText: `${t('admin.actions.delete')} ${selectedItems.size}`,
       variant: 'danger',
     });
 
@@ -196,16 +196,16 @@ export function AdminAppsPage() {
       const failed = results.filter((r) => !r.success);
 
       if (failed.length > 0) {
-        toast.error(`ลบไม่สำเร็จ ${failed.length} รายการ`);
+        toast.error(t('admin.toast.deleteFailed', { count: failed.length }));
       } else {
-        toast.success(`ลบแอป ${selectedItems.size} รายการสำเร็จ`);
+        toast.success(t('admin.toast.appsDeleted', { count: selectedItems.size }));
       }
 
       const failedIds = new Set(failed.map((f) => f.id));
       setApps(apps.filter((a) => !selectedItems.has(a.id) || failedIds.has(a.id)));
       setSelectedItems(new Set());
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'เกิดข้อผิดพลาดในการลบ');
+      toast.error(err instanceof Error ? err.message : t('common.error'));
     } finally {
       setBulkDeleting(false);
     }
@@ -239,13 +239,13 @@ export function AdminAppsPage() {
             </svg>
           </button>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-            {mode === 'create' ? 'เพิ่มแอปใหม่' : 'แก้ไขแอป'}
+            {mode === 'create' ? t('admin.addNewApp') : t('admin.editApp')}
           </h1>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">ข้อมูลทั่วไป</h2>
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">{t('admin.form.generalInfo')}</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">รหัสแอป *</label>
@@ -442,14 +442,14 @@ export function AdminAppsPage() {
               disabled={saving}
               className="bg-indigo-600 text-white px-6 py-3 rounded-xl font-medium hover:bg-indigo-700 disabled:opacity-50"
             >
-              {saving ? 'กำลังบันทึก...' : 'บันทึก'}
+              {saving ? t('admin.form.saving') : t('admin.form.save')}
             </button>
             <button
               type="button"
               onClick={handleCancel}
               className="bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-6 py-3 rounded-xl font-medium hover:bg-gray-300 dark:hover:bg-gray-600"
             >
-              ยกเลิก
+              {t('admin.form.cancel')}
             </button>
           </div>
         </form>

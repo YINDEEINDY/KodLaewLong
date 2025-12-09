@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
 import { useAuth } from '../../context/AuthContext';
 import * as adminApi from '../../api/adminApi';
@@ -20,14 +21,6 @@ const emptyChangelog: Partial<DbChangelog> = {
   isHighlighted: false,
 };
 
-const changeTypeLabels: Record<string, string> = {
-  major: 'Major Update',
-  minor: 'Minor Update',
-  patch: 'Patch',
-  security: 'Security Fix',
-  update: 'Update',
-};
-
 const changeTypeBadgeColors: Record<string, string> = {
   major: 'bg-purple-100 dark:bg-purple-900/50 text-purple-800 dark:text-purple-300',
   minor: 'bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-300',
@@ -37,6 +30,7 @@ const changeTypeBadgeColors: Record<string, string> = {
 };
 
 export function AdminChangelogsPage() {
+  const { t } = useTranslation();
   const { session } = useAuth();
   const [changelogs, setChangelogs] = useState<DbChangelog[]>([]);
   const [apps, setApps] = useState<DbApp[]>([]);
@@ -64,7 +58,7 @@ export function AdminChangelogsPage() {
       setChangelogs(changelogsRes.changelogs);
       setApps(appsRes.apps);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      setError(err instanceof Error ? err.message : t('common.error'));
     } finally {
       setLoading(false);
     }
@@ -87,9 +81,9 @@ export function AdminChangelogsPage() {
     if (!session?.access_token) return;
 
     const confirmed = await confirm({
-      title: 'ลบ Changelog',
-      message: `คุณแน่ใจหรือไม่ที่จะลบ changelog "${title}"?`,
-      confirmText: 'ลบ Changelog',
+      title: t('admin.confirmDialog.deleteChangelog'),
+      message: t('admin.confirmDialog.deleteChangelogMessage', { title }),
+      confirmText: t('admin.confirmDialog.deleteChangelog'),
       variant: 'danger',
     });
 
@@ -98,9 +92,9 @@ export function AdminChangelogsPage() {
     try {
       await adminApi.deleteChangelog(session.access_token, id);
       setChangelogs(changelogs.filter((c) => c.id !== id));
-      toast.success('ลบ changelog สำเร็จ');
+      toast.success(t('admin.toast.changelogDeleted'));
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'เกิดข้อผิดพลาด');
+      toast.error(err instanceof Error ? err.message : t('common.error'));
     }
   }
 
@@ -114,17 +108,17 @@ export function AdminChangelogsPage() {
         const newChangelog = await adminApi.createChangelog(session.access_token, formData);
         const app = apps.find(a => a.id === newChangelog.appId);
         setChangelogs([{ ...newChangelog, appName: app?.name }, ...changelogs]);
-        toast.success('เพิ่ม changelog สำเร็จ');
+        toast.success(t('admin.toast.changelogCreated'));
       } else {
         const updated = await adminApi.updateChangelog(session.access_token, formData.id!, formData);
         const app = apps.find(a => a.id === updated.appId);
         setChangelogs(changelogs.map((c) => (c.id === updated.id ? { ...updated, appName: app?.name } : c)));
-        toast.success('บันทึก changelog สำเร็จ');
+        toast.success(t('admin.toast.changelogSaved'));
       }
       setMode('list');
       setFormData(emptyChangelog);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'เกิดข้อผิดพลาด');
+      toast.error(err instanceof Error ? err.message : t('common.error'));
     } finally {
       setSaving(false);
     }
@@ -166,21 +160,21 @@ export function AdminChangelogsPage() {
             </svg>
           </button>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-            {mode === 'create' ? 'เพิ่ม Changelog ใหม่' : 'แก้ไข Changelog'}
+            {mode === 'create' ? t('admin.addNewChangelog') : t('admin.editChangelog')}
           </h1>
         </div>
 
         <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 max-w-2xl">
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">แอป *</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('admin.table.app')} *</label>
               <select
                 value={formData.appId || ''}
                 onChange={(e) => setFormData({ ...formData, appId: e.target.value })}
                 className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                 required
               >
-                <option value="">เลือกแอป</option>
+                <option value="">{t('admin.form.selectApp')}</option>
                 {apps.map((app) => (
                   <option key={app.id} value={app.id}>
                     {app.name}
@@ -191,18 +185,18 @@ export function AdminChangelogsPage() {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">เวอร์ชัน *</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('admin.form.version')} *</label>
                 <input
                   type="text"
                   value={formData.version || ''}
                   onChange={(e) => setFormData({ ...formData, version: e.target.value })}
                   className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                  placeholder="เช่น 1.0.0, 2.5.3"
+                  placeholder="1.0.0, 2.5.3"
                   required
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">วันที่ออก *</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('admin.form.releaseDate')} *</label>
                 <input
                   type="date"
                   value={formData.releaseDate || ''}
@@ -214,61 +208,57 @@ export function AdminChangelogsPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">ประเภทการอัปเดต *</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('admin.form.changeType')} *</label>
               <select
                 value={formData.changeType || 'update'}
                 onChange={(e) => setFormData({ ...formData, changeType: e.target.value as DbChangelog['changeType'] })}
                 className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
               >
-                <option value="major">Major Update</option>
-                <option value="minor">Minor Update</option>
-                <option value="patch">Patch</option>
-                <option value="security">Security Fix</option>
-                <option value="update">Update</option>
+                <option value="major">{t('admin.changeTypes.major')}</option>
+                <option value="minor">{t('admin.changeTypes.minor')}</option>
+                <option value="patch">{t('admin.changeTypes.patch')}</option>
+                <option value="security">{t('admin.changeTypes.security')}</option>
+                <option value="update">{t('admin.changeTypes.update')}</option>
               </select>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">ชื่อเรื่อง *</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('admin.form.changeTitle')} *</label>
               <input
                 type="text"
                 value={formData.title || ''}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                 className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                placeholder="สรุปสั้นๆ เกี่ยวกับการอัปเดต"
+                placeholder={t('admin.form.changeTitlePlaceholder')}
                 required
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">รายละเอียด</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('admin.form.changeDescription')}</label>
               <textarea
                 value={formData.description || ''}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                 rows={3}
-                placeholder="รายละเอียดเพิ่มเติมเกี่ยวกับการเปลี่ยนแปลง"
               />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                การเปลี่ยนแปลง (บรรทัดละรายการ)
+                {t('admin.form.changes')}
               </label>
               <textarea
                 value={formData.changes || ''}
                 onChange={(e) => setFormData({ ...formData, changes: e.target.value })}
                 className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 font-mono text-sm"
                 rows={5}
-                placeholder="- เพิ่มฟีเจอร์ใหม่ X&#10;- แก้ไขบัก Y&#10;- ปรับปรุงประสิทธิภาพ Z"
+                placeholder={t('admin.form.changesPlaceholder')}
               />
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                ใส่รายการเปลี่ยนแปลง บรรทัดละรายการ ขึ้นต้นด้วย - สำหรับ bullet points
-              </p>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">ลิงก์ดาวน์โหลด</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('admin.form.downloadLink')}</label>
               <input
                 type="url"
                 value={formData.downloadUrl || ''}
@@ -287,7 +277,7 @@ export function AdminChangelogsPage() {
                 className="rounded border-gray-300 dark:border-gray-600 text-indigo-600 focus:ring-indigo-500"
               />
               <label htmlFor="isHighlighted" className="text-sm text-gray-700 dark:text-gray-300">
-                ไฮไลท์การอัปเดตนี้ (แสดงเป็นรายการเด่น)
+                {t('admin.form.highlightUpdate')}
               </label>
             </div>
           </div>
@@ -298,14 +288,14 @@ export function AdminChangelogsPage() {
               disabled={saving}
               className="bg-indigo-600 text-white px-6 py-2.5 rounded-xl font-medium hover:bg-indigo-700 disabled:opacity-50"
             >
-              {saving ? 'กำลังบันทึก...' : 'บันทึก'}
+              {saving ? t('admin.form.saving') : t('admin.form.save')}
             </button>
             <button
               type="button"
               onClick={handleCancel}
               className="bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-6 py-2.5 rounded-xl font-medium hover:bg-gray-300 dark:hover:bg-gray-600"
             >
-              ยกเลิก
+              {t('admin.form.cancel')}
             </button>
           </div>
         </form>
@@ -317,7 +307,7 @@ export function AdminChangelogsPage() {
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">จัดการ Changelog</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{t('admin.manageChangelogs')}</h1>
         <button
           onClick={handleCreate}
           className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2.5 rounded-xl font-medium hover:bg-indigo-700"
@@ -325,7 +315,7 @@ export function AdminChangelogsPage() {
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
           </svg>
-          เพิ่ม Changelog ใหม่
+          {t('admin.addNewChangelog')}
         </button>
       </div>
 
@@ -336,7 +326,7 @@ export function AdminChangelogsPage() {
           onChange={(e) => setFilterAppId(e.target.value)}
           className="border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
         >
-          <option value="">ทุกแอป</option>
+          <option value="">{t('admin.allApps')}</option>
           {apps.map((app) => (
             <option key={app.id} value={app.id}>
               {app.name}
@@ -346,59 +336,72 @@ export function AdminChangelogsPage() {
       </div>
 
       {filteredChangelogs.length === 0 ? (
-        <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-8 text-center text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-gray-700">
-          ไม่พบ changelog เพิ่ม changelog แรกของคุณ!
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-12 text-center">
+          <svg className="w-16 h-16 mx-auto text-gray-300 dark:text-gray-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          <p className="text-gray-900 dark:text-gray-100 text-lg font-medium mb-1">{t('admin.empty.changelogs.title')}</p>
+          <p className="text-gray-500 dark:text-gray-400 mb-6">{t('admin.empty.changelogs.description')}</p>
+          <button
+            onClick={handleCreate}
+            className="inline-flex items-center gap-2 bg-indigo-600 text-white px-4 py-2.5 rounded-xl font-medium hover:bg-indigo-700"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            {t('admin.addNewChangelog')}
+          </button>
         </div>
       ) : (
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
           <table className="w-full">
             <thead className="bg-gray-50 dark:bg-gray-900">
               <tr>
-                <th className="text-left px-6 py-4 text-sm font-medium text-gray-500 dark:text-gray-400">แอป</th>
-                <th className="text-left px-6 py-4 text-sm font-medium text-gray-500 dark:text-gray-400">เวอร์ชัน</th>
-                <th className="text-left px-6 py-4 text-sm font-medium text-gray-500 dark:text-gray-400">ประเภท</th>
-                <th className="text-left px-6 py-4 text-sm font-medium text-gray-500 dark:text-gray-400">ชื่อเรื่อง</th>
-                <th className="text-left px-6 py-4 text-sm font-medium text-gray-500 dark:text-gray-400">วันที่</th>
-                <th className="text-left px-6 py-4 text-sm font-medium text-gray-500 dark:text-gray-400">จัดการ</th>
+                <th className="text-left px-6 py-4 text-sm font-medium text-gray-500 dark:text-gray-400">{t('admin.table.app')}</th>
+                <th className="text-left px-6 py-4 text-sm font-medium text-gray-500 dark:text-gray-400">{t('admin.table.version')}</th>
+                <th className="text-left px-6 py-4 text-sm font-medium text-gray-500 dark:text-gray-400">{t('admin.table.type')}</th>
+                <th className="text-left px-6 py-4 text-sm font-medium text-gray-500 dark:text-gray-400">{t('admin.table.title')}</th>
+                <th className="text-left px-6 py-4 text-sm font-medium text-gray-500 dark:text-gray-400">{t('admin.table.date')}</th>
+                <th className="text-left px-6 py-4 text-sm font-medium text-gray-500 dark:text-gray-400">{t('admin.table.actions')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
               {filteredChangelogs.map((changelog) => (
                 <tr key={changelog.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
                   <td className="px-6 py-4">
-                    <span className="font-medium text-gray-900 dark:text-gray-100">{changelog.appName || 'ไม่ทราบ'}</span>
+                    <span className="font-medium text-gray-900 dark:text-gray-100">{changelog.appName || '-'}</span>
                   </td>
                   <td className="px-6 py-4 font-mono text-sm text-gray-600 dark:text-gray-300">
                     v{changelog.version}
                     {changelog.isHighlighted && (
-                      <span className="ml-2 text-yellow-500" title="ไฮไลท์">
+                      <span className="ml-2 text-yellow-500" title="Highlighted">
                         ★
                       </span>
                     )}
                   </td>
                   <td className="px-6 py-4">
                     <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${changeTypeBadgeColors[changelog.changeType]}`}>
-                      {changeTypeLabels[changelog.changeType]}
+                      {t(`admin.changeTypes.${changelog.changeType}`)}
                     </span>
                   </td>
                   <td className="px-6 py-4 text-gray-900 dark:text-gray-100 max-w-xs truncate" title={changelog.title}>
                     {changelog.title}
                   </td>
                   <td className="px-6 py-4 text-gray-500 dark:text-gray-400">
-                    {new Date(changelog.releaseDate).toLocaleDateString('th-TH')}
+                    {new Date(changelog.releaseDate).toLocaleDateString()}
                   </td>
                   <td className="px-6 py-4">
                     <button
                       onClick={() => handleEdit(changelog)}
                       className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 mr-4"
                     >
-                      แก้ไข
+                      {t('admin.actions.edit')}
                     </button>
                     <button
                       onClick={() => handleDelete(changelog.id, changelog.title)}
                       className="text-rose-600 dark:text-rose-400 hover:text-rose-800 dark:hover:text-rose-300"
                     >
-                      ลบ
+                      {t('admin.actions.delete')}
                     </button>
                   </td>
                 </tr>
