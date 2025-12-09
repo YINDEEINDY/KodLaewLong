@@ -12,26 +12,38 @@ declare global {
 }
 
 export function useRecaptcha() {
-  // Initialize as loaded if no site key (skip reCAPTCHA)
+  // Initialize as loaded if no site key or script already loaded
   const [isLoaded, setIsLoaded] = useState(() => {
     if (!RECAPTCHA_SITE_KEY) {
       console.warn('[reCAPTCHA] VITE_RECAPTCHA_SITE_KEY not configured, skipping reCAPTCHA');
+      return true;
+    }
+    // Check if script already loaded
+    if (typeof window !== 'undefined' && document.querySelector(`script[src*="recaptcha"]`) && window.grecaptcha) {
       return true;
     }
     return false;
   });
 
   useEffect(() => {
-    // Skip if no site key configured
-    if (!RECAPTCHA_SITE_KEY) {
+    // Skip if no site key configured or already loaded
+    if (!RECAPTCHA_SITE_KEY || isLoaded) {
       return;
     }
 
-    // Check if script already exists
+    // Check if script already exists but grecaptcha not ready yet
     if (document.querySelector(`script[src*="recaptcha"]`)) {
-      if (window.grecaptcha) {
-        setIsLoaded(true);
-      }
+      // Wait for grecaptcha to be ready via the callback pattern
+      const checkReady = () => {
+        if (window.grecaptcha) {
+          window.grecaptcha.ready(() => {
+            setIsLoaded(true);
+          });
+        } else {
+          setTimeout(checkReady, 100);
+        }
+      };
+      checkReady();
       return;
     }
 
@@ -58,7 +70,7 @@ export function useRecaptcha() {
     return () => {
       // Cleanup is optional since we want to keep the script loaded
     };
-  }, []);
+  }, [isLoaded]);
 
   const executeRecaptcha = useCallback(
     async (action: string): Promise<string | null> => {

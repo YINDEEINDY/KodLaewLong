@@ -30,17 +30,6 @@ export default function ProfilePage() {
     }
   }, [user, loading, navigate]);
 
-  // Sync state when user data changes (e.g., after refresh)
-  useEffect(() => {
-    if (user) {
-      const newDisplayName = user.user_metadata?.display_name || '';
-      const newAvatarUrl = user.user_metadata?.avatar_url || '';
-      // Only update if values changed to avoid unnecessary re-renders
-      setDisplayName((prev: string) => prev !== newDisplayName ? newDisplayName : prev);
-      setAvatarUrl((prev: string) => prev !== newAvatarUrl ? newAvatarUrl : prev);
-    }
-  }, [user]);
-
   const handleProfileUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);

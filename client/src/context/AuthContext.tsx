@@ -28,12 +28,17 @@ interface AuthProviderProps {
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
+  // If supabase is not initialized, start with loading = false
+  const [loading, setLoading] = useState(() => {
+    if (!supabase) {
+      console.error('[Auth] Supabase client not initialized');
+      return false;
+    }
+    return true;
+  });
 
   useEffect(() => {
     if (!supabase) {
-      console.error('[Auth] Supabase client not initialized');
-      setLoading(false);
       return;
     }
 
